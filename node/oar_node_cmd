@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+OAR_SSHD_CONF="/etc/oar/sshd_config"
+PIDFILE="/var/run/$NAME_sshd.pid"
+SSHD_OPTS="-D -f $OAR_SSHD_CONF -o PidFile=$PIDFILE"
+
+if [[ ! -e /etc/oar/oar_ssh_host_rsa_key ]]; then
+    ssh-keygen -t rsa -f /etc/oar/oar_ssh_host_rsa_key -N ''
+fi
+
+if [[ ! -e /etc/oar/oar_ssh_host_dsa_key ]]; then
+    ssh-keygen -t dsa -f /etc/oar/oar_ssh_host_dsa_key -N ''
+fi
+
+/usr/sbin/sshd $SSHD_OPTS

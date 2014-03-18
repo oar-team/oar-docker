@@ -1,0 +1,16 @@
+#!/bin/bash
+
+IP=$(ip -o -4 addr list eth0 | perl -n -e 'if (m{inet\s([\d\.]+)\/\d+\s}xms) { print $1 }')
+echo "NAMESERVER_IP=$IP"
+
+sed -i s/__LOCAL_IP__/$IP/ /etc/dnsmasq.conf
+
+dnsmasq
+
+EVENTS="CREATE,CLOSE_WRITE,DELETE,MODIFY,MOVED_FROM,MOVED_TO"
+while [ 1 ];
+do
+    inotifywait -e "$EVENTS" -r --format '%:e %f' /etc/dnsmasq.d
+    echo "Restarting dnsmasq"
+    pkill dnsmasq ; dnsmasq
+done
