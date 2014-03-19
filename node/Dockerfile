@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND noninteractive
 ## Prepare packages
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
-    perl perl-base openssh-client openssh-server build-essential cgroup-bin
+    perl perl-base openssh-client openssh-server build-essential
 
 ## Install OAR node
 RUN wget -q https://github.com/oar-team/oar/archive/$OAR_VERSION.tar.gz -O /tmp/oar-$OAR_VERSION.tar.gz
