@@ -1,24 +1,14 @@
 #!/bin/bash
-set -e
+set -o errexit
 
 BASEDIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 VERSION=$(cat $BASEDIR/version.txt)
 
-source $BASEDIR/scripts/manager_oarcluster.sh
+docker build -t oarcluster/base $BASEDIR/base/
+docker build -t oarcluster/dnsmasq $BASEDIR/dnsmasq/
 
-# nameserver
-docker build -t oarcluster/dnsmasq ./dnsmasq/
-
-# base image
-docker build -t oarcluster/base ./base/
-
-# server
-docker build -t oarcluster/server:${VERSION} ./server/
-
-# frontend
-docker build -t oarcluster/frontend:${VERSION} ./frontend/
-
-# node
-docker build -t oarcluster/node:${VERSION} ./node/
-
-cleanup_intermediate_images
+NODES=("frontend" "node" "server")
+for image in ${NODES[@]}; do
+    docker build -t oarcluster/$image:${VERSION} $BASEDIR/$image/ -rm
+    docker tag oarcluster/$image:${VERSION} oarcluster/$image:latest
+done
