@@ -13,14 +13,15 @@ HTTP_FRONTEND_PORT=
 
 function cleanup_all_containers() {
     echo "Cleanup old containers"
-    docker ps -a | grep "oarcluster" | awk '{print $1}' | xargs -I {} docker rm -f {}
+    docker ps -a | grep "oarcluster" | awk '{print $1}' | xargs docker stop
+    docker ps -a | grep "oarcluster" | awk '{print $1}' | xargs docker rm
     echo "OK"
 }
 
 
 function cleanup_intermediate_images() {
     echo "Cleanup intermediate images"
-    docker images | grep "<none>" | awk '{print $3}' | xargs -I {} docker rmi -f {}
+    docker images | grep "<none>" | awk '{print $3}' | xargs docker rmi
     echo "OK"
 }
 
@@ -28,7 +29,8 @@ function cleanup_intermediate_images() {
 function start_dns() {
     mkdir -p $DNSDIR
     echo > $DNSFILE
-    DNS_CID=$(docker run -d -h dns --name oarcluster_dns -v $DNSDIR:/etc/dnsmasq.d $1)
+    DNS_CID=$(docker run --dns 127.0.0.1 -d -h dns \
+              --name oarcluster_dns -v $DNSDIR:/etc/dnsmasq.d $1)
     if [ "$DNS_CID" = "" ]; then
         echo "error: could not start dns container from image $1"
         exit 1
