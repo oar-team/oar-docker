@@ -28,7 +28,8 @@ function cleanup_intermediate_images() {
 function start_dns() {
     mkdir -p $DNSDIR
     echo > $DNSFILE
-    DNS_CID=$(docker run -d -h dns --name oarcluster_dns -v $DNSDIR:/etc/dnsmasq.d $1)
+    DNS_CID=$(docker run --dns 127.0.0.1 -d -h dns \
+              --name oarcluster_dns -v $DNSDIR:/etc/dnsmasq.d $1)
     if [ "$DNS_CID" = "" ]; then
         echo "error: could not start dns container from image $1"
         exit 1
