@@ -35,8 +35,16 @@ htpasswd -b /etc/oar/api-users oar docker
 ## Visualization tools
 sed -e "s/^\(DB_BASE_LOGIN_RO.*\)oar.*/\1oar_ro/" -i /etc/oar/drawgantt.conf
 sed -e "s/^\(DB_BASE_PASSWD_RO.*\)oar.*/\1oar_ro/" -i /etc/oar/drawgantt.conf
-sed -e 's/^\(username\) ?\=.*/\1 = oar_ro/' -i /etc/oar/monika.conf
-sed -e 's/^\(password\) ?\=.*/\1 = oar_ro/' -i /etc/oar/monika.conf
+sed -e "s/^\(DB_TYPE.*\)mysql.*/\1Pg/" -i /etc/oar/drawgantt.conf
+sed -e "s/^\(DB_PORT.*\)3306.*/\15432/" -i /etc/oar/drawgantt.conf
+sed -e "s/^\(DB_HOSTNAME.*\)localhost.*/\1server/" -i /etc/oar/drawgantt.conf
+
+sed -e "s/^\(username.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
+sed -e "s/^\(password.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
+sed -e "s/^\(dbtype.*\)mysql.*/\1psql/" -i /etc/oar/monika.conf
+sed -e "s/^\(dbport.*\)3306.*/\15432/" -i /etc/oar/monika.conf
+sed -e "s/^\(hostname.*\)localhost.*/\1server/" -i /etc/oar/monika.conf
+
 
 # Edit oar.conf
 sed -e 's/^LOG_LEVEL\=\"2\"/LOG_LEVEL\=\"3\"/' -i /etc/oar/oar.conf
