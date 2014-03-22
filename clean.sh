@@ -6,7 +6,7 @@ VERSION=$(cat $BASEDIR/version.txt)
 
 echo "Cleanup old containers"
 
-CONTAINERS=`docker ps | grep oarcluster | awk '{print $1}' | tr '\n' ' '`
+CONTAINERS=`docker ps -a | grep oarcluster | awk '{print $1}' | tr '\n' ' '`
 CONTAINERS=($CONTAINERS)
 for container in "${CONTAINERS[@]}"; do
     docker kill "$container"
