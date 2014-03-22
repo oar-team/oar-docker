@@ -15,7 +15,9 @@ RUN apt-get install -y \
     libgd-ruby1.8 libdbi-perl libtie-ixhash-perl libappconfig-perl \
     php5-pgsql libapache2-mod-php5 libwww-perl apache2-mpm-prefork \
     libcgi-fast-perl libapache2-mod-fastcgi \
-    ruby-rest-client libdbd-pg-ruby ruby-rest-client
+    librestclient-ruby1.8 libdbd-pg-ruby1.8 ruby1.8 rubygems1.8 ruby-switch
+
+RUN ruby-switch --set ruby1.8
 
 ## Install OAR frontend node
 RUN wget -q https://github.com/oar-team/oar/archive/$OAR_VERSION.tar.gz -O /tmp/oar-$OAR_VERSION.tar.gz
@@ -30,7 +32,8 @@ RUN /tmp/configure_frontend.sh
 
 ## Install chandler
 RUN wget -q https://rubygems.org/downloads/naturalsort-1.1.1.gem -O /tmp/naturalsort-1.1.1.gem
-RUN gem install /tmp/naturalsort-1.1.1.gem
+RUN wget -q https://rubygems.org/downloads/json-1.8.1.gem -O /tmp/json-1.8.1.gem
+RUN gem install /tmp/naturalsort-1.1.1.gem /tmp/json-1.8.1.gem --no-ri --no-rdoc
 ADD chandler.rb /usr/local/bin/chandler
 RUN chmod +x /usr/local/bin/chandler
 
