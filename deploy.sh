@@ -110,7 +110,7 @@ Host *
   IdentitiesOnly yes
   LogLevel FATAL
   ForwardAgent yes
-  ControlPath ~/.ssh/master-%l-%r@%h:%p
+  ControlPath $(dirname $SSH_KEY)/master-%l-%r@%h:%p
   ControlMaster auto
   Compression yes
   Protocol 2
