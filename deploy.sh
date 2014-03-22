@@ -3,13 +3,14 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+WORKDIR=/tmp/oarcluster
 BASEDIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 VERSION=$(cat $BASEDIR/version.txt)
 
-SSH_CONFIG="/tmp/oarcluster_ssh_config"
-SSH_KEY="/tmp/oarcluster_ssh_insecure_key"
+SSH_CONFIG="$WORKDIR/ssh_config"
+SSH_KEY="$WORKDIR/ssh_insecure_key"
 DNS_IP=
-DNSDIR="/tmp/oarcluster_dnsmasq.d"
+DNSDIR="$WORKDIR/dnsmasq.d"
 DNSFILE="${DNSDIR}/0hosts"
 SSH_SERVER_PORT=
 SSH_FRONTEND_PORT=
