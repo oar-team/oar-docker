@@ -12,9 +12,9 @@ SSH_KEY="$WORKDIR/ssh_insecure_key"
 DNS_IP=
 DNSDIR="$WORKDIR/dnsmasq.d"
 DNSFILE="${DNSDIR}/0hosts"
-SSH_SERVER_PORT=
-SSH_FRONTEND_PORT=
-HTTP_FRONTEND_PORT=
+SSH_SERVER_PORT=49217
+SSH_FRONTEND_PORT=49218
+HTTP_FRONTEND_PORT=48080
 VOLUME_MAP=
 NUM_NODES=
 CONNECT_SSH=
@@ -36,7 +36,7 @@ start_dns() {
         fail "error: could not start dns container from image $image"
     fi
 
-    echo "oarcluster_dns : $DNS_CID"
+    echo "Started oarcluster_dns : $DNS_CID"
 
     DNS_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $DNS_CID)
     echo "address=\"/dns/$DNS_IP\"" >> $DNSFILE
@@ -46,16 +46,14 @@ start_server() {
     image="oarcluster/server:latest"
     SERVER_CID=$(docker run -d -t --dns $DNS_IP -h server \
                  --env "NUM_NODES=$NUM_NODES" --name oarcluster_server \
-                 -p 127.0.0.1::22 $VOLUME_MAP $image \
+                 -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUME_MAP $image \
                  --enable-insecure-key)
-
-    SSH_SERVER_PORT=$(docker port $SERVER_CID 22 | cut -d':' -f2)
 
     if [ "$SERVER_CID" = "" ]; then
         fail "error: could not start server container from image $image"
     fi
 
-    echo "oarcluster_server : $SERVER_CID"
+    echo "Started oarcluster_server : $SERVER_CID"
     SERVER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $SERVER_CID)
     echo "address=\"/server/$SERVER_IP\"" >> $DNSFILE
 }
@@ -64,15 +62,15 @@ start_frontend() {
     image="oarcluster/frontend:latest"
     FRONTEND_CID=$(docker run -d -t --dns $DNS_IP -h frontend \
                    --env "NUM_NODES=$NUM_NODES" --name oarcluster_frontend \
-                   -p 127.0.0.1::22 -p 127.0.0.1::80 $VOLUME_MAP $image \
+                   -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
+                   -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 \
+                   $VOLUME_MAP $image \
                    --enable-insecure-key)
 
-    SSH_FRONTEND_PORT=$(docker port $FRONTEND_CID 22 | cut -d':' -f2)
-    HTTP_FRONTEND_PORT=$(docker port $FRONTEND_CID 80 | cut -d':' -f2)
     if [ "$FRONTEND_CID" = "" ]; then
         fail "error: could not start frontend container from image $image"
     fi
-    echo "oarcluster_frontend : $FRONTEND_CID"
+    echo "Started oarcluster_frontend : $FRONTEND_CID"
     FRONTEND_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $FRONTEND_CID)
     echo "address=\"/frontend/$FRONTEND_IP\"" >> $DNSFILE
 }
@@ -90,7 +88,7 @@ start_nodes() {
             fail "error: could not start node container from image $image"
         fi
 
-        echo "oarcluster_$hostname : $NODE_CID"
+        echo "Started oarcluster_$hostname : $NODE_CID"
         NODE_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $NODE_CID)
         echo "address=\"/$hostname/$NODE_IP\"" >> $DNSFILE
     done
