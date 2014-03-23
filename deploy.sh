@@ -1,7 +1,5 @@
 #!/bin/bash
 set -o errexit
-set -o nounset
-set -o pipefail
 
 WORKDIR=/tmp/oarcluster
 BASEDIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
@@ -174,6 +172,7 @@ if [[ "$#" -eq 0 ]] || [[ -z "$NUM_NODES" ]]; then
     fail "You must indicate number of nodes"
 fi
 
+source $BASEDIR/clean.sh
 start_dns
 start_server
 start_frontend
