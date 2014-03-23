@@ -125,7 +125,7 @@ print_cluster_info() {
     echo ""
     echo "***********************************************************************"
     echo ""
-    echo "API  : http://localhost:$HTTP_FRONTEND_PORT/"
+    echo "API  : http://localhost:$HTTP_FRONTEND_PORT/oarapi/"
     echo "Monika : http://localhost:$HTTP_FRONTEND_PORT/monika"
     echo "Drawgantt : http://localhost:$HTTP_FRONTEND_PORT/drawgantt"
     echo ""
