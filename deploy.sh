@@ -128,6 +128,7 @@ print_cluster_info() {
     echo "API  : http://localhost:$HTTP_FRONTEND_PORT/oarapi/"
     echo "Monika : http://localhost:$HTTP_FRONTEND_PORT/monika"
     echo "Drawgantt : http://localhost:$HTTP_FRONTEND_PORT/drawgantt-svg"
+    echo "PhpPgAdmin : http://localhost:$HTTP_FRONTEND_PORT/phppgadmin"
     echo ""
     echo "SSH  : ssh -F $SSH_CONFIG frontend"
     echo "       ssh -F $SSH_CONFIG server"

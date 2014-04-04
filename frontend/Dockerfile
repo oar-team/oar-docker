@@ -21,6 +21,10 @@ RUN ruby-switch --set ruby1.8
 
 # Install php
 RUN apt-get install -y php5 libapache2-mod-php5 php5-mcrypt php5-pgsql
+
+# Install phppgadmin
+RUN apt-get install -y phppgadmin
+
 ## Install OAR frontend node
 RUN wget -q https://github.com/oar-team/oar/archive/$OAR_VERSION.tar.gz -O /tmp/oar-$OAR_VERSION.tar.gz
 RUN tar xf /tmp/oar-$OAR_VERSION.tar.gz -C /tmp/
