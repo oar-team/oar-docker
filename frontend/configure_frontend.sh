@@ -32,13 +32,6 @@ ln -sf /etc/oar/apache2/oar-restful-api-priv.conf /etc/apache2/conf.d/oar-restfu
 htpasswd -b -c /etc/oar/api-users docker docker
 htpasswd -b /etc/oar/api-users oar docker
 
-## Visualization tools
-sed -e "s/^\(DB_BASE_LOGIN_RO.*\)oar.*/\1oar_ro/" -i /etc/oar/drawgantt.conf
-sed -e "s/^\(DB_BASE_PASSWD_RO.*\)oar.*/\1oar_ro/" -i /etc/oar/drawgantt.conf
-sed -e "s/^\(DB_TYPE.*\)mysql.*/\1Pg/" -i /etc/oar/drawgantt.conf
-sed -e "s/^\(DB_PORT.*\)3306.*/\15432/" -i /etc/oar/drawgantt.conf
-sed -e "s/^\(DB_HOSTNAME.*\)localhost.*/\1server/" -i /etc/oar/drawgantt.conf
-
 sed -e "s/^\(username.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
 sed -e "s/^\(password.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
 sed -e "s/^\(dbtype.*\)mysql.*/\1psql/" -i /etc/oar/monika.conf
@@ -60,3 +53,17 @@ sed -e 's/^\(DB_BASE_PASSWD\)=.*/\1="oar"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DB_BASE_LOGIN\)=.*/\1="oar"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DB_BASE_PASSWD_RO\)=.*/\1="oar_ro"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DB_BASE_LOGIN_RO\)=.*/\1="oar_ro"/' -i /etc/oar/oar.conf
+
+## Visualization tools
+# Configure drawgantt-svg
+sed -i "s/\$CONF\['db_type'\]=\"mysql\"/\$CONF\['db_type'\]=\"pg\"/g" /etc/oar/drawgantt-config.inc.php
+sed -i "s/\$CONF\['db_server'\]=\"127.0.0.1\"/\$CONF\['db_server'\]=\"server\"/g" /etc/oar/drawgantt-config.inc.php
+sed -i "s/\$CONF\['db_port'\]=\"3306\"/\$CONF\['db_port'\]=\"5432\"/g" /etc/oar/drawgantt-config.inc.php
+sed -i "s/\"My OAR resources\"/\"Docker oarcluster resources\"/g" /etc/oar/drawgantt-config.inc.php
+
+# Configure drawgantt
+# sed -e "s/^\(DB_BASE_LOGIN_RO.*\)oar.*/\1oar_ro/" -i /etc/oar/drawgantt.conf
+# sed -e "s/^\(DB_BASE_PASSWD_RO.*\)oar.*/\1oar_ro/" -i /etc/oar/drawgantt.conf
+# sed -e "s/^\(DB_TYPE.*\)mysql.*/\1Pg/" -i /etc/oar/drawgantt.conf
+# sed -e "s/^\(DB_PORT.*\)3306.*/\15432/" -i /etc/oar/drawgantt.conf
+# sed -e "s/^\(DB_HOSTNAME.*\)localhost.*/\1server/" -i /etc/oar/drawgantt.conf

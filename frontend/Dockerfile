@@ -13,19 +13,21 @@ RUN apt-get install -y \
     libsort-versions-perl libsort-naturally-perl taktuk build-essential \
     postgresql-client libdbd-pg-perl libjson-perl libyaml-perl \
     libgd-ruby1.8 libdbi-perl libtie-ixhash-perl libappconfig-perl \
-    php5-pgsql libapache2-mod-php5 libwww-perl apache2-mpm-prefork \
+    libwww-perl apache2-mpm-prefork \
     libcgi-fast-perl libapache2-mod-fastcgi \
     librestclient-ruby1.8 libdbd-pg-ruby1.8 ruby1.8 rubygems1.8 ruby-switch
 
 RUN ruby-switch --set ruby1.8
 
+# Install php
+RUN apt-get install -y php5 libapache2-mod-php5 php5-mcrypt php5-pgsql
 ## Install OAR frontend node
 RUN wget -q https://github.com/oar-team/oar/archive/$OAR_VERSION.tar.gz -O /tmp/oar-$OAR_VERSION.tar.gz
 RUN tar xf /tmp/oar-$OAR_VERSION.tar.gz -C /tmp/
 
 RUN make -C /tmp/oar-$OAR_VERSION/ PREFIX=/usr/local user-build tools-build
-RUN make -C /tmp/oar-$OAR_VERSION/ PREFIX=/usr/local user-install drawgantt-install monika-install www-conf-install api-install tools-install
-RUN make -C /tmp/oar-$OAR_VERSION/ PREFIX=/usr/local user-setup drawgantt-setup monika-setup www-conf-setup api-setup tools-setup
+RUN make -C /tmp/oar-$OAR_VERSION/ PREFIX=/usr/local user-install drawgantt-svg-install monika-install www-conf-install api-install tools-install
+RUN make -C /tmp/oar-$OAR_VERSION/ PREFIX=/usr/local user-setup drawgantt-svg-setup monika-setup www-conf-setup api-setup tools-setup
 
 ADD configure_frontend.sh /tmp/configure_frontend.sh
 RUN /tmp/configure_frontend.sh
