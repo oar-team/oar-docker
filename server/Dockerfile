@@ -13,13 +13,15 @@ RUN apt-get install -y --no-install-recommends \
     libsort-versions-perl taktuk build-essential \
     postgresql postgresql-client libdbd-pg-perl
 
-## Install OAR node
-RUN wget -q https://github.com/oar-team/oar/archive/$OAR_VERSION.tar.gz -O /tmp/oar-$OAR_VERSION.tar.gz
-RUN tar xf /tmp/oar-$OAR_VERSION.tar.gz -C /tmp/
 
-RUN make -C /tmp/oar-$OAR_VERSION/ PREFIX=/usr/local server-build
-RUN make -C /tmp/oar-$OAR_VERSION/ PREFIX=/usr/local server-install
-RUN make -C /tmp/oar-$OAR_VERSION/ PREFIX=/usr/local server-setup
+ADD version.txt /tmp/version.txt
+## Install OAR node
+RUN wget -q https://github.com/oar-team/oar/archive/$(cat /tmp/version.txt).tar.gz -O /tmp/oar-$(cat /tmp/version.txt).tar.gz
+RUN tar xf /tmp/oar-$(cat /tmp/version.txt).tar.gz -C /tmp/
+
+RUN make -C /tmp/oar-$(cat /tmp/version.txt)/ PREFIX=/usr/local server-build
+RUN make -C /tmp/oar-$(cat /tmp/version.txt)/ PREFIX=/usr/local server-install
+RUN make -C /tmp/oar-$(cat /tmp/version.txt)/ PREFIX=/usr/local server-setup
 
 ADD job_resource_manager.pl /etc/oar/job_resource_manager.pl
 

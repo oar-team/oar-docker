@@ -9,6 +9,7 @@ docker build --rm -t oarcluster/dnsmasq $BASEDIR/dnsmasq/
 
 NODES=("frontend" "node" "server")
 for image in "${NODES[@]}"; do
+    echo "$VERSION" > $BASEDIR/$image/version.txt
     docker build --rm -t oarcluster/$image:${VERSION} $BASEDIR/$image/
     docker tag oarcluster/$image:${VERSION} oarcluster/$image:latest
 done

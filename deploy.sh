@@ -80,7 +80,7 @@ start_nodes() {
         NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP \
                    --name oarcluster_$hostname \
                    -h $hostname $VOLUME_MAP $image \
-                   /sbin/my_init --enable-insecure-key)
+                   /sbin/my_init /sbin/oar_node_cmd --enable-insecure-key)
 
         if [ "$NODE_CID" = "" ]; then
             fail "error: could not start node container from image $image"

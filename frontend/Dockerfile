@@ -1,7 +1,6 @@
 FROM oarcluster/base
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
-ENV OAR_VERSION 2.5
 ENV HOME /root
 ENV LC_ALL C
 ENV DEBIAN_FRONTEND noninteractive
@@ -25,13 +24,14 @@ RUN apt-get install -y php5 libapache2-mod-php5 php5-mcrypt php5-pgsql
 # Install phppgadmin
 RUN apt-get install -y phppgadmin
 
+ADD version.txt /tmp/version.txt
 ## Install OAR frontend node
-RUN wget -q https://github.com/oar-team/oar/archive/$OAR_VERSION.tar.gz -O /tmp/oar-$OAR_VERSION.tar.gz
-RUN tar xf /tmp/oar-$OAR_VERSION.tar.gz -C /tmp/
+RUN wget -q https://github.com/oar-team/oar/archive/$(cat /tmp/version.txt).tar.gz -O /tmp/oar-$(cat /tmp/version.txt).tar.gz
+RUN tar xf /tmp/oar-$(cat /tmp/version.txt).tar.gz -C /tmp/
 
-RUN make -C /tmp/oar-$OAR_VERSION/ PREFIX=/usr/local user-build tools-build
-RUN make -C /tmp/oar-$OAR_VERSION/ PREFIX=/usr/local user-install drawgantt-svg-install monika-install www-conf-install api-install tools-install
-RUN make -C /tmp/oar-$OAR_VERSION/ PREFIX=/usr/local user-setup drawgantt-svg-setup monika-setup www-conf-setup api-setup tools-setup
+RUN make -C /tmp/oar-$(cat /tmp/version.txt)/ PREFIX=/usr/local user-build tools-build
+RUN make -C /tmp/oar-$(cat /tmp/version.txt)/ PREFIX=/usr/local user-install drawgantt-svg-install monika-install www-conf-install api-install tools-install
+RUN make -C /tmp/oar-$(cat /tmp/version.txt)/ PREFIX=/usr/local user-setup drawgantt-svg-setup monika-setup www-conf-setup api-setup tools-setup
 
 ADD configure_frontend.sh /tmp/configure_frontend.sh
 RUN /tmp/configure_frontend.sh
@@ -52,7 +52,7 @@ RUN rm -f /etc/ssh/ssh_host_*
 ADD supervisor/apache2.conf /etc/supervisor/conf.d/apache2.conf
 
 ADD motd /etc/motd
-RUN sed -i s/__OAR_VERSION__/$OAR_VERSION/ /etc/motd
+RUN sed -i s/__OAR_VERSION__/$(cat /tmp/version.txt)/ /etc/motd
 
 RUN echo "PrintMotd yes" >> /etc/ssh/sshd_config
 
