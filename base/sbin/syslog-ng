@@ -21,4 +21,4 @@ then
   mknod -m 640 /dev/xconsole p
 fi
 
-exec syslog-ng -F -p /var/run/syslog-ng.pid $SYSLOGNG_OPTS
+syslog-ng -F -p /var/run/syslog-ng.pid $SYSLOGNG_OPTS

@@ -49,8 +49,7 @@ RUN rm -rf /tmp/* /var/tmp/*
 RUN rm -f /etc/ssh/ssh_host_*
 
 ## Setup apache2 daemon.
-RUN mkdir -p /etc/service/apache2
-ADD runit/apache2 /etc/service/apache2/run
+ADD supervisor/apache2.conf /etc/supervisor/conf.d/apache2.conf
 
 ADD motd /etc/motd
 RUN sed -i s/__OAR_VERSION__/$OAR_VERSION/ /etc/motd
@@ -60,4 +59,4 @@ RUN echo "PrintMotd yes" >> /etc/ssh/sshd_config
 EXPOSE 22
 EXPOSE 80
 
-ENTRYPOINT ["/sbin/my_init"]
+CMD ["/sbin/my_init"]

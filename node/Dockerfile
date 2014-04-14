@@ -25,5 +25,6 @@ RUN rm -rf /tmp/* /var/tmp/*
 RUN rm -f /etc/ssh/ssh_host_*
 
 ADD oar_node_cmd /sbin/oar_node_cmd
+RUN chmod +x /sbin/oar_node_cmd
 
-ENTRYPOINT ["/sbin/my_init", "/sbin/oar_node_cmd"]
+CMD ["/sbin/my_init", "/sbin/oar_node_cmd"]

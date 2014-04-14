@@ -36,6 +36,9 @@ RUN rm -f /etc/ssh/ssh_host_*
 RUN mkdir -p /etc/service/postgresql
 ADD runit/postgresql /etc/service/postgresql/run
 
+## Setup apache2 daemon.
+ADD supervisor/postgresql.conf /etc/supervisor/conf.d/postgresql.conf
+
 EXPOSE 22
 
 ADD oar_server_cmd /sbin/oar_server_cmd

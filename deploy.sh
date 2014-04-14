@@ -45,7 +45,7 @@ start_server() {
     SERVER_CID=$(docker run -d -t --dns $DNS_IP -h server \
                  --env "NUM_NODES=$NUM_NODES" --name oarcluster_server \
                  -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUME_MAP $image \
-                 --enable-insecure-key)
+                 /sbin/my_init --enable-insecure-key)
 
     if [ "$SERVER_CID" = "" ]; then
         fail "error: could not start server container from image $image"
@@ -63,7 +63,7 @@ start_frontend() {
                    -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
                    -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 \
                    $VOLUME_MAP $image \
-                   --enable-insecure-key)
+                   /sbin/my_init --enable-insecure-key)
 
     if [ "$FRONTEND_CID" = "" ]; then
         fail "error: could not start frontend container from image $image"
@@ -80,7 +80,7 @@ start_nodes() {
         NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP \
                    --name oarcluster_$hostname \
                    -h $hostname $VOLUME_MAP $image \
-                   --enable-insecure-key)
+                   /sbin/my_init --enable-insecure-key)
 
         if [ "$NODE_CID" = "" ]; then
             fail "error: could not start node container from image $image"
@@ -94,7 +94,7 @@ start_nodes() {
 
 
 copy_ssh_config() {
-    cp "$BASEDIR/base/insecure_key" "$SSH_KEY"
+    cp "$BASEDIR/base/config/insecure_key" "$SSH_KEY"
     chmod 600 $SSH_KEY
     chown $USER:$USER $SSH_KEY
     cat > "$SSH_CONFIG" <<< "
