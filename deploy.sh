@@ -188,7 +188,13 @@ copy_ssh_config
 print_cluster_info
 
 if [[ -n "$CONNECT_SSH" ]]; then
+    echo -n "Waiting for SSH to become available"
+    until bash -c "ssh -F "$SSH_CONFIG" frontend true" &> /dev/null
+    do
+      sleep 1
+      echo -n "."
+    done
+    echo ""
     echo "Auto connecting to the frontend..."
-    sleep 1
     ssh -F "$SSH_CONFIG" frontend
 fi
