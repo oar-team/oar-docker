@@ -166,8 +166,12 @@ parse_options() {
     done
 
     if [ ! "$VOLUME_MAP" == "" ]; then
-        echo "data volume chosen: $VOLUME_MAP"
+        echo "Data volume chosen: $VOLUME_MAP"
         VOLUME_MAP="-v $VOLUME_MAP:/data"
+    else
+        mkdir -p "${BASEDIR}/shared_data"
+        echo "Default data volume used: ${BASEDIR}/shared_data"
+        VOLUME_MAP="-v ${BASEDIR}/shared_data:/data"
     fi
 }
 
