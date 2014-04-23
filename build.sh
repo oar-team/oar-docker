@@ -1,16 +1,17 @@
 #!/bin/bash
 set -o errexit
 
+DOCKER=${DOCKER:-docker}
 BASEDIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 VERSION=$(cat $BASEDIR/version.txt)
 
-docker build --rm -t oarcluster/base $BASEDIR/base/
-docker build --rm -t oarcluster/dnsmasq $BASEDIR/dnsmasq/
+$DOCKER build --rm -t oarcluster/base $BASEDIR/base/
+$DOCKER build --rm -t oarcluster/dnsmasq $BASEDIR/dnsmasq/
 
 NODES=("frontend" "node" "server")
 for image in "${NODES[@]}"; do
     echo "$VERSION" > $BASEDIR/$image/version.txt
-    docker build --rm -t oarcluster/$image:${VERSION} $BASEDIR/$image/
-    docker tag oarcluster/$image:${VERSION} oarcluster/$image:latest
+    $DOCKER build --rm -t oarcluster/$image:${VERSION} $BASEDIR/$image/
+    $DOCKER tag oarcluster/$image:${VERSION} oarcluster/$image:latest
 done
-docker images | grep "<none>" | awk '{print $3}' | xargs -I {} docker rmi -f {}
+$DOCKER images | grep "<none>" | awk '{print $3}' | xargs -I {} $DOCKER rmi -f {}

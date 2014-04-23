@@ -1,6 +1,7 @@
 #!/bin/bash
 set -o errexit
 
+DOCKER=${DOCKER:-docker}
 WORKDIR=/tmp/oarcluster
 BASEDIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 VERSION=$(cat $BASEDIR/version.txt)
@@ -27,7 +28,7 @@ start_dns() {
     image="oarcluster/dnsmasq:latest"
     mkdir -p $DNSDIR
     echo > $DNSFILE
-    DNS_CID=$(docker run --dns 127.0.0.1 -d -h dns \
+    DNS_CID=$($DOCKER run --dns 127.0.0.1 -d -h dns \
               --name oarcluster_dns -v $DNSDIR:/etc/dnsmasq.d \
               $image)
     if [ "$DNS_CID" = "" ]; then
@@ -36,13 +37,13 @@ start_dns() {
 
     echo "Started oarcluster_dns : $DNS_CID"
 
-    DNS_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $DNS_CID)
+    DNS_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $DNS_CID)
     echo "address=\"/dns/$DNS_IP\"" >> $DNSFILE
 }
 
 start_server() {
     image="oarcluster/server:latest"
-    SERVER_CID=$(docker run -d -t --dns $DNS_IP -h server \
+    SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP -h server \
                  --env "NUM_NODES=$NUM_NODES" --name oarcluster_server \
                  -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUME_MAP $image \
                  /sbin/my_init --enable-insecure-key)
@@ -52,13 +53,13 @@ start_server() {
     fi
 
     echo "Started oarcluster_server : $SERVER_CID"
-    SERVER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $SERVER_CID)
+    SERVER_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $SERVER_CID)
     echo "address=\"/server/$SERVER_IP\"" >> $DNSFILE
 }
 
 start_frontend() {
     image="oarcluster/frontend:latest"
-    FRONTEND_CID=$(docker run -d -t --dns $DNS_IP -h frontend \
+    FRONTEND_CID=$($DOCKER run -d -t --dns $DNS_IP -h frontend \
                    --env "NUM_NODES=$NUM_NODES" --name oarcluster_frontend \
                    -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
                    -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 \
@@ -69,7 +70,7 @@ start_frontend() {
         fail "error: could not start frontend container from image $image"
     fi
     echo "Started oarcluster_frontend : $FRONTEND_CID"
-    FRONTEND_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $FRONTEND_CID)
+    FRONTEND_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $FRONTEND_CID)
     echo "address=\"/frontend/$FRONTEND_IP\"" >> $DNSFILE
 }
 
@@ -77,7 +78,7 @@ start_nodes() {
     image="oarcluster/node:latest"
     for i in `seq 1 $NUM_NODES`; do
         hostname="node${i}"
-        NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP \
+        NODE_CID=$($DOCKER run -d -t --privileged --dns $DNS_IP \
                    --name oarcluster_$hostname \
                    -h $hostname $VOLUME_MAP $image \
                    /sbin/my_init /sbin/oar_node_cmd --enable-insecure-key)
@@ -87,7 +88,7 @@ start_nodes() {
         fi
 
         echo "Started oarcluster_$hostname : $NODE_CID"
-        NODE_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $NODE_CID)
+        NODE_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $NODE_CID)
         echo "address=\"/$hostname/$NODE_IP\"" >> $DNSFILE
     done
 }
@@ -133,9 +134,9 @@ print_cluster_info() {
     echo "SSH  : ssh -F $SSH_CONFIG frontend"
     echo "       ssh -F $SSH_CONFIG server"
     echo ""
-    echo "Logs : docker logs -f oarcluster_server"
-    echo "       docker logs -f oarcluster_frontend"
-    echo "       docker logs -f oarcluster_nodexxx"
+    echo "Logs : $DOCKER logs -f oarcluster_server"
+    echo "       $DOCKER logs -f oarcluster_frontend"
+    echo "       $DOCKER logs -f oarcluster_nodexxx"
     echo ""
     echo "Data : $VOLUME_MAP"
     echo ""
