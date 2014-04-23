@@ -122,6 +122,8 @@ Host server
 "
 }
 
+$DOCKER 2> /dev/null || fail "error: Docker ($DOCKER) executable no found. Make sure Docker is installed and/or use the DOCKER variable to set Docker executable."
+
 print_cluster_info() {
     echo ""
     echo "***********************************************************************"
