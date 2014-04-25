@@ -9,4 +9,4 @@
   - append_in:
     - /etc/sudoers
     - |
-      %admin ALL=(ALL:ALL) ALL
+      %$$group ALL=(ALL:ALL) ALL

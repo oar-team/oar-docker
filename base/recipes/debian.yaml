@@ -71,7 +71,7 @@ setup:
         iptables socat ifupdown locales isc-dhcp-client net-tools iproute
         linux-image-$$arch qemu-kvm linux-image-amd64 net-tools bridge-utils
         uml-utilities perl perl-base build-essential taktuk libdbi-perl
-        libsort-versions-perl libdbd-pg-perl postgresql-client
+        libsort-versions-perl libdbd-pg-perl postgresql-client inetutils-ping
   # Configuration
   - system_config:
     - locales: fr_FR en_US
@@ -79,7 +79,7 @@ setup:
     - timezone: Europe/Paris
   - create_user:
     - name: $$user_name
-    - group: admin
+    - group: $$user_name
     - password: $$user_name
   - oarcluster_custom_image
 
