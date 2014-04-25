@@ -83,4 +83,6 @@
   - exec_in: update-initramfs -u
 
 - clean_appliance:
-  - exec_in: rm -rf /tmp/* /var/tmp/* && rm -f /etc/ssh/ssh_host_*
+  - exec_in: rm -rf /tmp/*
+  - exec_in: rm -rf /var/tmp/* || true
+  - exec_in: rm -f /etc/ssh/ssh_host_* || true
