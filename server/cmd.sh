@@ -1,15 +1,6 @@
 #!/bin/bash
 set -e
 
-wait_file() {
-    echo "Waiting file $1"
-    until test -f $1
-    do
-      sleep 1
-      echo "."
-    done
-}
-
 /usr/local/sbin/oar-server
 
 echo_and_run() { echo "$@" ; "$@" ; }
@@ -22,7 +13,7 @@ for i in `seq 1 $NUM_NODES`; do
   core=$(expr $core + 2)
 done
 
-wait_file /var/log/oar.log
-wait_file /var/log/auth.log
+touch /var/log/oar.log
+touch /var/log/auth.log
 
 /sbin/rtail /var/log/auth.log /var/log/oar.log
