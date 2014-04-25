@@ -19,8 +19,8 @@ RUN apt-get install -y --no-install-recommends apt-transport-https ca-certificat
 
 ## Fix some issues with APT packages.
 ## See https://github.com/dotcloud/docker/issues/1024
-RUN dpkg-divert --local --rename --add /sbin/initctl
-RUN ln -sf /bin/true /sbin/initctl
+# RUN dpkg-divert --local --rename --add /sbin/initctl
+# RUN ln -sf /bin/true /sbin/initctl
 
 ## Upgrade all packages.
 RUN echo "initscripts hold" | dpkg --set-selections
