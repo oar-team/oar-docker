@@ -92,6 +92,24 @@ start_nodes() {
     done
 }
 
+start_nodes_colmet() {
+    image="oarcluster/node-colmet:latest"
+    for i in `seq 1 $NUM_NODES`; do
+        hostname="node${i}"
+        NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP \
+                   --name oarcluster_$hostname \
+                   -h $hostname $VOLUME_MAP $image \
+                   /sbin/init_kvm )
+
+        if [ "$NODE_CID" = "" ]; then
+            fail "error: could not start node container from image $image"
+        fi
+
+        echo "Started oarcluster_$hostname : $NODE_CID"
+        NODE_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $NODE_CID)
+        echo "address=\"/$hostname/$NODE_IP\"" >> $DNSFILE
+    done
+}
 
 copy_ssh_config() {
     cp "$BASEDIR/base/config/insecure_key" "$SSH_KEY"
