@@ -6,10 +6,11 @@ VERSION=$(cat $BASEDIR/version.txt)
 
 docker build --rm -t oarcluster/dnsmasq $BASEDIR/dnsmasq/
 
-NODES=("frontend" "node" "server")
+NODES=("frontend" "node" "node-colmet" "server")
 for image in "${NODES[@]}"; do
-    echo "$VERSION" > $BASEDIR/$image/version.txt
     docker build --rm -t oarcluster/$image:${VERSION} $BASEDIR/$image/
     docker tag oarcluster/$image:${VERSION} oarcluster/$image:latest
 done
+
+
 docker images | grep "<none>" | awk '{print $3}' | xargs -I {} docker rmi -f {}
