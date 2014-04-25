@@ -15,13 +15,13 @@ function add_insecure_keys() {
 		cat /etc/insecure_key.pub >> "$AUTHORIZED_KEYS"
 		cat /etc/insecure_key.pub > $DIR/id_rsa.pub
 		cat /etc/insecure_key > $DIR/id_rsa
-		cat > $DIR/config <<-EOF
+		echo "
 Host *
 ForwardX11 no
 StrictHostKeyChecking no
 PasswordAuthentication no
 AddressFamily inet
-		EOF
+" > $DIR/config
 		chmod 600 $DIR/id_rsa $DIR/id_rsa.pub $DIR/config
 		chown $USER:$USER -R "$DIR"
 		echo "Success: insecure key has been added to $DIR"
@@ -36,14 +36,15 @@ add_insecure_keys $AUTHORIZED_KEYS_OAR oar
 # oarsh need OAR_KEY env varibale to be set
 echo "environment=\"OAR_KEY=1\" $(cat $AUTHORIZED_KEYS_OAR)" > $AUTHORIZED_KEYS_OAR
 
-cat <<-EOF
+echo "
 
-	+------------------------------------------------------------------------------+
-	| Insecure SSH key installed                                                   |
-	|                                                                              |
-	| DO NOT expose sshd port on the Internet unless you know what you are doing!  |
-	+------------------------------------------------------------------------------+
+    +------------------------------------------------------------------------------+
+    | Insecure SSH key installed                                                   |
+    |                                                                              |
+    | DO NOT expose sshd port on the Internet unless you know what you are doing!  |
+    +------------------------------------------------------------------------------+
 
-EOF
+"
 cat /etc/insecure_key
-echo -e "\n\n"
+echo ""
+echo ""
