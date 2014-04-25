@@ -1,0 +1,12 @@
+# # Bootstrap
+- include: >
+    openssh-server ifupdown locales net-tools libui-dialog-perl dialog
+    isc-dhcp-client netbase iproute openssh-server
+- debootstrap:
+  - check_cmd_out: debootstrap
+  - exec_out: mkdir -p $(dirname "$$rootfs_archive")
+  - exec_out: ROOTFS=$(dirname "$$rootfs_archive")/rootfs
+  - exec_out: mkdir -p $ROOTFS
+  - exec_out: test -f "$$rootfs_archive" || sudo debootstrap --variant=minbase --no-check-gpg --arch=$$arch --include="$$include" $$release $ROOTFS $$repository
+  - exec_out: test -f "$$rootfs_archive" || sudo tar zcf "$$rootfs_archive" -C "$ROOTFS" --numeric-owner --one-file-system .
+  - exec_out: test -f "$$rootfs_archive" || sudo rm -rf $ROOTFS

@@ -1,0 +1,14 @@
+create: |
+    if [ -f MAIN_CONTAINER_ID ] ; then
+      sudo docker commit $(cat MAIN_CONTAINER_ID) $$docker_image:@microstep_id
+    fi
+
+apply: |
+    sudo docker tag $$docker_image:@microstep_id $$docker_image:latest
+
+list: |
+    sudo docker images | grep $$docker_image | awk '{print $2}'
+
+clear: |
+    sudo docker images | grep $$docker_image | awk '{print $3}' \
+    | xargs -I {} bash -c "sudo docker rmi {} | cat || true"

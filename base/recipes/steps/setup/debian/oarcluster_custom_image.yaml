@@ -1,0 +1,86 @@
+## Customize oarcluster image
+
+## Install init process.
+- install_my_init_script:
+  - local2in:
+    - $$kameleon_recipe_dir/src/sbin/my_init
+    - /sbin/my_init
+  - exec_in: chmod +x /sbin/my_init
+  - exec_in: mkdir -p /etc/my_init.d
+  - exec_in: mkdir -p /etc/container_environment
+  - exec_in: touch /etc/container_environment.sh
+  - exec_in: touch /etc/container_environment.json
+  - exec_in: chmod 700 /etc/container_environment
+  - exec_in: chmod 600 /etc/container_environment.sh /etc/container_environment.json
+
+- configure_supervisor:
+  - exec_in: mkdir -p /etc/supervisor/
+  - exec_in: mkdir -p /var/log/supervisor/
+  - local2in:
+    - $$kameleon_recipe_dir/src/config/supervisord.conf
+    - /etc/supervisor/supervisord.conf
+
+- configure_sshd_daemon:
+  - local2in:
+    - $$kameleon_recipe_dir/src/supervisor/sshd.conf
+    - /etc/supervisor/conf.d/sshd.conf
+  - local2in:
+    - $$kameleon_recipe_dir/src/sbin/sshd
+    - /sbin/sshd
+  - exec_in: chmod +x /sbin/sshd
+  - exec_in: mkdir -p mkdir -p /var/run/sshd
+
+- add_helpers_scripts:
+  # This tool runs a command as another user and sets $HOME.
+  - local2in:
+    - $$kameleon_recipe_dir/src/sbin/setuser
+    - /sbin/setuser
+  - exec_in: chmod +x /sbin/setuser
+  # This tool allows you to monitor multiple logfiles (local or remote) in a terminal
+  - local2in:
+    - $$kameleon_recipe_dir/src/sbin/rtail
+    - /sbin/rtail
+  - exec_in: chmod +x /sbin/rtail
+
+- configure_insecure_ssh_keys:
+  - local2in:
+    - $$kameleon_recipe_dir/src/config/insecure_key.pub
+    - /etc/insecure_key.pub
+  - local2in:
+    - $$kameleon_recipe_dir/src/config/insecure_key
+    - /etc/insecure_key
+  - local2in:
+    - $$kameleon_recipe_dir/src/sbin/enable_insecure_key
+    - /sbin/enable_insecure_key
+  - exec_in: chmod +x /sbin/enable_insecure_key
+  - exec_in: mkdir -p /root/.ssh
+  - exec_in: chmod 700 /root/.ssh
+  - exec_in: chown root:root /root/.ssh
+  - exec_in: chmod 644 /etc/insecure_key*
+  - exec_in: chown root:root /etc/insecure_key*
+
+- disable_redundant_services:
+  - exec_in: update-rc.d -f ssh remove
+
+- configure_kernel:
+  - write_in:
+    - /etc/kernel-img.conf
+    - |
+      do_symlinks = yes
+      relative_links = yes
+      do_bootloader = yes
+      do_bootfloppy = no
+      do_initrd = yes
+      link_in_boot = no
+
+- blacklist_unused_modules:
+  - exec_in: echo "blacklist pcspkr" >> /etc/modprobe.d/fbdev-blacklist.conf
+
+- enable_9p_modules:
+  - exec_in: printf '%s\n' 9p 9pnet 9pnet_virtio | tee -a /etc/initramfs-tools/modules
+
+- update_initramfs:
+  - exec_in: update-initramfs -u
+
+- clean_appliance:
+  - exec_in: rm -rf /tmp/* /var/tmp/* && rm -f /etc/ssh/ssh_host_*
