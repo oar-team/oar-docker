@@ -76,13 +76,15 @@ RUN mkdir -p /root/.ssh && chmod 700 /root/.ssh && chown root:root /root/.ssh
 ADD config/insecure_key.pub /etc/insecure_key.pub
 ADD config/insecure_key /etc/insecure_key
 RUN chmod 644 /etc/insecure_key* && chown root:root /etc/insecure_key*
-ADD sbin/enable_insecure_key /usr/sbin/enable_insecure_key
-RUN chmod +x /usr/sbin/enable_insecure_key
-
+ADD sbin/enable_insecure_key /sbin/enable_insecure_key
+RUN chmod +x /sbin/enable_insecure_key
 
 ## Remove useless cron entries.
 # Checks for lost+found and scans for mtab.
 RUN rm -f /etc/cron.daily/standard
+
+## helpers
+ADD sbin/rtail /sbin/rtail
 
 # clean
 RUN apt-get clean && rm -rf /tmp/* /var/tmp/* && rm -f /etc/ssh/ssh_host_*
