@@ -88,4 +88,3 @@ export:
   - commit_docker_container:
     - container: $(cat MAIN_CONTAINER_ID)
     - image: oarcluster/base
-    - cmd: "/sbin/my_init"

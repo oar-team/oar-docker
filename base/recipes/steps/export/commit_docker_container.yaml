@@ -2,4 +2,4 @@
 - commit_docker_container:
   - exec_out: echo "Commiting the container $$container to $$image image"
   - exec_out: |
-      docker commit --run '{"Cmd": ["$$cmd"]}' $$container $$image
+      docker commit $$container $$image
