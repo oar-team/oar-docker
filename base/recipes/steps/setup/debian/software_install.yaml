@@ -26,10 +26,6 @@
       path-exclude /usr/share/linda/*
       path-exclude /usr/share/locale/*
       path-include /usr/share/locale/en*
-  ## Temporarily disable dpkg fsync to make building faster.
-  - exec_in: echo force-unsafe-io > /etc/dpkg/dpkg.cfg.d/02apt-speedup
-  - on_export_init:
-    - exec_init: rm /etc/dpkg/dpkg.cfg.d/02apt-speedup
   - write_in:
     - /etc/locale.nopurge
     - |
