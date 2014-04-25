@@ -1,6 +1,6 @@
 # $Id$
-# 
-# The job_resource_manager script is a perl script that oar server deploys on nodes 
+#
+# The job_resource_manager script is a perl script that oar server deploys on nodes
 # to manage cpusets, users, job keys, ...
 #
 # Usage:
@@ -26,7 +26,7 @@ my $Cpuset;
 my $Log_level;
 my $Cpuset_lock_file = "$ENV{HOME}/cpuset.lock.";
 
-# Retrieve parameters from STDIN in the "Cpuset" structure which looks like: 
+# Retrieve parameters from STDIN in the "Cpuset" structure which looks like:
 # $Cpuset = {
 #               job_id => id of the corresponding job
 #               name => "cpuset name",
@@ -98,7 +98,7 @@ if ($ARGV[0] eq "init"){
                 }
             }
             if (!(-d '/dev/cpuset/'.$Cpuset->{cpuset_path})){
-                if (system( 'oardodo mkdir -p /dev/cpuset/'.$Cpuset->{cpuset_path}.' &&'. 
+                if (system( 'oardodo mkdir -p /dev/cpuset/'.$Cpuset->{cpuset_path}.' &&'.
                             'oardodo chown -R oar /dev/cpuset/'.$Cpuset->{cpuset_path}.' &&'.
                             '/bin/echo 0 | cat > /dev/cpuset/'.$Cpuset->{cpuset_path}.'/notify_on_release && '.
                             '/bin/echo 0 | cat > /dev/cpuset/'.$Cpuset->{cpuset_path}.'/cpuset.cpu_exclusive && '.
@@ -281,17 +281,17 @@ if ($ARGV[0] eq "init"){
                     }
                     if ($ipcrm_args) {
                         print_log (3,"Purging SysV IPC: ipcrm $ipcrm_args.");
-                        system("OARDO_BECOME_USER=$Cpuset->{user} oardodo ipcrm $ipcrm_args"); 
+                        system("OARDO_BECOME_USER=$Cpuset->{user} oardodo ipcrm $ipcrm_args");
                     }
                     print_log (3,"Purging /tmp /dev/shm /var/tmp...");
-                    system("oardodo find /tmp/. /dev/shm/. /var/tmp/. -user $Cpuset->{user} -delete"); 
+                    system("oardodo find /tmp/. /dev/shm/. /var/tmp/. -user $Cpuset->{user} -delete");
                 } else {
                     print_log(2,"Not purging SysV IPC and files (in /tmp /dev/shm /var/tmp) as $Cpuset->{user} still has a job running on this host.");
                 }
             }
             flock(LOCK,LOCK_UN) or die "flock failed: $!\n";
             close(LOCK);
-        } 
+        }
     }
 
     if (defined($Cpuset->{job_uid})){
@@ -343,7 +343,7 @@ if ($ARGV[0] eq "init"){
         }
         print_log(3,"Purging /tmp /dev/shm /var/tmp ...");
         #system("oardodo find /tmp/ -user $Cpuset->{job_user} -exec rm -rfv {} \\;");
-        system("oardodo find /tmp/. /dev/shm/. /var/tmp/. -user $Cpuset->{job_user} -delete"); 
+        system("oardodo find /tmp/. /dev/shm/. /var/tmp/. -user $Cpuset->{job_user} -delete");
         system("oardodo /usr/sbin/userdel -f $Cpuset->{job_user}");
     }
 }else{

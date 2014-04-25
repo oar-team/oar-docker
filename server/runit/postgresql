@@ -1,5 +1,0 @@
-#!/bin/sh
-set -e
-exec /sbin/setuser postgres /usr/lib/postgresql/9.1/bin/postmaster \
-    -D /var/lib/postgresql/9.1/main/ \
-    -c config_file=/etc/postgresql/9.1/main/postgresql.conf
