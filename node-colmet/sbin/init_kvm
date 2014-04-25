@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Generate sshd keys
+if [[ ! -e /etc/ssh/ssh_host_rsa_key ]]; then
+    echo "No SSH host key available. Generating one..."
+    export LC_ALL=C
+    export DEBIAN_FRONTEND=noninteractive
+    dpkg-reconfigure openssh-server
+fi
+mkdir -p /var/run/sshd
+# Enable insecure key
+/sbin/enable_insecure_key
+
+## Enable kvm
+mknod /dev/kvm c 10 232
+mkdir /dev/net
+mknod /dev/net/tun c 10 200
+ln -s /proc/mounts /etc/mtab
+
+iptables -t nat -A POSTROUTING -s 172.18.0.0/24 -o eth0 -j MASQUERADE
+socat TCP-LISTEN:22,fork,reuseaddr TCP:172.18.0.2:22 &
+socat TCP-LISTEN:4243,fork,reuseaddr TCP:172.18.0.2:4243 &
+
+CMDLINE="root=guestroot rootfstype=9p rootflags=trans=virtio,version=9p2000.L rw"
+CMDLINE="console=ttyS0 quiet panic=0 $CMDLINE"
+CMDLINE="init=/sbin/init $CMDLINE"
+
+echo "+++ Starting kvm."
+kvm -nographic -no-reboot -cpu host -m 1024 \
+    -append "$CMDLINE" \
+    -kernel "$(echo /boot/vmlinuz* | tr ' ' '\n' | head -1)" \
+    -initrd "$(echo /boot/initrd* | tr ' ' '\n' | head -1)" \
+    -fsdev local,id=fsdev0,path=/,security_model=none \
+    -device virtio-9p-pci,fsdev=fsdev0,mount_tag=guestroot \
+    -device virtio-net,netdev=net0 -netdev tap,id=net0,script=/sbin/net-script,downscript=no
+echo ""
+echo "+++ Exited kvm."
