@@ -8,13 +8,10 @@ ENV DEBIAN_FRONTEND noninteractive
 ## Prepare packages
 RUN apt-get update
 RUN apt-get install -y \
-    perl perl-base openssh-client openssh-server \
-    libsort-versions-perl libsort-naturally-perl taktuk build-essential \
-    postgresql-client libdbd-pg-perl libjson-perl libyaml-perl \
-    libgd-ruby1.8 libdbi-perl libtie-ixhash-perl libappconfig-perl \
-    libwww-perl apache2-mpm-prefork \
-    libcgi-fast-perl libapache2-mod-fastcgi \
-    librestclient-ruby1.8 libdbd-pg-ruby1.8 ruby1.8 rubygems1.8 ruby-switch
+    libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl \
+    libtie-ixhash-perl libwww-perl libgd-ruby1.8 apache2-mpm-prefork \
+    libcgi-fast-perl libapache2-mod-fastcgi librestclient-ruby1.8 \
+    libdbd-pg-ruby1.8 ruby1.8 rubygems1.8 ruby-switch
 
 RUN ruby-switch --set ruby1.8
 
@@ -24,8 +21,9 @@ RUN apt-get install -y php5 libapache2-mod-php5 php5-mcrypt php5-pgsql
 # Install phppgadmin
 RUN apt-get install -y phppgadmin
 
-ADD version.txt /tmp/version.txt
+## Download
 ## Install OAR frontend node
+ADD version.txt /tmp/version.txt
 RUN wget -q https://github.com/oar-team/oar/archive/$(cat /tmp/version.txt).tar.gz -O /tmp/oar-$(cat /tmp/version.txt).tar.gz
 RUN tar xf /tmp/oar-$(cat /tmp/version.txt).tar.gz -C /tmp/
 

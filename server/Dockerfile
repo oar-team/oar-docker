@@ -9,10 +9,7 @@ ENV DEBIAN_FRONTEND noninteractive
 ## Prepare packages
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
-    perl perl-base openssh-client openssh-server libdbi-perl \
-    libsort-versions-perl taktuk build-essential \
-    postgresql postgresql-client libdbd-pg-perl
-
+    postgresql postgresql-client
 
 ## Install OAR node
 ADD version.txt /tmp/version.txt
