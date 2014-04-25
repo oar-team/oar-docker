@@ -2,26 +2,16 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "yungsang/boot2docker"
+  config.vm.box = "hashicorp/precise64"
+  config.vm.hostname = "oarcluster"
+  config.vm.provision "docker", images: ["debian"]
+
   # share src folder
   config.vm.synced_folder ".", "/vagrant", disabled: true
-  config.vm.synced_folder ".", "/home/docker/docker-oarcluster", type: "nfs"
+  config.vm.synced_folder ".", "/home/vagrant/docker-oarcluster", type: "nfs"
 
   # enable ssh forward agent for all VMs
   config.ssh.forward_agent = true
-
-  # ssh auth
-#   config.vm.provision "shell", privileged: false, inline: <<-shellprovision
-#     cat >> ~/.profile <<<'
-# remove-all-docker-container() {
-#   containers=$(docker ps -a | grep -v ^CONTAINER | awk "{print \$1}")
-#   if [ ! -z "$containers" ]; then
-#     docker kill $containers
-#     docker rm $containers
-#   fi
-# }'
-#   EOF
-#   shellprovision
 
   # Network
   config.vm.network :private_network, ip: "10.10.30.130"
