@@ -6,4 +6,4 @@ ip link set lo up
 ip link set eth0 up
 ip route add default via 172.18.0.1
 
-exec bash
+exec /sbin/cmd.sh

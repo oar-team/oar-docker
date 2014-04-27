@@ -19,14 +19,14 @@ ln -s /proc/mounts /etc/mtab
 
 iptables -t nat -A POSTROUTING -s 172.18.0.0/24 -o eth0 -j MASQUERADE
 socat TCP-LISTEN:22,fork,reuseaddr TCP:172.18.0.2:22 &
-socat TCP-LISTEN:4243,fork,reuseaddr TCP:172.18.0.2:4243 &
+socat TCP-LISTEN:6667,fork,reuseaddr TCP:172.18.0.2:6667 &
 
 CMDLINE="root=guestroot rootfstype=9p rootflags=trans=virtio,version=9p2000.L rw"
 CMDLINE="console=ttyS0 quiet panic=0 $CMDLINE"
 CMDLINE="init=/sbin/init $CMDLINE"
 
 echo "+++ Starting kvm."
-kvm -nographic -no-reboot -cpu host -m 1024 \
+kvm -nographic -no-reboot -m 512 \
     -append "$CMDLINE" \
     -kernel "$(echo /boot/vmlinuz* | tr ' ' '\n' | head -1)" \
     -initrd "$(echo /boot/initrd* | tr ' ' '\n' | head -1)" \
