@@ -19,19 +19,19 @@ NODES=("frontend" "node" "server" "node-colmet" "server-colmet")
 
 # forward OAR version if necessary
 for image in "${NODES[@]}"; do
-    if [ -f $BASEDIR/$image/version.txt ]; then
-        if [ ! "$VERSION" == "$(cat $BASEDIR/$image/version.txt)" ]; then
-            echo "$VERSION" > $BASEDIR/$image/version.txt
+    if [ -f $BASEDIR/images/$image/version.txt ]; then
+        if [ ! "$VERSION" == "$(cat $BASEDIR/images/$image/version.txt)" ]; then
+            echo "$VERSION" > $BASEDIR/images/$image/version.txt
         fi
     else
-        echo "$VERSION" > $BASEDIR/$image/version.txt
+        echo "$VERSION" > $BASEDIR/images/$image/version.txt
     fi
 done
 
-$DOCKER build --rm -t oarcluster/dnsmasq $BASEDIR/dnsmasq/
+$DOCKER build --rm -t oarcluster/dnsmasq $BASEDIR/images/dnsmasq/
 
 for image in "${NODES[@]}"; do
-    $DOCKER build --rm -t oarcluster/$image:${VERSION} $BASEDIR/$image/
+    $DOCKER build --rm -t oarcluster/$image:${VERSION} $BASEDIR/images/$image/
     $DOCKER tag oarcluster/$image:${VERSION} oarcluster/$image:latest
 done
 $DOCKER images | grep "<none>" | awk '{print $3}' | xargs -I {} $DOCKER rmi -f {}
