@@ -1,5 +1,0 @@
-
-- commit_docker_container:
-  - exec_out: echo "Commiting the container $$container to $$image image"
-  - exec_out: |
-      docker commit $$container $$image

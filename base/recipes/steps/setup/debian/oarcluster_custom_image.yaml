@@ -28,7 +28,7 @@
     - $$kameleon_recipe_dir/src/sbin/sshd
     - /sbin/sshd
   - exec_in: chmod +x /sbin/sshd
-  - exec_in: mkdir -p mkdir -p /var/run/sshd
+  - exec_in: mkdir -p /var/run/sshd
 
 - add_helpers_scripts:
   # This tool runs a command as another user and sets $HOME.
@@ -60,7 +60,9 @@
   - exec_in: chown root:root /etc/insecure_key*
 
 - disable_redundant_services:
-  - exec_in: update-rc.d -f ssh remove
+  - exec_in: update-rc.d -f ssh disable
+  - exec_in: update-rc.d -f apache2 remove
+  - exec_in: update-rc.d -f postgresql remove
 
 - configure_kernel:
   - write_in:
@@ -81,8 +83,3 @@
 
 - update_initramfs:
   - exec_in: update-initramfs -u
-
-- clean_appliance:
-  - exec_in: rm -rf /tmp/*
-  - exec_in: rm -rf /var/tmp/* || true
-  - exec_in: rm -f /etc/ssh/ssh_host_* || true

@@ -4,7 +4,7 @@
 #
 # RECIPE: debian
 #
-# DESCRIPTION: Build a debian wheezy appliance using Docker.
+# DESCRIPTION: Create a full docker base image.
 #
 # TEMPLATE: debian7_docker
 #
@@ -17,6 +17,7 @@ aliases: defaults.yaml
 checkpoint: docker.yaml
 #== Global variables use by Kameleon engine and the steps
 global:
+  maintainer: Salem Harrache <salem.harrache@inria.fr>
   ## User varibales : used by the recipe
   cachedir: $$kameleon_cwd/cache
   user_name: docker
@@ -97,6 +98,6 @@ setup:
 
 #== Export the generated appliance in the format of your choice
 export:
-  - commit_docker_container:
+  - export_docker_container:
     - container: $(cat MAIN_CONTAINER_ID)
-    - image: oarcluster/base
+    - rootfs: $$kameleon_recipe_dir/../$${distrib}_base.tar.gz
