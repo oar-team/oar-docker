@@ -17,7 +17,7 @@ HTTP_FRONTEND_PORT=48080
 VOLUME_MAP=
 NUM_NODES=
 CONNECT_SSH=
-
+ENABLE_COLMET=
 
 fail() {
     echo $@ 1>&2
@@ -42,7 +42,7 @@ start_dns() {
 }
 
 start_server() {
-    image="oarcluster/server:latest"
+    image=${1:-"oarcluster/server:latest"}
     SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP -h server \
                  --env "NUM_NODES=$NUM_NODES" --name oarcluster_server \
                  -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUME_MAP $image \
@@ -55,6 +55,10 @@ start_server() {
     echo "Started oarcluster_server : $SERVER_CID"
     SERVER_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $SERVER_CID)
     echo "address=\"/server/$SERVER_IP\"" >> $DNSFILE
+}
+
+start_server_colmet() {
+    start_server "oarcluster/server-colmet:latest"
 }
 
 start_frontend() {
@@ -75,32 +79,14 @@ start_frontend() {
 }
 
 start_nodes() {
-    image="oarcluster/node:latest"
-    for i in `seq 1 $NUM_NODES`; do
-        hostname="node${i}"
-        NODE_CID=$($DOCKER run -d -t --privileged --dns $DNS_IP \
-                   --name oarcluster_$hostname \
-                   -h $hostname $VOLUME_MAP $image \
-                   /sbin/my_init /sbin/cmd.sh --enable-insecure-key)
-
-        if [ "$NODE_CID" = "" ]; then
-            fail "error: could not start node container from image $image"
-        fi
-
-        echo "Started oarcluster_$hostname : $NODE_CID"
-        NODE_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $NODE_CID)
-        echo "address=\"/$hostname/$NODE_IP\"" >> $DNSFILE
-    done
-}
-
-start_nodes_colmet() {
-    image="oarcluster/node-colmet:latest"
+    image=${1:-"oarcluster/node:latest"}
+    cmd=${2:-"/sbin/my_init /sbin/cmd.sh --enable-insecure-key"}
     for i in `seq 1 $NUM_NODES`; do
         hostname="node${i}"
         NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP \
                    --name oarcluster_$hostname \
                    -h $hostname $VOLUME_MAP $image \
-                   /sbin/init_kvm )
+                   $cmd )
 
         if [ "$NODE_CID" = "" ]; then
             fail "error: could not start node container from image $image"
@@ -110,6 +96,10 @@ start_nodes_colmet() {
         NODE_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $NODE_CID)
         echo "address=\"/$hostname/$NODE_IP\"" >> $DNSFILE
     done
+}
+
+start_nodes_colmet() {
+    start_nodes "oarcluster/node-colmet:latest" "/sbin/init_kvm"
 }
 
 copy_ssh_config() {
@@ -129,6 +119,7 @@ Host *
   ForwardAgent yes
   ControlPath $(dirname $SSH_KEY)/master-%l-%r@%h:%p
   ControlMaster auto
+  ControlPersist yes
   Compression yes
   Protocol 2
 
@@ -164,50 +155,69 @@ print_cluster_info() {
 }
 
 print_help() {
-    echo "usage: $0 -n <#nodes> [-v <volume>] [-c]"
+    echo "usage: $0 -n <#nodes> [-v <volume>] [-c|--connect] [--colmet]"
 }
 
-parse_options() {
-    while getopts "n:cv:h" opt; do
-        case $opt in
-        n)
-            NUM_NODES=$OPTARG
-          ;;
-        c)
-            CONNECT_SSH=1
-          ;;
-        h)
-            print_help
-            exit 0
-          ;;
-        v)
-            VOLUME_MAP=$OPTARG
-          ;;
-        esac
-    done
+args=$(getopt -l "connect,volume,colmet,nodes,help:" -o "n:cv:h" -- "$@")
 
-    if [ ! "$VOLUME_MAP" == "" ]; then
-        echo "Data volume chosen: $VOLUME_MAP"
-        VOLUME_MAP="-v $VOLUME_MAP:/data"
-    else
-        mkdir -p "${BASEDIR}/shared_data"
-        echo "Default data volume used: ${BASEDIR}/shared_data"
-        VOLUME_MAP="-v ${BASEDIR}/shared_data:/data"
-    fi
-}
+eval set -- "$args"
 
-parse_options $@
+while [ $# -ge 1 ]; do
+    case "$1" in
+    --)
+        # No more options left.
+        shift
+        break
+       ;;
+    -n|--nodes)
+        NUM_NODES=$2
+        shift
+      ;;
+    -c|--connect)
+        CONNECT_SSH=1
+      ;;
+    -h|--help)
+        print_help
+        exit 0
+      ;;
+    -v|--volume)
+        VOLUME_MAP=$2
+        shift
+      ;;
+    --colmet)
+        ENABLE_COLMET=1
+      ;;
+    esac
+    shift
+done
 
-if [[ "$#" -eq 0 ]] || [[ -z "$NUM_NODES" ]]; then
+if [[ -z "$NUM_NODES" ]]; then
     print_help
     fail "You must indicate number of nodes"
 fi
 
+if [ ! "$VOLUME_MAP" == "" ]; then
+    echo "Data volume chosen: $VOLUME_MAP"
+    VOLUME_MAP="-v $VOLUME_MAP:/data"
+else
+    mkdir -p "${BASEDIR}/shared_data"
+    echo "Default data volume used: ${BASEDIR}/shared_data"
+    VOLUME_MAP="-v ${BASEDIR}/shared_data:/data"
+fi
+
 source $BASEDIR/clean.sh
-start_dns
-start_server
-start_frontend
-start_nodes
+
+if [[ -n "$ENABLE_COLMET" ]]; then
+  start_dns
+  start_server_colmet
+  start_frontend
+  start_nodes_colmet
+else
+  start_dns
+  start_server
+  start_frontend
+  start_nodes
+fi
 
 copy_ssh_config
 print_cluster_info
