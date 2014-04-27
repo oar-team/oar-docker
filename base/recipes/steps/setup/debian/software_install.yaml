@@ -13,6 +13,12 @@
         pkgcache "";
       }
   - write_in:
+    - /etc/apt/apt.conf.d/97norecommends
+    - |
+      APT {
+        Install-Recommends "false";
+      };
+  - write_in:
     - /etc/dpkg/dpkg.cfg.d/01_nodoc
     - |
       path-exclude /usr/share/doc/*
@@ -45,16 +51,23 @@
       deb http://ftp.fr.debian.org/debian stable main contrib non-free
       deb http://ftp.debian.org/debian/ wheezy-updates main contrib non-free
       deb http://security.debian.org/ wheezy/updates main contrib non-free
+
 - update_repositories:
   - exec_in: apt-get -y --force-yes update
-  - exec_in: apt-get -y --force-yes --no-install-recommends install localepurge
+  - exec_in: apt-get -y --force-yes install localepurge
 - upgrade_system:
-  - exec_in: apt-get -y --force-yes --no-install-recommends dist-upgrade
+  - exec_in: apt-get -y --force-yes dist-upgrade
+
 - clean:
   - on_export_init:
     - exec_in: apt-get -y --force-yes autoclean
     - exec_in: apt-get -y --force-yes clean
     - exec_in: apt-get -y --force-yes autoremove
     - exec_in: localepurge
-- core_packages:
-  - exec_in: apt-get -y --force-yes --no-install-recommends install $$packages
+
+- install_packages:
+  - exec_in: apt-get -y --force-yes install $$core_packages
+  - exec_in: apt-get -y --force-yes install $$colmet_dependencies
+  - exec_in: apt-get -y --force-yes install $$dns_dependencies
+  - exec_in: apt-get -y --force-yes install $$frontend_dependencies
+  - exec_in: apt-get -y --force-yes install $$server_dependencies
