@@ -1,9 +1,36 @@
+- sshd_port: 49207
 - start_sshd:
   - on_checkpoint: redo
   - exec_out: |
-      CID=$(sudo docker run -d -p 127.0.0.1:$$ssh_port:22 -i --dns $$dns -h $$hostname --privileged "$$image:latest" \
-            /bin/bash -c "service ssh restart ; tail -f /dev/null")
+      CID=$(docker run -d -p 127.0.0.1:$$sshd_port:22 -i --dns $$dns -h $$hostname --privileged "$$image:latest" \
+            /bin/bash -c "ssh-keygen -A ; service ssh restart ; touch /var/log/auth.log ; tail -f /var/log/auth.log")
   - exec_out: echo "$CID" >> CONTAINERS_TO_CLEAN
   - exec_out: echo $CID > MAIN_CONTAINER_ID
+  - write_out:
+    - $$ssh_config_file
+    - |
+      Host $${kameleon_recipe_name}_container
+      HostName 127.0.0.1
+      Port $$sshd_port
+      User root
+      IdentityFile $$insecure_ssh_key
+      UserKnownHostsFile /dev/null
+      StrictHostKeyChecking no
+      PasswordAuthentication no
+      IdentitiesOnly yes
+      LogLevel FATAL
+      ForwardAgent yes
+      ControlPath $$kameleon_cwd/master-%l-%r@%h:%p
+      ControlMaster auto
+      ControlPersist yes
+      Compression yes
+      Protocol 2
+  - exec_out: |
+      echo -n "Waiting for SSH to become available..."
+      until ssh-keyscan -p $$sshd_port 127.0.0.1 2>&1 | grep ssh-rsa\\\|ssh-dsa &> /dev/null
+      do
+        sleep 1
+      done
+      echo ""
   - on_export_clean:
     - exec_out: rm -f MAIN_CONTAINER_ID
