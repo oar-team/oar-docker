@@ -25,6 +25,9 @@
     - $$kameleon_recipe_dir/src/supervisor/sshd.conf
     - /etc/supervisor/conf.d/sshd.conf
   - local2in:
+    - $$kameleon_recipe_dir/src/config/sshd_config
+    - /etc/ssh/sshd_config
+  - local2in:
     - $$kameleon_recipe_dir/src/sbin/sshd
     - /sbin/sshd
   - exec_in: chmod +x /sbin/sshd
