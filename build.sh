@@ -15,7 +15,7 @@ $DOCKER 2> /dev/null || fail "error: Docker ($DOCKER) executable no found. Make 
 
 source $BASEDIR/clean.sh
 
-NODES=("frontend" "node" "server" "node-colmet" "server-colmet")
+NODES=("frontend-nfs" "node-nfs" "server-nfs")
 
 # forward OAR version if necessary
 for image in "${NODES[@]}"; do
@@ -29,6 +29,8 @@ for image in "${NODES[@]}"; do
 done
 
 $DOCKER build --rm -t oarcluster/dnsmasq $BASEDIR/images/dnsmasq/
+$DOCKER build --rm -t oarcluster/nfs-server $BASEDIR/images/nfs-server/
+$DOCKER build --rm -t oarcluster/nfs-client $BASEDIR/images/nfs-client/
 
 for image in "${NODES[@]}"; do
     $DOCKER build --rm -t oarcluster/$image:${VERSION} $BASEDIR/images/$image/

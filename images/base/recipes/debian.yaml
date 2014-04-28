@@ -73,6 +73,7 @@ setup:
         linux-image-$$arch qemu-kvm linux-image-amd64 net-tools bridge-utils
         uml-utilities perl perl-base build-essential taktuk libdbi-perl
         libsort-versions-perl libdbd-pg-perl postgresql-client inetutils-ping
+        nfs-common
     - colmet_dependencies: >
         python-dev python-zmq python-pip python-tables python-h5py python-pyinotify
     - dns_dependencies: >

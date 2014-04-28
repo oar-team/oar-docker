@@ -14,10 +14,15 @@ $DOCKER 2> /dev/null || fail "error: Docker ($DOCKER) executable no found. Make 
 
 echo "Cleanup old containers"
 
+CONTAINERS2STOP=`$DOCKER ps -a | grep oarcluster_nfs-server | awk '{print $1}' | tr '\n' ' '`
+CONTAINERS2STOP=($CONTAINERS2STOP)
+for container in "${CONTAINERS2STOP[@]}"; do
+    echo "$($DOCKER stop $container) --> Stopped"
+done
 CONTAINERS=`$DOCKER ps -a | grep oarcluster | awk '{print $1}' | tr '\n' ' '`
 CONTAINERS=($CONTAINERS)
 for container in "${CONTAINERS[@]}"; do
-    echo "$($DOCKER kill $container) --> Stopped"
+    echo "$($DOCKER kill $container) --> Killed"
 done
 for container in "${CONTAINERS[@]}"; do
     echo "$($DOCKER rm $container) --> Removed"

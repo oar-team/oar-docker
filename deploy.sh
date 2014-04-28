@@ -17,7 +17,6 @@ HTTP_FRONTEND_PORT=48080
 VOLUME_MAP=
 NUM_NODES=
 CONNECT_SSH=
-ENABLE_COLMET=
 
 fail() {
     echo $@ 1>&2
@@ -41,12 +40,28 @@ start_dns() {
     echo "address=\"/dns/$DNS_IP\"" >> $DNSFILE
 }
 
+start_nfs_server() {
+    image=${1:-"oarcluster/nfs-server:latest"}
+    hostname="nfs-server.$DOMAIN"
+    NFS_SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP --dns-search $DOMAIN \
+           -h $hostname --name oarcluster_nfs-server --privileged \
+           $VOLUME_MAP $image /sbin/my_init --enable-insecure-key)
+
+    if [ "$NFS_SERVER_CID" = "" ]; then
+        fail "error: could not start nfs-server container from image nfs-server"
+    fi
+
+    echo "Started oarcluster_nfs_server : $NFS_SERVER_CID"
+    NFS_SERVER_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $NFS_SERVER_CID)
+    echo "address=\"/$hostname/$NFS_SERVER_IP\"" >> $DNSFILE
+}
+
 start_server() {
-    image=${1:-"oarcluster/server:latest"}
-    hostname="server.oarcluster"
+    image=${1:-"oarcluster/server-nfs:latest"}
+    hostname="server.$DOMAIN"
     SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP --dns-search $DOMAIN -h $hostname \
-                 --env "NUM_NODES=$NUM_NODES" --name oarcluster_server \
-                 -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUME_MAP $image \
+                 --env "NUM_NODES=$NUM_NODES" --name oarcluster_server --privileged \
+                 -p 127.0.0.1:$SSH_SERVER_PORT:22 $image \
                  /sbin/my_init /sbin/cmd.sh --enable-insecure-key)
 
     if [ "$SERVER_CID" = "" ]; then
@@ -58,18 +73,13 @@ start_server() {
     echo "address=\"/$hostname/$SERVER_IP\"" >> $DNSFILE
 }
 
-start_server_colmet() {
-    start_server "oarcluster/server-colmet:latest"
-}
-
 start_frontend() {
-    image="oarcluster/frontend:latest"
-    hostname="frontend.oarcluster"
+    image="oarcluster/frontend-nfs:latest"
+    hostname="frontend.$DOMAIN"
     FRONTEND_CID=$($DOCKER run -d -t --dns $DNS_IP --dns-search $DOMAIN -h $hostname \
-                   --env "NUM_NODES=$NUM_NODES" --name oarcluster_frontend \
-                   -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
-                   -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 \
-                   $VOLUME_MAP $image \
+                   --env "NUM_NODES=$NUM_NODES" --name oarcluster_frontend --privileged \
+                   -p 127.0.0.1:$SSH_FRONTEND_PORT:22 -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 \
+                   $image \
                    /sbin/my_init /sbin/cmd.sh --enable-insecure-key)
 
     if [ "$FRONTEND_CID" = "" ]; then
@@ -81,13 +91,13 @@ start_frontend() {
 }
 
 start_nodes() {
-    image=${1:-"oarcluster/node:latest"}
+    image=${1:-"oarcluster/node-nfs:latest"}
     cmd=${2:-"/sbin/my_init /sbin/cmd.sh --enable-insecure-key"}
     for i in `seq 1 $NUM_NODES`; do
         name="node${i}"
-        hostname="${name}.oarcluster"
+        hostname="${name}.$DOMAIN"
         NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP --dns-search $DOMAIN \
-                   -h $hostname --name oarcluster_$name $VOLUME_MAP $image \
+                   -h $hostname --name oarcluster_$name --privileged $image \
                    $cmd )
 
         if [ "$NODE_CID" = "" ]; then
@@ -186,9 +196,6 @@ while [ $# -ge 1 ]; do
         VOLUME_MAP=$2
         shift
       ;;
-    --colmet)
-        ENABLE_COLMET=1
-      ;;
     esac
     shift
 done
@@ -209,17 +216,11 @@ fi
 
 source $BASEDIR/clean.sh
 
-if [[ -n "$ENABLE_COLMET" ]]; then
-  start_dns
-  start_server_colmet
-  start_frontend
-  start_nodes_colmet
-else
-  start_dns
-  start_server
-  start_frontend
-  start_nodes
-fi
+start_dns
+start_nfs_server
+start_server
+start_frontend
+start_nodes
 
 copy_ssh_config
 print_cluster_info

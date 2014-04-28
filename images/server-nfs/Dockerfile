@@ -1,4 +1,4 @@
-FROM oarcluster/base
+FROM oarcluster/nfs-client
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 ENV OAR_VERSION 2.5
