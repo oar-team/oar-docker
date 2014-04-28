@@ -5,7 +5,7 @@ DOCKER=${DOCKER:-docker}
 WORKDIR=/tmp/oarcluster
 BASEDIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 VERSION=$(cat $BASEDIR/version.txt)
-
+DOMAIN="oarcluster"
 SSH_CONFIG="$WORKDIR/ssh_config"
 SSH_KEY="$WORKDIR/ssh_insecure_key"
 DNS_IP=
@@ -43,7 +43,8 @@ start_dns() {
 
 start_server() {
     image=${1:-"oarcluster/server:latest"}
-    SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP -h server \
+    hostname="server.oarcluster"
+    SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP --dns-search $DOMAIN -h $hostname \
                  --env "NUM_NODES=$NUM_NODES" --name oarcluster_server \
                  -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUME_MAP $image \
                  /sbin/my_init /sbin/cmd.sh --enable-insecure-key)
@@ -54,7 +55,7 @@ start_server() {
 
     echo "Started oarcluster_server : $SERVER_CID"
     SERVER_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $SERVER_CID)
-    echo "address=\"/server/$SERVER_IP\"" >> $DNSFILE
+    echo "address=\"/$hostname/$SERVER_IP\"" >> $DNSFILE
 }
 
 start_server_colmet() {
@@ -63,7 +64,8 @@ start_server_colmet() {
 
 start_frontend() {
     image="oarcluster/frontend:latest"
-    FRONTEND_CID=$($DOCKER run -d -t --dns $DNS_IP -h frontend \
+    hostname="frontend.oarcluster"
+    FRONTEND_CID=$($DOCKER run -d -t --dns $DNS_IP --dns-search $DOMAIN -h $hostname \
                    --env "NUM_NODES=$NUM_NODES" --name oarcluster_frontend \
                    -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
                    -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 \
@@ -75,24 +77,24 @@ start_frontend() {
     fi
     echo "Started oarcluster_frontend : $FRONTEND_CID"
     FRONTEND_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $FRONTEND_CID)
-    echo "address=\"/frontend/$FRONTEND_IP\"" >> $DNSFILE
+    echo "address=\"/$hostname/$FRONTEND_IP\"" >> $DNSFILE
 }
 
 start_nodes() {
     image=${1:-"oarcluster/node:latest"}
     cmd=${2:-"/sbin/my_init /sbin/cmd.sh --enable-insecure-key"}
     for i in `seq 1 $NUM_NODES`; do
-        hostname="node${i}"
-        NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP \
-                   --name oarcluster_$hostname \
-                   -h $hostname $VOLUME_MAP $image \
+        name="node${i}"
+        hostname="${name}.oarcluster"
+        NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP --dns-search $DOMAIN \
+                   -h $hostname --name oarcluster_$name $VOLUME_MAP $image \
                    $cmd )
 
         if [ "$NODE_CID" = "" ]; then
             fail "error: could not start node container from image $image"
         fi
 
-        echo "Started oarcluster_$hostname : $NODE_CID"
+        echo "Started oarcluster_$name : $NODE_CID"
         NODE_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $NODE_CID)
         echo "address=\"/$hostname/$NODE_IP\"" >> $DNSFILE
     done
@@ -103,7 +105,7 @@ start_nodes_colmet() {
 }
 
 copy_ssh_config() {
-    cp "$BASEDIR/base/recipes/src/config/insecure_key" "$SSH_KEY"
+    cp "$BASEDIR/images/base/recipes/src/config/insecure_key" "$SSH_KEY"
     chmod 600 $SSH_KEY
     chown $USER:$USER $SSH_KEY
     cat > "$SSH_CONFIG" <<< "
