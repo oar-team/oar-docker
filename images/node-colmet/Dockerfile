@@ -1,6 +1,7 @@
 FROM oarcluster/node
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
+ENV HOME /root
 ENV DEBIAN_FRONTEND noninteractive
 
 ## Install colmet
@@ -12,30 +13,11 @@ RUN wget -q --no-check-certificate https://github.com/oar-team/colmet/archive/ma
     tar xf /tmp/colmet-master.tar.gz -C /tmp/ && \
     pip install /tmp/colmet-master
 
+RUN apt-get install -y --no-install-recommends tmux
+RUN wget http://gitlab.quicker.fr/opensource/public-dotfile/raw/master/.tmux.conf -O /root/.tmux.conf
+
 ADD sbin /sbin
-ADD etc /etc
+ADD etc/kvm /etc/kvm
+ADD etc/supervisor /etc/supervisor
 
-# Disable SELinux
-RUN mkdir -p /selinux && echo 0 > /selinux/enforce
-
-# Disable services
-RUN chmod -x /etc/init.d/ssh && \
-    update-rc.d -f apache2 remove && \
-    update-rc.d -f postgresql remove && \
-    update-rc.d -f rc.local remove && \
-    update-rc.d -f uml-utilities remove && \
-    update-rc.d -f umountfs remove && \
-    update-rc.d -f umountnfs.sh remove && \
-    update-rc.d -f x11-common remove && \
-    update-rc.d -f umountroot remove && \
-    update-rc.d -f networking remove && \
-    update-rc.d -f checkfs.sh remove && \
-    update-rc.d -f checkroot-bootclean.sh remove && \
-    update-rc.d -f checkroot.sh remove && \
-    update-rc.d -f qemu-kvm remove && \
-    update-rc.d -f hwclock.sh remove && \
-    update-rc.d -f hwclockfirst.sh remove && \
-    update-rc.d -f cron remove && \
-    update-rc.d -f udev remove
-
-CMD ["/sbin/my_init", "/sbin/cmd.sh"]
+CMD ["/sbin/init_kvm", "/sbin/my_init", "/sbin/cmd.sh"]
