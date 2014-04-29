@@ -20,6 +20,9 @@ RUN make -C /tmp/oar-$(cat /tmp/version.txt)/ PREFIX=/usr/local server-build
 RUN make -C /tmp/oar-$(cat /tmp/version.txt)/ PREFIX=/usr/local server-install
 RUN make -C /tmp/oar-$(cat /tmp/version.txt)/ PREFIX=/usr/local server-setup
 
+RUN cp /usr/local/share/oar/oar-server/init.d/oar-server /etc/init.d/
+RUN cp /usr/local/share/oar/oar-server/default/oar-server /etc/default/
+
 ADD etc/oar/job_resource_manager.pl /etc/oar/job_resource_manager.pl
 
 ADD configure_server.sh /tmp/configure_server.sh
@@ -31,7 +34,7 @@ RUN mkdir -p /etc/service/postgresql
 ## Setup apache2 daemon.
 ADD supervisor/ /etc/supervisor/conf.d/
 
-ADD cmd.sh /sbin/cmd.sh
+ADD sbin /sbin
 
 ## Cleanup
 RUN apt-get remove -y build-essential && \

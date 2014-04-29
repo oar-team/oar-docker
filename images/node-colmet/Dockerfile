@@ -13,11 +13,7 @@ RUN wget -q --no-check-certificate https://github.com/oar-team/colmet/archive/ma
     tar xf /tmp/colmet-master.tar.gz -C /tmp/ && \
     pip install /tmp/colmet-master
 
-RUN apt-get install -y --no-install-recommends tmux
-RUN wget http://gitlab.quicker.fr/opensource/public-dotfile/raw/master/.tmux.conf -O /root/.tmux.conf
-
 ADD sbin /sbin
-ADD etc/kvm /etc/kvm
-ADD etc/supervisor /etc/supervisor
+ADD supervisor /etc/supervisor
 
 CMD ["/sbin/init_kvm", "/sbin/my_init", "/sbin/cmd.sh"]
