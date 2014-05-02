@@ -101,7 +101,7 @@ start_nodes() {
 }
 
 start_nodes_colmet() {
-    start_nodes "oarcluster/node-colmet:latest" "/sbin/init_kvm /sbin/my_init /sbin/cmd.sh"
+    start_nodes "oarcluster/node-colmet:latest" "/sbin/init_kvm /sbin/my_init /sbin/cmd.sh --enable-insecure-key"
 }
 
 copy_ssh_config() {
