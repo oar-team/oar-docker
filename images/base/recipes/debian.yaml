@@ -19,7 +19,7 @@ checkpoint: docker.yaml
 global:
   maintainer: Salem Harrache <salem.harrache@inria.fr>
   ## User varibales : used by the recipe
-  cachedir: $$kameleon_cwd/cache
+  cachedir: /var/cache/kameleon
   user_name: docker
   arch: amd64
 
@@ -52,11 +52,11 @@ bootstrap:
     - release: $$release
     - arch: $$arch
     - repository: http://ftp.fr.debian.org/debian/
-    - rootfs_archive: $$cachedir/$$distrib/$$release/$$arch/debootstrap.tar.gz
+    - rootfs_archive: $$cachedir/$$distrib/$$release/docker/debootstrap.tar.gz
   - prepare_docker:
     - image: $$docker_image
     - dns: $$docker_dns
-    - rootfs_archive: $$cachedir/$$distrib/$$release/$$arch/debootstrap.tar.gz
+    - rootfs_archive: $$cachedir/$$distrib/$$release/docker/debootstrap.tar.gz
   - start_docker:
     - image: $$docker_image
     - dns: $$docker_dns
