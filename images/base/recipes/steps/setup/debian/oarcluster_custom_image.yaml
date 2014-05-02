@@ -86,3 +86,7 @@
 
 - update_initramfs:
   - exec_in: update-initramfs -u
+
+- install_tmux_from_backports:
+  - exec_in: apt-get -y --force-yes install -t wheezy-backports tmux
+
