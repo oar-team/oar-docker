@@ -14,6 +14,6 @@ RUN wget -q --no-check-certificate https://github.com/oar-team/colmet/archive/ma
     pip install /tmp/colmet-master
 
 ADD sbin /sbin
-ADD supervisor /etc/supervisor
+ADD supervisor /etc/supervisor/conf.d
 
 CMD ["/sbin/init_kvm", "/sbin/my_init", "/sbin/cmd.sh"]

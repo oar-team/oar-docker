@@ -10,16 +10,15 @@ RUN wget -q https://github.com/oar-team/colmet/archive/master.tar.gz -O /tmp/col
 RUN tar xf /tmp/colmet-master.tar.gz -C /tmp/
 RUN pip install /tmp/colmet-master
 
-## Setup apache2 daemon.
-ADD supervisor/ /etc/supervisor/conf.d/
+ADD sbin /sbin
 
+## Supervisor
+ADD supervisor/ /etc/supervisor/conf.d/
+## Use cgroup for job managment
 ADD etc/oar/job_resource_manager.pl /etc/oar/job_resource_manager.pl
 
-ADD cmd.sh /sbin/cmd.sh
-
 ## Cleanup
-RUN apt-get remove -y build-essential && \
-    apt-get autoremove -y && \
+RUN apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /tmp/* /var/tmp/*  && \
     rm -f /etc/ssh/ssh_host_*
