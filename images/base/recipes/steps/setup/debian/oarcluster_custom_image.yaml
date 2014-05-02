@@ -50,6 +50,11 @@
   - exec_in: chmod +x /sbin/sshd
   - exec_in: mkdir -p /var/run/sshd
 
+- configure_rsyslogd_daemon:
+  - local2in:
+    - $$kameleon_recipe_dir/src/supervisor/rsyslogd.conf
+    - /etc/supervisor/conf.d/rsyslogd.conf
+
 - add_helpers_scripts:
   # This tool runs a command as another user and sets $HOME.
   - local2in:
