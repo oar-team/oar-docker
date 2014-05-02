@@ -45,7 +45,8 @@ start_server() {
     image=${1:-"oarcluster/server:latest"}
     hostname="server.oarcluster"
     SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP --dns-search $DOMAIN -h $hostname \
-                 --env "NUM_NODES=$NUM_NODES" --name oarcluster_server \
+                 --env "NUM_NODES=$NUM_NODES" --env "COLOR=red" \
+                 --name oarcluster_server \
                  -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUME_MAP $image \
                  /sbin/my_init /sbin/cmd.sh --enable-insecure-key)
 
@@ -66,7 +67,8 @@ start_frontend() {
     image="oarcluster/frontend:latest"
     hostname="frontend.oarcluster"
     FRONTEND_CID=$($DOCKER run -d -t --dns $DNS_IP --dns-search $DOMAIN -h $hostname \
-                   --env "NUM_NODES=$NUM_NODES" --name oarcluster_frontend \
+                   --env "NUM_NODES=$NUM_NODES" --env "COLOR=blue" \
+                   --name oarcluster_frontend \
                    -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
                    -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 \
                    $VOLUME_MAP $image \
@@ -87,7 +89,8 @@ start_nodes() {
         name="node${i}"
         hostname="${name}.oarcluster"
         NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP --dns-search $DOMAIN \
-                   -h $hostname --name oarcluster_$name $VOLUME_MAP $image \
+                   -h $hostname --env "COLOR=yellow" \
+                   --name oarcluster_$name $VOLUME_MAP $image \
                    $cmd )
 
         if [ "$NODE_CID" = "" ]; then

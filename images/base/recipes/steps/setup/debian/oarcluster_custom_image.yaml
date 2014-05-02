@@ -66,6 +66,12 @@
     - $$kameleon_recipe_dir/src/sbin/rtail
     - /sbin/rtail
   - exec_in: chmod +x /sbin/rtail
+  - local2in:
+    - $$kameleon_recipe_dir/src/sbin/set_hostname_color.sh
+    - /sbin/set_hostname_color.sh
+  - exec_in: chmod +x /sbin/set_hostname_color.sh
+  - exec_in: bash /sbin/set_hostname_color.sh
+
 
 - configure_insecure_ssh_keys:
   - local2in:

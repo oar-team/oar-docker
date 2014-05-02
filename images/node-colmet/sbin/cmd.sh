@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+/sbin/set_hostname_color.sh
+
 mkdir -p /var/log/supervisor
 
 touch /var/log/auth.log

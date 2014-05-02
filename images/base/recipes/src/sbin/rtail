@@ -13,6 +13,11 @@ import select
 import subprocess
 import sys
 
+from termcolor import colored
+
+
+HOSTNAME = colored(os.uname()[1], os.environ.get('COLOR', 'green'))
+
 
 def main():
     op = optparse.OptionParser()
@@ -42,8 +47,10 @@ def main():
                     streams.remove(stream)
                     break
                 for line in data.split('\n'):
+
                     line = "%s\n" % line.strip()
                     if line != "\n":
+                        sys.stdout.write(HOSTNAME + colored(' ~> ', 'cyan'))
                         sys.stdout.write("%*s : " % (max_width, stream.name))
                         sys.stdout.write(line)
                 break
