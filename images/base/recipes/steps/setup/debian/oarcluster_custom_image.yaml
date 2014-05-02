@@ -1,5 +1,22 @@
 ## Customize oarcluster image
 
+## User
+- create_group:
+  - exec_in: groupadd $$user_name
+- add_user:
+  # use the create_passwd.py script to generate the crypted password
+  - exec_in: useradd -m -g $$user_name -s /bin/bash $$user_name
+  - exec_in: adduser $$user_name sudo
+  - exec_in: echo -n '$$user_name:$$user_name' | chpasswd
+
+- enable_passwordless_sudo:
+  - exec_in: cp /etc/sudoers /etc/sudoers.orig
+  - exec_in: sed -i.bkp -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' /etc/sudoers
+
+- fix_permission:
+  - on_export_init:
+    - exec_in: chown -R $$user_name:$$user_name /home/$$user_name
+
 ## Install init process.
 - install_my_init_script:
   - local2in:

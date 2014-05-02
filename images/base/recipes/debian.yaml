@@ -90,10 +90,6 @@ setup:
     - locales: fr_FR en_US
     - lang: fr_FR.UTF-8
     - timezone: Europe/Paris
-  - create_user:
-    - name: $$user_name
-    - group: $$user_name
-    - password: $$user_name
   - oarcluster_custom_image
 
 #== Export the generated appliance in the format of your choice
