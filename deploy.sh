@@ -14,7 +14,8 @@ DNSFILE="${DNSDIR}/0hosts"
 SSH_SERVER_PORT=49217
 SSH_FRONTEND_PORT=49218
 HTTP_FRONTEND_PORT=48080
-VOLUME_MAP=
+VOLUMES_MAP=
+VOLUMES=
 NUM_NODES=
 CONNECT_SSH=
 ENABLE_COLMET=
@@ -47,7 +48,7 @@ start_server() {
     SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP --dns-search $DOMAIN -h $hostname \
                  --env "NUM_NODES=$NUM_NODES" --env "COLOR=red" \
                  --name oarcluster_server \
-                 -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUME_MAP $image \
+                 -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUMES_MAP $image \
                  /sbin/my_init /sbin/cmd.sh --enable-insecure-key)
 
     if [ "$SERVER_CID" = "" ]; then
@@ -71,7 +72,7 @@ start_frontend() {
                    --name oarcluster_frontend \
                    -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
                    -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 \
-                   $VOLUME_MAP $image \
+                   $VOLUMES_MAP $image \
                    /sbin/my_init /sbin/cmd.sh --enable-insecure-key)
 
     if [ "$FRONTEND_CID" = "" ]; then
@@ -90,7 +91,7 @@ start_nodes() {
         hostname="${name}.oarcluster"
         NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP --dns-search $DOMAIN \
                    -h $hostname --env "COLOR=yellow" \
-                   --name oarcluster_$name $VOLUME_MAP $image \
+                   --name oarcluster_$name $VOLUMES_MAP $image \
                    $cmd )
 
         if [ "$NODE_CID" = "" ]; then
@@ -154,13 +155,22 @@ print_cluster_info() {
     echo "       $DOCKER logs -f oarcluster_frontend"
     echo "       $DOCKER logs -f oarcluster_nodexxx"
     echo ""
-    echo "Data : $VOLUME_MAP"
+    echo "Data : "
+if [ "$VOLUMES" == "" ]; then
+    echo "       ${BASEDIR}/shared_data ~> /data"
+else
+    _volumes=($VOLUMES)
+    for vol in "${_volumes[@]}"; do
+      array=(${vol//:/ })
+      echo "       ${array[0]} ~> ${array[1]}"
+    done
+fi
     echo ""
     echo "***********************************************************************"
 }
 
 print_help() {
-    echo "usage: $0 -n <#nodes> [-v <volume>] [-c|--connect] [--colmet]"
+    echo "usage: $0 -n <#nodes> [[-v </host:/container>]] [-c|--connect] [--colmet]"
 }
 
 args=$(getopt -l "connect,volume,colmet,nodes,help:" -o "n:cv:h" -- "$@")
@@ -186,7 +196,7 @@ while [ $# -ge 1 ]; do
         exit 0
       ;;
     -v|--volume)
-        VOLUME_MAP=$2
+        VOLUMES="$VOLUMES $2"
         shift
       ;;
     --colmet)
@@ -201,13 +211,15 @@ if [[ -z "$NUM_NODES" ]]; then
     fail "You must indicate number of nodes"
 fi
 
-if [ ! "$VOLUME_MAP" == "" ]; then
-    echo "Data volume chosen: $VOLUME_MAP"
-    VOLUME_MAP="-v $VOLUME_MAP:/data"
-else
+if [ "$VOLUMES" == "" ]; then
     mkdir -p "${BASEDIR}/shared_data"
     echo "Default data volume used: ${BASEDIR}/shared_data"
-    VOLUME_MAP="-v ${BASEDIR}/shared_data:/data"
+    VOLUMES_MAP="-v ${BASEDIR}/shared_data:/data"
+else
+    _volumes=($VOLUMES)
+    for vol in "${_volumes[@]}"; do
+      VOLUMES_MAP="$VOLUMES_MAP -v $vol"
+    done
 fi
 
 source $BASEDIR/clean.sh
