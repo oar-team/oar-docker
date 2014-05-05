@@ -15,12 +15,16 @@ function add_insecure_keys() {
 		cat /etc/insecure_key.pub >> "$AUTHORIZED_KEYS"
 		cat /etc/insecure_key.pub > $DIR/id_rsa.pub
 		cat /etc/insecure_key > $DIR/id_rsa
-		echo "
-Host *
-ForwardX11 no
-StrictHostKeyChecking no
-PasswordAuthentication no
-AddressFamily inet
+		echo "Host *
+  ForwardX11 no
+  StrictHostKeyChecking no
+  PasswordAuthentication no
+  AddressFamily inet
+  ControlPath ~/.ssh/master-%l-%r@%h:%p
+  ControlMaster auto
+  ControlPersist yes
+  Compression yes
+  Protocol 2
 " > $DIR/config
 		chmod 600 $DIR/id_rsa $DIR/id_rsa.pub $DIR/config
 		chown $USER:$USER -R "$DIR"
