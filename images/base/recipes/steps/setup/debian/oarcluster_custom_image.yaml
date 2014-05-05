@@ -71,7 +71,10 @@
     - /sbin/set_hostname_color.sh
   - exec_in: chmod +x /sbin/set_hostname_color.sh
   - exec_in: bash /sbin/set_hostname_color.sh
-
+  - local2in:
+    - $$kameleon_recipe_dir/src/sbin/split_ssh_pane
+    - /usr/local/bin/split_ssh_pane
+  - exec_in: chmod 755 /usr/local/bin/split_ssh_pane
 
 - configure_insecure_ssh_keys:
   - local2in:
