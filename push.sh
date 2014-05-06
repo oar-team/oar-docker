@@ -15,7 +15,7 @@ $DOCKER 2> /dev/null || fail "error: Docker ($DOCKER) executable no found. Make 
 $DOCKER push oarcluster/base
 $DOCKER push oarcluster/dnsmasq
 
-NODES=("frontend" "node" "server")
+NODES=("frontend" "node" "server" "node-colmet" "server-colmet")
 for image in ${NODES[@]}; do
     $DOCKER push oarcluster/$image
 done
