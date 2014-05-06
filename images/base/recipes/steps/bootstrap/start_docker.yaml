@@ -1,4 +1,3 @@
-- sshd_port: 49207
 - start_sshd:
   - on_checkpoint: redo
   - exec_out: |
@@ -6,12 +5,13 @@
             /bin/bash -c "ssh-keygen -A ; service ssh restart ; touch /var/log/auth.log ; tail -f /var/log/auth.log")
   - exec_out: echo "$CID" >> CONTAINERS_TO_CLEAN
   - exec_out: echo $CID > MAIN_CONTAINER_ID
+  - exec_out: MAIN_CONTAINER_PORT=$(echo $($DOCKER port $CID 22) | cut -d':' -f2)
   - write_out:
     - $$ssh_config_file
     - |
       Host $${kameleon_recipe_name}_container
       HostName 127.0.0.1
-      Port $(echo $($DOCKER port $CID 22) | cut -d':' -f2)
+      Port ${MAIN_CONTAINER_PORT}
       User root
       IdentityFile $$insecure_ssh_key
       UserKnownHostsFile /dev/null
@@ -27,7 +27,7 @@
       Protocol 2
   - exec_out: |
       echo -n "Waiting for SSH to become available..."
-      until ssh-keyscan -p $$sshd_port 127.0.0.1 2>&1 | grep ssh-rsa\\\|ssh-dsa &> /dev/null
+      until ssh-keyscan -p ${MAIN_CONTAINER_PORT} 127.0.0.1 2>&1 | grep ssh-rsa\\\|ssh-dsa &> /dev/null
       do
         sleep 1
       done
