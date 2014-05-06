@@ -46,3 +46,20 @@
                     | xargs -I {} docker rmi {}
   - exec_out: docker commit $CID $$image:sshd > /dev/null
   - exec_out: docker tag $$image:sshd $$image:latest
+
+## Fix some issues with APT packages.
+## See https://github.com/dotcloud/docker/issues/1024
+- fix_apt_issue:
+  - on_setup_init:
+    - exec_in: dpkg-divert --local --rename --add /sbin/initctl
+    - exec_in: ln -sf /bin/true /sbin/initctl
+
+
+## Replace the 'ischroot' tool to make it always return true.
+## Prevent initscripts updates from breaking /dev/shm.
+## https://journal.paul.querna.org/articles/2013/10/15/docker-ubuntu-on-rackspace/
+## https://bugs.launchpad.net/launchpad/+bug/974584
+- make_ischroot_tool_return_true:
+  - on_setup_init:
+    - exec_in: dpkg-divert --local --rename --add /usr/bin/ischroot
+    - exec_in: ln -sf /bin/true /usr/bin/ischroot
