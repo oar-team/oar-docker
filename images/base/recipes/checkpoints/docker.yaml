@@ -1,14 +1,18 @@
 create: |
+    DOCKER=${DOCKER:-docker}
     if [ -f MAIN_CONTAINER_ID ] ; then
-      docker commit $(cat MAIN_CONTAINER_ID) $$docker_image:@microstep_id
+      $DOCKER commit $(cat MAIN_CONTAINER_ID) $$docker_image:@microstep_id
     fi
 
 apply: |
-    docker tag $$docker_image:@microstep_id $$docker_image:latest
+    DOCKER=${DOCKER:-docker}
+    $DOCKER tag $$docker_image:@microstep_id $$docker_image:latest
 
 list: |
-    docker images | grep $$docker_image | awk '{print $2}'
+    DOCKER=${DOCKER:-docker}
+    $DOCKER images | grep $$docker_image | awk '{print $2}'
 
 clear: |
-    docker images | grep $$docker_image | awk '{print $3}' \
-    | xargs -I {} bash -c "docker rmi {} | cat || true"
+    DOCKER=${DOCKER:-docker}
+    $DOCKER images | grep $$docker_image | awk '{print $3}' \
+    | xargs -I {} bash -c "$DOCKER rmi {} | cat || true"
