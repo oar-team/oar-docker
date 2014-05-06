@@ -20,9 +20,6 @@ function add_insecure_keys() {
   StrictHostKeyChecking no
   PasswordAuthentication no
   AddressFamily inet
-  ControlPath ~/.ssh/master-%l-%r@%h:%p
-  ControlMaster auto
-  ControlPersist yes
   Compression yes
   Protocol 2
 " > $DIR/config
