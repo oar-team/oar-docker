@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-sudo /sbin/set_hostname_color.sh
+source <(cat /etc/container_environment.sh | grep "COLOR")
 
-sudo touch /var/log/oar.log
-sudo touch /var/log/auth.log
+touch /var/log/oar.log
+touch /var/log/auth.log
 
-sudo /sbin/rtail /var/log/auth.log /var/log/oar.log
+/sbin/rtail /var/log/auth.log /var/log/oar.log

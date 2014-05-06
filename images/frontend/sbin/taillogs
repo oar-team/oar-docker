@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-sudo /sbin/set_hostname_color.sh
+source <(cat /etc/container_environment.sh | grep "COLOR")
 
-sudo mkdir -p /var/log/apache2/
-sudo touch /var/log/apache2/access.log
-sudo touch /var/log/apache2/error.log
-sudo touch /var/log/auth.log
+mkdir -p /var/log/apache2/
+touch /var/log/apache2/access.log
+touch /var/log/apache2/error.log
+touch /var/log/auth.log
 
-sudo /sbin/rtail /var/log/apache2/access.log /var/log/apache2/error.log /var/log/auth.log
+/sbin/rtail /var/log/apache2/access.log /var/log/apache2/error.log /var/log/auth.log
 

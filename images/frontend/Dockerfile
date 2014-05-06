@@ -4,6 +4,8 @@ MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 ENV HOME /root
 ENV LC_ALL C
 ENV DEBIAN_FRONTEND noninteractive
+ENV COLOR blue
+RUN /sbin/set_hostname_color.sh
 
 ## Prepare packages
 RUN apt-get update
@@ -40,6 +42,9 @@ RUN wget -q https://rubygems.org/downloads/json-1.8.1.gem -O /tmp/json-1.8.1.gem
 RUN gem install /tmp/naturalsort-1.1.1.gem /tmp/json-1.8.1.gem --no-ri --no-rdoc
 ADD chandler.rb /usr/local/bin/chandler
 RUN chmod +x /usr/local/bin/chandler
+
+RUN echo "#!/bin/bash\nsudo /sbin/taillogs" > /usr/local/bin/taillogs
+RUN chmod +x /usr/local/bin/taillogs
 
 ## Cleanup
 RUN apt-get remove -y build-essential && apt-get autoremove -y && apt-get clean

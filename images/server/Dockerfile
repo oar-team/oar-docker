@@ -6,6 +6,9 @@ ENV HOME /root
 ENV LC_ALL C
 ENV DEBIAN_FRONTEND noninteractive
 
+ENV COLOR red
+RUN /sbin/set_hostname_color.sh
+
 ## Prepare packages
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
@@ -35,6 +38,8 @@ RUN mkdir -p /etc/service/postgresql
 ADD supervisor/ /etc/supervisor/conf.d/
 
 ADD sbin /sbin
+RUN echo "#!/bin/bash\nsudo /sbin/taillogs" > /usr/local/bin/taillogs
+RUN chmod +x /usr/local/bin/taillogs
 
 ## Cleanup
 RUN apt-get remove -y build-essential && \

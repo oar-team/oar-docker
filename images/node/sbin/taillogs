@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-sudo /sbin/set_hostname_color.sh
+source <(cat /etc/container_environment.sh | grep "COLOR")
 
-sudo mkdir -p /var/log/supervisor
+mkdir -p /var/log/supervisor
 
-sudo touch /var/log/auth.log
-sudo touch /var/log/supervisor/oar-node.log
-sudo touch /var/log/auth.log
+touch /var/log/auth.log
+touch /var/log/supervisor/oar-node.log
+touch /var/log/auth.log
 
-sudo /sbin/rtail /var/log/auth.log /var/log/supervisor/oar-node.log /var/log/auth.log
+/sbin/rtail /var/log/auth.log /var/log/supervisor/oar-node.log /var/log/auth.log
