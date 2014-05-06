@@ -54,9 +54,9 @@ RUN sed -i s/__OAR_VERSION__/$(cat /tmp/version.txt)/ /etc/motd
 
 RUN echo "PrintMotd yes" >> /etc/ssh/sshd_config
 
-ADD cmd.sh /sbin/cmd.sh
+ADD sbin/ /sbin/
 
 EXPOSE 22
 EXPOSE 80
 
-CMD ["/sbin/my_init", "/sbin/cmd.sh"]
+CMD ["/sbin/my_init", "/sbin/taillogs"]

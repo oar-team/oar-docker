@@ -45,4 +45,4 @@ RUN apt-get remove -y build-essential && \
 
 EXPOSE 22
 
-CMD ["/sbin/my_init", "/sbin/cmd.sh"]
+CMD ["/sbin/my_init", "/sbin/taillogs"]

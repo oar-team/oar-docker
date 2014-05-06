@@ -25,4 +25,4 @@ RUN apt-get autoremove -y && \
 
 EXPOSE 22
 
-CMD ["/sbin/my_init", "/sbin/cmd.sh"]
+CMD ["/sbin/my_init", "/sbin/taillogs"]

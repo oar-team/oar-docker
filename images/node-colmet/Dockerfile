@@ -16,4 +16,4 @@ RUN wget -q --no-check-certificate https://github.com/oar-team/colmet/archive/ma
 ADD sbin /sbin
 ADD supervisor /etc/supervisor/conf.d
 
-CMD ["/sbin/init_kvm", "/sbin/my_init", "/sbin/cmd.sh"]
+CMD ["/sbin/init_kvm", "/sbin/my_init", "/sbin/taillogs"]

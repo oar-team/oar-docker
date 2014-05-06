@@ -11,11 +11,10 @@ RUN make -C /tmp/oar-$(cat /tmp/version.txt)/ PREFIX=/usr/local node-build
 RUN make -C /tmp/oar-$(cat /tmp/version.txt)/ PREFIX=/usr/local node-install
 RUN make -C /tmp/oar-$(cat /tmp/version.txt)/ PREFIX=/usr/local node-setup
 
-ADD sbin/oar-node /sbin/oar-node
+ADD sbin/ /sbin/
 ADD supervisor /etc/supervisor/conf.d
-ADD cmd.sh /sbin/cmd.sh
 
 ## Cleanup
 RUN rm -rf /tmp/*
 
-CMD ["/sbin/my_init", "/sbin/cmd.sh"]
+CMD ["/sbin/my_init", "/sbin/taillogs"]

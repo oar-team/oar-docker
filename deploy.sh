@@ -49,7 +49,7 @@ start_server() {
                  --env "NUM_NODES=$NUM_NODES" --env "COLOR=red" \
                  --name oarcluster_server \
                  -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUMES_MAP $image \
-                 /sbin/my_init /sbin/cmd.sh --enable-insecure-key)
+                 /sbin/my_init /sbin/taillogs --enable-insecure-key)
 
     if [ "$SERVER_CID" = "" ]; then
         fail "error: could not start server container from image $image"
@@ -73,7 +73,7 @@ start_frontend() {
                    -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
                    -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 \
                    $VOLUMES_MAP $image \
-                   /sbin/my_init /sbin/cmd.sh --enable-insecure-key)
+                   /sbin/my_init /sbin/taillogs --enable-insecure-key)
 
     if [ "$FRONTEND_CID" = "" ]; then
         fail "error: could not start frontend container from image $image"
@@ -85,7 +85,7 @@ start_frontend() {
 
 start_nodes() {
     image=${1:-"oarcluster/node:latest"}
-    cmd=${2:-"/sbin/my_init /sbin/cmd.sh --enable-insecure-key"}
+    cmd=${2:-"/sbin/my_init /sbin/taillogs --enable-insecure-key"}
     for i in `seq 1 $NUM_NODES`; do
         name="node${i}"
         hostname="${name}.oarcluster"
@@ -105,7 +105,7 @@ start_nodes() {
 }
 
 start_nodes_colmet() {
-    start_nodes "oarcluster/node-colmet:latest" "/sbin/init_kvm /sbin/my_init /sbin/cmd.sh --enable-insecure-key"
+    start_nodes "oarcluster/node-colmet:latest" "/sbin/init_kvm /sbin/my_init /sbin/taillogs --enable-insecure-key"
 }
 
 copy_ssh_config() {

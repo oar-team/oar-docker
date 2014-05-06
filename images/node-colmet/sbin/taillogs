@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+
+sudo /sbin/set_hostname_color.sh
+
+sudo mkdir -p /var/log/supervisor
+
+sudo touch /var/log/auth.log
+sudo touch /var/log/supervisor/oar-node.log
+sudo touch /var/log/supervisor/colmet-node.log
+sudo /sbin/rtail /var/log/auth.log /var/log/supervisor/oar-node.log /var/log/supervisor/colmet-node.log
