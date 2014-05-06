@@ -1,8 +1,0 @@
-
-- export_docker_container:
-  - exec_out: mkdir -p $(dirname $$rootfs)
-  - exec_out: echo "Exporting the container to $$rootfs"
-  - exec_in: rm -rf /tmp/*
-  - exec_in: rm -rf /var/tmp/* || true
-  - exec_in: rm -f /etc/ssh/ssh_host_* || true
-  - exec_out: docker export $$container | gzip > $$rootfs

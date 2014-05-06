@@ -97,4 +97,4 @@ setup:
 export:
   - create_docker_base_image:
     - container: $(cat MAIN_CONTAINER_ID)
-    - rootfs: $$kameleon_recipe_dir/../$${distrib}_base.tar.gz
+    - image: oarcluster/base
