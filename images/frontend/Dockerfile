@@ -46,11 +46,6 @@ RUN chmod +x /usr/local/bin/chandler
 RUN echo "#!/bin/bash\nsudo /sbin/taillogs" > /usr/local/bin/taillogs
 RUN chmod +x /usr/local/bin/taillogs
 
-## Cleanup
-RUN apt-get remove -y build-essential && apt-get autoremove -y && apt-get clean
-RUN rm -rf /tmp/* /var/tmp/*
-RUN rm -f /etc/ssh/ssh_host_*
-
 ## Setup apache2 daemon.
 ADD supervisor/apache2.conf /etc/supervisor/conf.d/apache2.conf
 
@@ -60,6 +55,11 @@ RUN sed -i s/__OAR_VERSION__/$(cat /tmp/version.txt)/ /etc/motd
 RUN echo "PrintMotd yes" >> /etc/ssh/sshd_config
 
 ADD sbin/ /sbin/
+
+## Cleanup
+RUN apt-get remove -y build-essential && apt-get autoremove -y && apt-get clean
+RUN rm -rf /tmp/* /var/tmp/*
+RUN rm -f /etc/ssh/ssh_host_*
 
 EXPOSE 22
 EXPOSE 80
