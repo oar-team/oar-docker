@@ -13,8 +13,6 @@
 ---
 # Loads some helpful aliases
 aliases: defaults.yaml
-# Enables qcow2 checkpoint
-checkpoint: docker.yaml
 #== Global variables use by Kameleon engine and the steps
 global:
   maintainer: Salem Harrache <salem.harrache@inria.fr>
