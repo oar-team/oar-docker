@@ -6,19 +6,9 @@ mkdir /dev/net
 mknod /dev/net/tun c 10 200
 test -f /etc/mtab || ln -s /proc/mounts /etc/mtab
 
-## Save network config
-IPADDR=$(ip addr ls dev eth0 | grep -w inet | awk '{print $2}')
-ROUTER=$(ip route ls | grep ^default | awk '{print $3}')
-echo $IPADDR > /.ipaddr
-echo $ROUTER > /.router
-
-## Delete container IP address from eth0
-ip addr del $IPADDR dev eth0
-
-## Add a new bridge interface linked to eth0
-brctl addbr br0
-brctl addif br0 eth0
-ip link set br0 up
+iptables -t nat -A POSTROUTING -s 172.18.0.0/24 -o eth0 -j MASQUERADE
+socat TCP-LISTEN:22,fork,reuseaddr TCP:172.18.0.2:22 &
+socat TCP-LISTEN:6667,fork,reuseaddr TCP:172.18.0.2:6667 &
 
 ## Custom init script
 INIT_CMD="$@"
@@ -30,11 +20,10 @@ cat > /sbin/init_inside_kvm <<EOF
 
 mount -o rw,remount /
 hostname \$(cat /etc/hostname)
-ip addr add \$(cat /.ipaddr) dev eth0
+ip addr add 172.18.0.2/24 dev eth0
 ip link set lo up
 ip link set eth0 up
-ip route add default via \$(cat /.router)
-rm -f /.ipaddr /.router
+ip route add default via 172.18.0.1
 
 exec $INIT_CMD
 EOF
@@ -44,8 +33,8 @@ chmod +x /sbin/init_inside_kvm
 mkdir -p /etc/kvm
 cat > /etc/kvm/kvm-ifup <<EOF
 #!/bin/sh
-brctl addif br0 \$1
-ip link set \$1 up
+ip addr add 172.18.0.1/24 dev "\$1"
+ip link set "\$1" up
 EOF
 chmod +x /etc/kvm/kvm-ifup
 
