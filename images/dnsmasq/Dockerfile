@@ -5,9 +5,12 @@ MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 RUN apt-get update && apt-get install -y dnsmasq-base inotify-tools procps
 
 RUN echo "user=root" > /etc/dnsmasq.conf ; \
+    echo "no-daemon"  >> /etc/dnsmasq.conf ; \
+    echo "no-dhcp-interface=eth0"  >> /etc/dnsmasq.conf ; \
+    echo "no-hosts"  >> /etc/dnsmasq.conf ; \
+    echo "addn-hosts=/etc/dnsmasq.d/hosts"  >> /etc/dnsmasq.conf ; \
     echo "listen-address=__LOCAL_IP__" >> /etc/dnsmasq.conf ; \
-    echo "resolv-file=/etc/resolv.dnsmasq.conf" >> /etc/dnsmasq.conf ; \
-    echo "conf-dir=/etc/dnsmasq.d"  >> /etc/dnsmasq.conf
+    echo "resolv-file=/etc/resolv.dnsmasq.conf" >> /etc/dnsmasq.conf
 
 # Opendns
 RUN echo "# Opendns" > /etc/resolv.dnsmasq.conf ; \

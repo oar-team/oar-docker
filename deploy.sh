@@ -9,7 +9,7 @@ SSH_CONFIG="$WORKDIR/ssh_config"
 SSH_KEY="$WORKDIR/ssh_insecure_key"
 DNS_IP=
 DNSDIR="$WORKDIR/dnsmasq.d"
-DNSFILE="${DNSDIR}/0hosts"
+DNSFILE="${DNSDIR}/hosts"
 DOMAIN="oarcluster"
 SSH_SERVER_PORT=49217
 SSH_FRONTEND_PORT=49218
@@ -41,7 +41,7 @@ start_dns() {
     echo "Started oarcluster_dns : $DNS_CID"
 
     DNS_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $DNS_CID)
-    echo "address=\"/dns/$DNS_IP\"" >> $DNSFILE
+    echo "$DNS_IP dns" >> $DNSFILE
 }
 
 start_server() {
@@ -59,7 +59,7 @@ start_server() {
 
     echo "Started oarcluster_server : $SERVER_CID"
     SERVER_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $SERVER_CID)
-    echo "address=\"/$hostname/$SERVER_IP\"" >> $DNSFILE
+    echo "$SERVER_IP $hostname" >> $DNSFILE
 }
 
 start_server_colmet() {
@@ -82,7 +82,7 @@ start_frontend() {
     fi
     echo "Started oarcluster_frontend : $FRONTEND_CID"
     FRONTEND_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $FRONTEND_CID)
-    echo "address=\"/$hostname/$FRONTEND_IP\"" >> $DNSFILE
+    echo "$FRONTEND_IP $hostname" >> $DNSFILE
 }
 
 start_nodes() {
@@ -102,7 +102,7 @@ start_nodes() {
 
         echo "Started oarcluster_$name : $NODE_CID"
         NODE_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $NODE_CID)
-        echo "address=\"/$hostname/$NODE_IP\"" >> $DNSFILE
+        echo "$NODE_IP $hostname" >> $DNSFILE
     done
 }
 
