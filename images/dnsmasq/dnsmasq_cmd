@@ -7,10 +7,11 @@ sed -i s/__LOCAL_IP__/$IP/ /etc/dnsmasq.conf
 
 dnsmasq
 
-EVENTS="CREATE,CLOSE_WRITE,DELETE,MODIFY,MOVED_FROM,MOVED_TO"
 while [ 1 ];
 do
-    inotifywait -e "$EVENTS" -r --format '%:e %f' /etc/dnsmasq.d
-    echo "Restarting dnsmasq"
-    pkill dnsmasq ; dnsmasq
+    sleep 3
+    # kill and restart dnsmasq every three seconds
+    # in case its configuration has changed
+    pkill dnsmasq
+    dnsmasq
 done

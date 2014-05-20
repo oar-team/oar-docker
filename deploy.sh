@@ -5,12 +5,12 @@ DOCKER=${DOCKER:-docker}
 WORKDIR=/tmp/oarcluster
 BASEDIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 VERSION=$(cat $BASEDIR/version.txt)
-DOMAIN="oarcluster"
 SSH_CONFIG="$WORKDIR/ssh_config"
 SSH_KEY="$WORKDIR/ssh_insecure_key"
 DNS_IP=
 DNSDIR="$WORKDIR/dnsmasq.d"
 DNSFILE="${DNSDIR}/0hosts"
+DOMAIN="oarcluster"
 SSH_SERVER_PORT=49217
 SSH_FRONTEND_PORT=49218
 HTTP_FRONTEND_PORT=48080
@@ -26,10 +26,12 @@ fail() {
 }
 
 start_dns() {
-    image="oarcluster/dnsmasq:latest"
+    # Reset DNS configuration
     mkdir -p $DNSDIR
     echo > $DNSFILE
-    DNS_CID=$($DOCKER run --dns 127.0.0.1 -d -h dns \
+    image="oarcluster/dnsmasq:latest"
+    hostname="dns.$DOMAIN"
+    DNS_CID=$($DOCKER run --dns 127.0.0.1 -d -h $hostname \
               --name oarcluster_dns -v $DNSDIR:/etc/dnsmasq.d \
               $image)
     if [ "$DNS_CID" = "" ]; then
@@ -44,10 +46,10 @@ start_dns() {
 
 start_server() {
     image=${1:-"oarcluster/server:latest"}
-    hostname="server.oarcluster"
-    SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP --dns-search $DOMAIN -h $hostname \
+    hostname="server.$DOMAIN"
+    SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname --dns-search $DOMAIN \
                  --env "NUM_NODES=$NUM_NODES" --env "COLOR=red" \
-                 --name oarcluster_server \
+                 --name oarcluster_server  --privileged \
                  -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUMES_MAP $image \
                  /sbin/my_init /sbin/taillogs --enable-insecure-key)
 
@@ -66,8 +68,8 @@ start_server_colmet() {
 
 start_frontend() {
     image="oarcluster/frontend:latest"
-    hostname="frontend.oarcluster"
-    FRONTEND_CID=$($DOCKER run -d -t --dns $DNS_IP --dns-search $DOMAIN -h $hostname \
+    hostname="frontend.$DOMAIN"
+    FRONTEND_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname --dns-search $DOMAIN \
                    --env "NUM_NODES=$NUM_NODES" --env "COLOR=blue" \
                    --name oarcluster_frontend \
                    -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
@@ -88,9 +90,9 @@ start_nodes() {
     cmd=${2:-"/sbin/my_init /sbin/taillogs --enable-insecure-key"}
     for i in `seq 1 $NUM_NODES`; do
         name="node${i}"
-        hostname="${name}.oarcluster"
-        NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP --dns-search $DOMAIN \
-                   -h $hostname --env "COLOR=yellow" \
+        hostname="${name}.$DOMAIN"
+        NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP \
+                   -h $hostname --dns-search $DOMAIN --env "COLOR=yellow" \
                    --name oarcluster_$name $VOLUMES_MAP $image \
                    $cmd )
 
@@ -223,6 +225,7 @@ else
 fi
 
 source $BASEDIR/clean.sh
+
 
 if [[ -n "$ENABLE_COLMET" ]]; then
   start_dns
