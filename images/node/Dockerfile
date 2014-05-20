@@ -1,8 +1,7 @@
 FROM oarcluster/base
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
-ENV COLOR yellow
-RUN /sbin/set_hostname_color.sh
+RUN echo "export COLOR=yellow" > /etc/hostname.color
 
 # Download oar
 ADD version.txt /tmp/version.txt

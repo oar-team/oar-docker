@@ -4,8 +4,7 @@ MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 ENV HOME /root
 ENV LC_ALL C
 ENV DEBIAN_FRONTEND noninteractive
-ENV COLOR blue
-RUN /sbin/set_hostname_color.sh
+RUN echo "export COLOR=blue" > /etc/hostname.color
 
 ## Prepare packages
 RUN apt-get update

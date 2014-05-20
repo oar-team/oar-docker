@@ -91,10 +91,38 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
-hostname_color="$(cat /etc/hostname.color)"
+test ! -f /etc/hostname.color || source /etc/hostname.color
+
+# Regular Colors
+red="\[\033[0;31m\]"
+yellow="\[\033[0;33m\]"
+blue="\[\033[0;34m\]"
+green="\[\033[0;32m\]"
+bgreen="\[\033[1;32m\]"
+iblack="\[\033[0;90m\]"
+magenta="\[\033[0;35m\]"
+
+if [ "$COLOR" == "red" ]; then
+    HOST_COLOR="$red"
+elif [ "$COLOR" == "yellow" ]; then
+    HOST_COLOR="$yellow"
+elif [ "$COLOR" == "blue" ]; then
+    HOST_COLOR="$blue"
+elif [ "$COLOR" == "green" ]; then
+    HOST_COLOR="$green"
+elif [ "$COLOR" == "bgreen" ]; then
+    HOST_COLOR="$bgreen"
+elif [ "$COLOR" == "iblack" ]; then
+    HOST_COLOR="$iblack"
+elif [ "$COLOR" == "magenta" ]; then
+    HOST_COLOR="$magenta"
+else
+    HOST_COLOR="$green"
+fi
+
 
 if [ "$color_prompt" = yes ]; then
-    PS1="\${debian_chroot:+(\$debian_chroot)}${hostname_color}\u@\h\[\033[00m\] \[\e[1;37m\]\$prompt_dir\[\e[1;36m\]\$git_subpath\[\e[0;31m\]\$git_branch\[\e[1;33m\]\$git_dirty\[\033[01;34m\]
+    PS1="\${debian_chroot:+(\$debian_chroot)}${HOST_COLOR}\u@\h\[\033[00m\] \[\e[1;37m\]\$prompt_dir\[\e[1;36m\]\$git_subpath\[\e[0;31m\]\$git_branch\[\e[1;33m\]\$git_dirty\[\033[01;34m\]
 \$\[\033[00m\] "
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h: $prompt_dir$git_subpath$git_branch$git_dirty \$ '
