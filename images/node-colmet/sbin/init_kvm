@@ -1,10 +1,10 @@
 #!/bin/bash
 
 ## Enable kvm and virtual-network kernel
-mknod /dev/kvm c 10 232
-mkdir /dev/net
-mknod /dev/net/tun c 10 200
-test -f /etc/mtab || ln -s /proc/mounts /etc/mtab
+[ -c /dev/kvm ] || mknod /dev/kvm c 10 232
+[ -d /dev/net ] || mkdir /dev/net
+[ -c /dev/net/tun ] || mknod /dev/net/tun c 10 200
+[ -f /etc/mtab ] || ln -s /proc/mounts /etc/mtab
 
 iptables -t nat -A POSTROUTING -s 172.18.0.0/24 -o eth0 -j MASQUERADE
 socat TCP-LISTEN:22,fork,reuseaddr TCP:172.18.0.2:22 &
@@ -46,7 +46,7 @@ CMDLINE="console=ttyS0 quiet panic=0 $CMDLINE"
 CMDLINE="init=/sbin/init_inside_kvm $CMDLINE"
 
 echo "+++ Starting kvm."
-kvm -nographic -no-reboot -m 512 \
+kvm -nographic -no-reboot -m 256 \
     -append "$CMDLINE" -kernel "$KERNEL" -initrd "$INITRD" \
     -fsdev local,id=fsdev0,path="$ROOTFS",security_model=none \
     -device virtio-9p-pci,fsdev=fsdev0,mount_tag=guestroot \
