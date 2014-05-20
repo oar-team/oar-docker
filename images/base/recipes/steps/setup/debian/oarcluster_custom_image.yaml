@@ -72,13 +72,13 @@
   - exec_in: chmod 755 /usr/local/bin/split_ssh_pane
   - local2in:
     - $$kameleon_recipe_dir/src/sbin/ps_mem.py
-    - /sbin/ps_mem
+    - /sbin/psmem
   - write_in:
-    - /usr/local/bin/ps_mem
+    - /usr/local/bin/psmem
     - |
       #!/usr/bin/env bash
-      sudo /sbin/ps_mem $@
-  - exec_in: chmod 755 /sbin/ps_mem /usr/local/bin/ps_mem
+      sudo /sbin/psmem $@
+  - exec_in: chmod 755 /sbin/psmem /usr/local/bin/psmem
 
 - configure_insecure_ssh_keys:
   - local2in:
