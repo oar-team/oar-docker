@@ -7,13 +7,18 @@ ENV DEBIAN_FRONTEND noninteractive
 ## Install colmet
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    python-dev python-zmq python-pip python-tables python-h5py python-pyinotify
+    python-dev python-pip \
+    libzmq-dev libhdf5-serial-dev g++
 
-RUN wget -q --no-check-certificate https://github.com/oar-team/colmet/archive/master.tar.gz -O /tmp/colmet-master.tar.gz && \
-    tar xf /tmp/colmet-master.tar.gz -C /tmp/ && \
-    pip install /tmp/colmet-master
+RUN pip install cython colmet -U
 
 ADD sbin /sbin
 ADD supervisor /etc/supervisor/conf.d
+
+## Cleanup
+RUN apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /tmp/* /var/tmp/*  && \
+    rm -f /etc/ssh/ssh_host_*
 
 CMD ["/sbin/init_kvm", "/sbin/my_init", "/sbin/taillogs"]

@@ -4,11 +4,12 @@ MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 ENV DEBIAN_FRONTEND noninteractive
 
 ## Install colmet
-RUN apt-get install -y --no-install-recommends \
-    python-dev python-zmq python-pip python-tables python-h5py python-pyinotify
-RUN wget -q https://github.com/oar-team/colmet/archive/master.tar.gz -O /tmp/colmet-master.tar.gz
-RUN tar xf /tmp/colmet-master.tar.gz -C /tmp/
-RUN pip install /tmp/colmet-master
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python-dev python-pip \
+    libzmq-dev libhdf5-serial-dev g++
+
+RUN pip install cython colmet -U
 
 ADD sbin /sbin
 
