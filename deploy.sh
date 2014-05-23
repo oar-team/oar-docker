@@ -5,18 +5,20 @@ DOCKER=${DOCKER:-docker}
 WORKDIR=/tmp/oarcluster
 BASEDIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 VERSION=$(cat $BASEDIR/version.txt)
-DOMAIN="oarcluster"
 SSH_CONFIG="$WORKDIR/ssh_config"
 SSH_KEY="$WORKDIR/ssh_insecure_key"
 DNS_IP=
 DNSDIR="$WORKDIR/dnsmasq.d"
-DNSFILE="${DNSDIR}/0hosts"
+DNSFILE="${DNSDIR}/hosts"
+DOMAIN="oarcluster"
 SSH_SERVER_PORT=49217
 SSH_FRONTEND_PORT=49218
 HTTP_FRONTEND_PORT=48080
-VOLUME_MAP=
+VOLUMES_MAP=
+VOLUMES=
 NUM_NODES=
 CONNECT_SSH=
+ENABLE_COLMET=
 
 fail() {
     echo $@ 1>&2
@@ -24,10 +26,12 @@ fail() {
 }
 
 start_dns() {
-    image="oarcluster/dnsmasq:latest"
+    # Reset DNS configuration
     mkdir -p $DNSDIR
     echo > $DNSFILE
-    DNS_CID=$($DOCKER run --dns 127.0.0.1 -d -h dns \
+    image="oarcluster/dnsmasq:latest"
+    hostname="dns.$DOMAIN"
+    DNS_CID=$($DOCKER run --dns 127.0.0.1 -d -h $hostname \
               --name oarcluster_dns -v $DNSDIR:/etc/dnsmasq.d \
               $image)
     if [ "$DNS_CID" = "" ]; then
@@ -37,7 +41,7 @@ start_dns() {
     echo "Started oarcluster_dns : $DNS_CID"
 
     DNS_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $DNS_CID)
-    echo "address=\"/dns/$DNS_IP\"" >> $DNSFILE
+    echo "$DNS_IP dns" >> $DNSFILE
 }
 
 start_nfs_server() {
@@ -53,15 +57,16 @@ start_nfs_server() {
 
     echo "Started oarcluster_nfs_server : $NFS_SERVER_CID"
     NFS_SERVER_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $NFS_SERVER_CID)
-    echo "address=\"/$hostname/$NFS_SERVER_IP\"" >> $DNSFILE
+    echo "$NFS_SERVER_IP $hostname" >> $DNSFILE
 }
 
 start_server() {
     image=${1:-"oarcluster/server-nfs:latest"}
     hostname="server.$DOMAIN"
-    SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP --dns-search $DOMAIN -h $hostname \
-                 --env "NUM_NODES=$NUM_NODES" --name oarcluster_server --privileged \
-                 -p 127.0.0.1:$SSH_SERVER_PORT:22 $image \
+    SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname --dns-search $DOMAIN \
+                 --env "NUM_NODES=$NUM_NODES" --env "COLOR=red" \
+                 --name oarcluster_server  --privileged \
+                 -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUMES_MAP $image \
                  /sbin/my_init /sbin/cmd.sh --enable-insecure-key)
 
     if [ "$SERVER_CID" = "" ]; then
@@ -70,16 +75,22 @@ start_server() {
 
     echo "Started oarcluster_server : $SERVER_CID"
     SERVER_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $SERVER_CID)
-    echo "address=\"/$hostname/$SERVER_IP\"" >> $DNSFILE
+    echo "$SERVER_IP $hostname" >> $DNSFILE
+}
+
+start_server_colmet() {
+    start_server "oarcluster/server-colmet:latest"
 }
 
 start_frontend() {
     image="oarcluster/frontend-nfs:latest"
     hostname="frontend.$DOMAIN"
-    FRONTEND_CID=$($DOCKER run -d -t --dns $DNS_IP --dns-search $DOMAIN -h $hostname \
-                   --env "NUM_NODES=$NUM_NODES" --name oarcluster_frontend --privileged \
-                   -p 127.0.0.1:$SSH_FRONTEND_PORT:22 -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 \
-                   $image \
+    FRONTEND_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname --dns-search $DOMAIN \
+                   --env "NUM_NODES=$NUM_NODES" --env "COLOR=blue" \
+                   --name oarcluster_frontend \
+                   -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
+                   -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 \
+                   $VOLUMES_MAP $image \
                    /sbin/my_init /sbin/cmd.sh --enable-insecure-key)
 
     if [ "$FRONTEND_CID" = "" ]; then
@@ -87,7 +98,7 @@ start_frontend() {
     fi
     echo "Started oarcluster_frontend : $FRONTEND_CID"
     FRONTEND_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $FRONTEND_CID)
-    echo "address=\"/$hostname/$FRONTEND_IP\"" >> $DNSFILE
+    echo "$FRONTEND_IP $hostname" >> $DNSFILE
 }
 
 start_nodes() {
@@ -96,8 +107,9 @@ start_nodes() {
     for i in `seq 1 $NUM_NODES`; do
         name="node${i}"
         hostname="${name}.$DOMAIN"
-        NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP --dns-search $DOMAIN \
-                   -h $hostname --name oarcluster_$name --privileged $image \
+        NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP \
+                   -h $hostname --dns-search $DOMAIN --env "COLOR=yellow" \
+                   --name oarcluster_$name $VOLUMES_MAP $image \
                    $cmd )
 
         if [ "$NODE_CID" = "" ]; then
@@ -106,12 +118,12 @@ start_nodes() {
 
         echo "Started oarcluster_$name : $NODE_CID"
         NODE_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $NODE_CID)
-        echo "address=\"/$hostname/$NODE_IP\"" >> $DNSFILE
+        echo "$NODE_IP $hostname" >> $DNSFILE
     done
 }
 
 start_nodes_colmet() {
-    start_nodes "oarcluster/node-colmet:latest" "/sbin/init_kvm"
+    start_nodes "oarcluster/node-colmet:latest" "/sbin/init_kvm /sbin/my_init /sbin/taillogs --enable-insecure-key"
 }
 
 copy_ssh_config() {
@@ -161,13 +173,22 @@ print_cluster_info() {
     echo "       $DOCKER logs -f oarcluster_frontend"
     echo "       $DOCKER logs -f oarcluster_nodexxx"
     echo ""
-    echo "Data : $VOLUME_MAP"
+    echo "Data : "
+if [ "$VOLUMES" == "" ]; then
+    echo "       ${BASEDIR}/shared_data ~> /data"
+else
+    _volumes=($VOLUMES)
+    for vol in "${_volumes[@]}"; do
+      array=(${vol//:/ })
+      echo "       ${array[0]} ~> ${array[1]}"
+    done
+fi
     echo ""
     echo "***********************************************************************"
 }
 
 print_help() {
-    echo "usage: $0 -n <#nodes> [-v <volume>] [-c|--connect] [--colmet]"
+    echo "usage: $0 -n <#nodes> [[-v </host:/container>]] [-c|--connect] [--colmet]"
 }
 
 args=$(getopt -l "connect,volume,colmet,nodes,help:" -o "n:cv:h" -- "$@")
@@ -193,8 +214,11 @@ while [ $# -ge 1 ]; do
         exit 0
       ;;
     -v|--volume)
-        VOLUME_MAP=$2
+        VOLUMES="$VOLUMES $2"
         shift
+      ;;
+    --colmet)
+        ENABLE_COLMET=1
       ;;
     esac
     shift
@@ -205,16 +229,19 @@ if [[ -z "$NUM_NODES" ]]; then
     fail "You must indicate number of nodes"
 fi
 
-if [ ! "$VOLUME_MAP" == "" ]; then
-    echo "Data volume chosen: $VOLUME_MAP"
-    VOLUME_MAP="-v $VOLUME_MAP:/data"
-else
+if [ "$VOLUMES" == "" ]; then
     mkdir -p "${BASEDIR}/shared_data"
     echo "Default data volume used: ${BASEDIR}/shared_data"
-    VOLUME_MAP="-v ${BASEDIR}/shared_data:/data"
+    VOLUMES_MAP="-v ${BASEDIR}/shared_data:/data"
+else
+    _volumes=($VOLUMES)
+    for vol in "${_volumes[@]}"; do
+      VOLUMES_MAP="$VOLUMES_MAP -v $vol"
+    done
 fi
 
 source $BASEDIR/clean.sh
+
 
 start_dns
 start_nfs_server
