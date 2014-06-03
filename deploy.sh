@@ -48,7 +48,7 @@ start_nfs_server() {
     image=${1:-"oarcluster/nfs-server:latest"}
     hostname="nfs-server.$DOMAIN"
     NFS_SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP --dns-search $DOMAIN \
-           -h $hostname --name oarcluster_nfs-server --privileged \
+           -h $hostname --name oarcluster_nfs_server --privileged \
            $VOLUME_MAP $image /sbin/my_init --enable-insecure-key)
 
     if [ "$NFS_SERVER_CID" = "" ]; then
@@ -66,7 +66,7 @@ start_server() {
     SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname --dns-search $DOMAIN \
                  --env "NUM_NODES=$NUM_NODES" --env "COLOR=red" \
                  --name oarcluster_server  --privileged \
-                 -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUMES_MAP $image \
+                 -p 127.0.0.1:$SSH_SERVER_PORT:22 $image \
                  /sbin/my_init /sbin/cmd.sh --enable-insecure-key)
 
     if [ "$SERVER_CID" = "" ]; then
@@ -87,10 +87,9 @@ start_frontend() {
     hostname="frontend.$DOMAIN"
     FRONTEND_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname --dns-search $DOMAIN \
                    --env "NUM_NODES=$NUM_NODES" --env "COLOR=blue" \
-                   --name oarcluster_frontend \
+                   --name oarcluster_frontend --privileged \
                    -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
-                   -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 \
-                   $VOLUMES_MAP $image \
+                   -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 $image \
                    /sbin/my_init /sbin/cmd.sh --enable-insecure-key)
 
     if [ "$FRONTEND_CID" = "" ]; then
@@ -109,8 +108,7 @@ start_nodes() {
         hostname="${name}.$DOMAIN"
         NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP \
                    -h $hostname --dns-search $DOMAIN --env "COLOR=yellow" \
-                   --name oarcluster_$name $VOLUMES_MAP $image \
-                   $cmd )
+                   --name oarcluster_$name $image $cmd )
 
         if [ "$NODE_CID" = "" ]; then
             fail "error: could not start node container from image $image"
