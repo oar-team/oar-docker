@@ -12,6 +12,7 @@ extend: docker-debian7
 global:
     # You can see the base template `docker-debian7.yaml` to know the
     # variables that you can override
+    user_name: docker
 
 bootstrap:
   - @base
