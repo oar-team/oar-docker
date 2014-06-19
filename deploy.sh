@@ -10,7 +10,6 @@ SSH_KEY="$WORKDIR/ssh_insecure_key"
 DNS_IP=
 DNSDIR="$WORKDIR/dnsmasq.d"
 DNSFILE="${DNSDIR}/hosts"
-DOMAIN="oarcluster"
 SSH_SERVER_PORT=49217
 SSH_FRONTEND_PORT=49218
 HTTP_FRONTEND_PORT=48080
@@ -30,7 +29,7 @@ start_dns() {
     mkdir -p $DNSDIR
     echo > $DNSFILE
     image="oarcluster/dnsmasq:latest"
-    hostname="dns.$DOMAIN"
+    hostname="dns"
     DNS_CID=$($DOCKER run --dns 127.0.0.1 -d -h $hostname \
               --name oarcluster_dns -v $DNSDIR:/etc/dnsmasq.d \
               $image)
@@ -46,8 +45,8 @@ start_dns() {
 
 start_server() {
     image=${1:-"oarcluster/server:latest"}
-    hostname="server.$DOMAIN"
-    SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname --dns-search $DOMAIN \
+    hostname="server"
+    SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname \
                  --env "NUM_NODES=$NUM_NODES" --env "COLOR=red" \
                  --name oarcluster_server  --privileged \
                  -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUMES_MAP $image \
@@ -68,8 +67,8 @@ start_server_colmet() {
 
 start_frontend() {
     image="oarcluster/frontend:latest"
-    hostname="frontend.$DOMAIN"
-    FRONTEND_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname --dns-search $DOMAIN \
+    hostname="frontend"
+    FRONTEND_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname \
                    --env "NUM_NODES=$NUM_NODES" --env "COLOR=blue" \
                    --name oarcluster_frontend \
                    -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
@@ -90,9 +89,9 @@ start_nodes() {
     cmd=${2:-"/sbin/my_init /sbin/taillogs --enable-insecure-key"}
     for i in `seq 1 $NUM_NODES`; do
         name="node${i}"
-        hostname="${name}.$DOMAIN"
+        hostname="${name}"
         NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP \
-                   -h $hostname --dns-search $DOMAIN --env "COLOR=yellow" \
+                   -h $hostname --env "COLOR=yellow" \
                    --name oarcluster_$name $VOLUMES_MAP $image \
                    $cmd )
 
@@ -253,3 +252,4 @@ if [[ -n "$CONNECT_SSH" ]]; then
     echo "Auto connecting to the frontend..."
     ssh -F "$SSH_CONFIG" frontend
 fi
+
