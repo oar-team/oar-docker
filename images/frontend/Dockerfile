@@ -40,7 +40,8 @@ RUN wget -q https://rubygems.org/downloads/naturalsort-1.1.1.gem -O /tmp/natural
 RUN wget -q https://rubygems.org/downloads/json-1.8.1.gem -O /tmp/json-1.8.1.gem
 RUN gem install /tmp/naturalsort-1.1.1.gem /tmp/json-1.8.1.gem --no-ri --no-rdoc
 ADD chandler.rb /usr/local/bin/chandler
-RUN chmod +x /usr/local/bin/chandler
+RUN chown docker:docker /usr/local/bin/chandler && \
+    chmod +x /usr/local/bin/chandler
 
 RUN echo "#!/bin/bash\nsudo /sbin/taillogs" > /usr/local/bin/taillogs
 RUN chmod +x /usr/local/bin/taillogs

@@ -16,6 +16,8 @@ ADD sbin /sbin
 ADD supervisor/ /etc/supervisor/conf.d/
 ## Use cgroup for job managment
 ADD etc/oar/job_resource_manager.pl /etc/oar/job_resource_manager.pl
+RUN chown oar:oar /etc/oar/job_resource_manager.pl && \
+    chmod +x /etc/oar/job_resource_manager.pl
 
 ## Cleanup
 RUN apt-get autoremove -y && \

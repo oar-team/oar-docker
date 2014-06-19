@@ -26,6 +26,9 @@ RUN cp /usr/local/share/oar/oar-server/default/oar-server /etc/default/
 
 ADD etc/oar/job_resource_manager.pl /etc/oar/job_resource_manager.pl
 
+RUN chown oar:oar /etc/oar/job_resource_manager.pl && \
+    chmod +x /etc/oar/job_resource_manager.pl
+
 ADD configure_server.sh /tmp/configure_server.sh
 RUN /tmp/configure_server.sh
 
