@@ -7,10 +7,9 @@ ENV DEBIAN_FRONTEND noninteractive
 ## Install colmet
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    python-dev python-pip \
-    libzmq-dev libhdf5-serial-dev g++
+    python-dev python-zmq python-pip python-tables python-h5py python-pyinotify
 
-RUN pip install cython colmet -U
+RUN pip install colmet
 
 ADD sbin /sbin
 ADD supervisor /etc/supervisor/conf.d
