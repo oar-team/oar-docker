@@ -1,10 +1,19 @@
 # Software Install
+- enable_contrib: true
+- enable_nonfree: true
+- install_recommends: false
+
 - configure_apt_to_use_less_disk_space:
   - write_in:
     - /etc/apt/apt.conf.d/02compress_indexes
     - |
       Acquire::GzipIndexes "true";
       Acquire::CompressionTypes::Order:: "gz";
+  - exec_in: |
+      if [ $$install_recommends = false ]; then
+        echo 'APT::Install-Recommends "0";' >> /etc/apt/apt.conf.d/01norecommend
+        echo 'APT::Install-Suggests "0";' >> /etc/apt/apt.conf.d/01norecommend
+      fi
   - write_in:
     - /etc/apt/apt.conf.d/02nocache
     - |
@@ -12,12 +21,6 @@
         srcpkgcache "";
         pkgcache "";
       }
-  - write_in:
-    - /etc/apt/apt.conf.d/97norecommends
-    - |
-      APT {
-        Install-Recommends "false";
-      };
   - write_in:
     - /etc/dpkg/dpkg.cfg.d/01_nodoc
     - |
@@ -41,34 +44,22 @@
       #QUICKNDIRTYCALC
       #VERBOSE
 
-- prevent_services_from_starting_automatically:
-  - exec_in: echo exit 101 > /usr/sbin/policy-rc.d
-
-- add_contribs_source:
-  - write_in:
-    - /etc/apt/sources.list
-    - |
-      deb http://ftp.fr.debian.org/debian wheezy main contrib non-free
-      deb http://ftp.debian.org/debian/ wheezy-updates main contrib non-free
-      deb http://security.debian.org/ wheezy/updates main contrib non-free
-      deb http://ftp.fr.debian.org/debian wheezy-backports main contrib non-free
+- add_contribs_and_nonfree_sources:
+  - exec_in: |
+      if [ $$enable_contrib = true ]; then
+        REPO_CONTRIB="contrib"
+      fi
+  - exec_in: |
+      if [ $$enable_nonfree = true ]; then
+        REPO_NONFREE="non-free"
+      fi
+  - exec_in: perl -pi -e "s/main$/main $REPO_CONTRIB $REPO_NONFREE/" /etc/apt/sources.list
 
 - update_repositories:
   - exec_in: apt-get -y --force-yes update
   - exec_in: apt-get -y --force-yes install localepurge
-- upgrade_system:
-  - exec_in: apt-get -y --force-yes dist-upgrade
-
-- clean:
-  - on_export_init:
+  - on_setup_clean:
     - exec_in: apt-get -y --force-yes autoclean
     - exec_in: apt-get -y --force-yes clean
     - exec_in: apt-get -y --force-yes autoremove
     - exec_in: localepurge
-
-- install_packages:
-  - exec_in: apt-get -y --force-yes install $$core_packages
-  - exec_in: apt-get -y --force-yes install $$colmet_dependencies
-  - exec_in: apt-get -y --force-yes install $$dns_dependencies
-  - exec_in: apt-get -y --force-yes install $$frontend_dependencies
-  - exec_in: apt-get -y --force-yes install $$server_dependencies

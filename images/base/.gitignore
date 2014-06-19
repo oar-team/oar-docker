@@ -1,2 +1,2 @@
-builds
-debian_base.tar.gz
+build
+*.log

@@ -1,0 +1,56 @@
+#==============================================================================
+# vim: softtabstop=2 shiftwidth=2 expandtab fenc=utf-8 cc=81 tw=80
+#==============================================================================
+#
+# DESCRIPTION: Create oarcluster base image for docker.
+#
+#==============================================================================
+
+---
+extend: docker-debian7
+
+global:
+    # You can see the base template `docker-debian7.yaml` to know the
+    # variables that you can override
+
+bootstrap:
+  - @base
+
+setup:
+  - @base
+  ## core packages
+  - install_software:
+    - packages: >
+        debian-keyring sudo less vim nano bash-completion apt-transport-https
+        ca-certificates psmisc openssh-client curl wget python supervisor
+        iptables socat ifupdown locales isc-dhcp-client net-tools iproute
+        linux-image-$$arch qemu-kvm linux-image-amd64 net-tools bridge-utils
+        uml-utilities perl perl-base build-essential taktuk libdbi-perl
+        libsort-versions-perl libdbd-pg-perl postgresql-client inetutils-ping
+        rsyslog git
+  ## colmet dependencies
+  - install_software:
+    - packages: >
+        python-dev python-zmq python-pip python-tables python-h5py python-pyinotify
+  ## dns ndependencies
+  - install_software:
+    - packages: >
+        dnsmasq-base inotify-tools procps
+  ## frontend dependencies
+  - install_software:
+    - packages: >
+        libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl
+        libtie-ixhash-perl libwww-perl libgd-ruby1.8 apache2-mpm-prefork
+        libcgi-fast-perl libapache2-mod-fastcgi librestclient-ruby1.8
+        libdbd-pg-ruby1.8 ruby1.8 ruby1.8-dev rubygems1.8 ruby-switch
+        php5 libapache2-mod-php5 php5-mcrypt php5-pgsql phppgadmin
+  ## server dependencies
+  - install_software:
+    - packages: >
+        postgresql
+  - oarcluster_custom_image
+
+export:
+  - save_docker_appliance:
+    - commit:
+      - exec_out: docker commit $(cat MAIN_CONTAINER_ID) oarcluster/base:latest

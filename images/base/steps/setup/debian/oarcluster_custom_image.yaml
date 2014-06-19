@@ -1,14 +1,5 @@
 ## Customize oarcluster image
 
-## User
-- create_group:
-  - exec_in: groupadd $$user_name
-- add_user:
-  # use the create_passwd.py script to generate the crypted password
-  - exec_in: useradd -m -g $$user_name -s /bin/bash $$user_name
-  - exec_in: adduser $$user_name sudo
-  - exec_in: echo -n '$$user_name:$$user_name' | chpasswd
-
 - enable_passwordless_sudo:
   - exec_in: cp /etc/sudoers /etc/sudoers.orig
   - exec_in: sed -i.bkp -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' /etc/sudoers
@@ -20,7 +11,7 @@
 ## Install init process.
 - install_my_init_script:
   - local2in:
-    - $$kameleon_recipe_dir/src/sbin/my_init
+    - $$kameleon_recipe_dir/assets/sbin/my_init
     - /sbin/my_init
   - exec_in: chmod +x /sbin/my_init
   - exec_in: mkdir -p /etc/my_init.d
@@ -34,44 +25,44 @@
   - exec_in: mkdir -p /etc/supervisor/
   - exec_in: mkdir -p /var/log/supervisor/
   - local2in:
-    - $$kameleon_recipe_dir/src/config/supervisord.conf
+    - $$kameleon_recipe_dir/assets/config/supervisord.conf
     - /etc/supervisor/supervisord.conf
 
 - configure_sshd_daemon:
   - local2in:
-    - $$kameleon_recipe_dir/src/supervisor/sshd.conf
+    - $$kameleon_recipe_dir/assets/supervisor/sshd.conf
     - /etc/supervisor/conf.d/sshd.conf
   - local2in:
-    - $$kameleon_recipe_dir/src/config/sshd_config
+    - $$kameleon_recipe_dir/assets/config/sshd_config
     - /etc/ssh/sshd_config
   - local2in:
-    - $$kameleon_recipe_dir/src/sbin/sshd
+    - $$kameleon_recipe_dir/assets/sbin/sshd
     - /sbin/sshd
   - exec_in: chmod +x /sbin/sshd
   - exec_in: mkdir -p /var/run/sshd
 
 - configure_rsyslogd_daemon:
   - local2in:
-    - $$kameleon_recipe_dir/src/supervisor/rsyslogd.conf
+    - $$kameleon_recipe_dir/assets/supervisor/rsyslogd.conf
     - /etc/supervisor/conf.d/rsyslogd.conf
 
 - add_helpers_scripts:
   # This tool runs a command as another user and sets $HOME.
   - local2in:
-    - $$kameleon_recipe_dir/src/sbin/setuser
+    - $$kameleon_recipe_dir/assets/sbin/setuser
     - /sbin/setuser
   - exec_in: chmod +x /sbin/setuser
   # This tool allows you to monitor multiple logfiles (local or remote) in a terminal
   - local2in:
-    - $$kameleon_recipe_dir/src/sbin/rtail
+    - $$kameleon_recipe_dir/assets/sbin/rtail
     - /sbin/rtail
   - exec_in: chmod +x /sbin/rtail
   - local2in:
-    - $$kameleon_recipe_dir/src/sbin/split_ssh_pane
+    - $$kameleon_recipe_dir/assets/sbin/split_ssh_pane
     - /usr/local/bin/split_ssh_pane
   - exec_in: chmod 755 /usr/local/bin/split_ssh_pane
   - local2in:
-    - $$kameleon_recipe_dir/src/sbin/ps_mem.py
+    - $$kameleon_recipe_dir/assets/sbin/ps_mem.py
     - /sbin/psmem
   - write_in:
     - /usr/local/bin/psmem
@@ -82,13 +73,13 @@
 
 - configure_insecure_ssh_keys:
   - local2in:
-    - $$kameleon_recipe_dir/src/config/insecure_key.pub
+    - $$kameleon_recipe_dir/assets/config/insecure_key.pub
     - /etc/insecure_key.pub
   - local2in:
-    - $$kameleon_recipe_dir/src/config/insecure_key
+    - $$kameleon_recipe_dir/assets/config/insecure_key
     - /etc/insecure_key
   - local2in:
-    - $$kameleon_recipe_dir/src/sbin/enable_insecure_key
+    - $$kameleon_recipe_dir/assets/sbin/enable_insecure_key
     - /sbin/enable_insecure_key
   - exec_in: chmod +x /sbin/enable_insecure_key
   - exec_in: mkdir -p /root/.ssh
@@ -129,45 +120,50 @@
 
 - configure_bash:
   - local2in:
-    - $$kameleon_recipe_dir/src/config/bashrc
+    - $$kameleon_recipe_dir/assets/config/bashrc
     - /home/$$user_name/.bashrc
   - local2in:
-    - $$kameleon_recipe_dir/src/config/bashrc
+    - $$kameleon_recipe_dir/assets/config/bashrc
     - /root/.bashrc
 
 - configure_vim:
   - local2in:
-    - $$kameleon_recipe_dir/src/config/vimrc
+    - $$kameleon_recipe_dir/assets/config/vimrc
     - /home/$$user_name/.vimrc
   - local2in:
-    - $$kameleon_recipe_dir/src/config/vimrc
+    - $$kameleon_recipe_dir/assets/config/vimrc
     - /root/.vimrc
   - exec_in: update-alternatives --set editor /usr/bin/vim.basic
+
+- enable_wheezy_backports:
+  - exec_in: echo "deb $$apt_repository wheezy-backports main contrib non-free" >> /etc/apt/sources.list
+  - exec_in: apt-get update -q
 
 - install_tmux_from_backports:
   - exec_in: apt-get -y --force-yes install -t wheezy-backports tmux
 
 - configure_tmux:
   - local2in:
-    - $$kameleon_recipe_dir/src/config/tmux.conf
+    - $$kameleon_recipe_dir/assets/config/tmux.conf
     - /home/$$user_name/.tmux.conf
+
   - local2in:
-    - $$kameleon_recipe_dir/src/config/tmux.conf
+    - $$kameleon_recipe_dir/assets/config/tmux.conf
     - /root/.tmux.conf
 
 - configure_ssh_client:
   - local2in:
-    - $$kameleon_recipe_dir/src/config/sshrc
+    - $$kameleon_recipe_dir/assets/config/sshrc
     - /home/$$user_name/.ssh/rc
   - local2in:
-    - $$kameleon_recipe_dir/src/config/tmux.conf
+    - $$kameleon_recipe_dir/assets/config/tmux.conf
     - /root/.ssh/rc
   - exec_in: chmod +x /home/$$user_name/.ssh/rc /root/.ssh/rc
 
 - configure_git:
   - local2in:
-    - $$kameleon_recipe_dir/src/config/gitconfig
+    - $$kameleon_recipe_dir/assets/config/gitconfig
     - /home/$$user_name/.gitconfig
   - local2in:
-    - $$kameleon_recipe_dir/src/config/gitconfig
+    - $$kameleon_recipe_dir/assets/config/gitconfig
     - /root/.gitconfig

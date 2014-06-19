@@ -1,13 +1,10 @@
 .PHONY: build clean
 
 IMAGE=oarcluster/base
-RECIPE=debian
-BUILD_PATH=/tmp/kameleon
+RECIPE=oarcluster_base.yaml
 
 build:
-	docker images | grep -q "$(IMAGE)" | awk '{print $3}' | xargs -I {} docker rmi {}
-	kameleon build $(RECIPE) -b $(BUILD_PATH)
-
-clean:
-	kameleon clear $(RECIPE) -b $(BUILD_PATH)
-	rm $(BUILD_PATH)/builds -fr
+	docker images | grep -q "$(IMAGE)" | awk '{print $3}' | xargs -I {} sudo docker rmi {}
+	sudo kameleon build $(RECIPE)
+	docker images | grep -q "oarcluster_base" | awk '{print $3}' | xargs -I {} sudo docker rmi {}
+	rm builds -fr
