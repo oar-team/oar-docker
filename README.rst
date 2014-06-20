@@ -286,7 +286,7 @@ Start by installing kameleon ::
 The kameleon recipe can be found directly in the sources::
 
     $ cd images/base
-    $ sudo make build
+    $ sudo make
 
 Once done, you can test your image::
 
