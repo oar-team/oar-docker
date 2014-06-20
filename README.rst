@@ -161,7 +161,7 @@ all containers previously launched.
 What's inside images ?
 ----------------------
 
-Each image is build from the basic oarcluster image/the base. This image is
+Each image is build from the baseoarcluster/base image. This image is
 widely inspired by `baseimage-docker`_, a special Docker image
 that is configured for correct use within Docker containers.
 
