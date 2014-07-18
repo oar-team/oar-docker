@@ -7,7 +7,7 @@
 #==============================================================================
 
 ---
-extend: docker-debian7
+extend: docker/debian7
 
 global:
     # You can see the base template `docker-debian7.yaml` to know the
