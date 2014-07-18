@@ -12,25 +12,7 @@ RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
     postgresql postgresql-client
 
-## Install OAR node
-ADD version.txt /tmp/version.txt
-RUN wget -q https://github.com/oar-team/oar/archive/$(cat /tmp/version.txt).tar.gz -O /tmp/oar-$(cat /tmp/version.txt).tar.gz
-RUN tar xf /tmp/oar-$(cat /tmp/version.txt).tar.gz -C /tmp/
-
-RUN make -C /tmp/oar-$(cat /tmp/version.txt)/ PREFIX=/usr/local server-build
-RUN make -C /tmp/oar-$(cat /tmp/version.txt)/ PREFIX=/usr/local server-install
-RUN make -C /tmp/oar-$(cat /tmp/version.txt)/ PREFIX=/usr/local server-setup
-
-RUN cp /usr/local/share/oar/oar-server/init.d/oar-server /etc/init.d/
-RUN cp /usr/local/share/oar/oar-server/default/oar-server /etc/default/
-
 ADD etc/oar/job_resource_manager.pl /etc/oar/job_resource_manager.pl
-
-RUN chown oar:oar /etc/oar/job_resource_manager.pl && \
-    chmod +x /etc/oar/job_resource_manager.pl
-
-ADD configure_server.sh /tmp/configure_server.sh
-RUN /tmp/configure_server.sh
 
 ##  postgresql daemon.
 RUN mkdir -p /etc/service/postgresql
@@ -41,6 +23,35 @@ ADD supervisor/ /etc/supervisor/conf.d/
 ADD sbin /sbin
 RUN echo "#!/bin/bash\nsudo /sbin/taillogs" > /usr/local/bin/taillogs
 RUN chmod +x /usr/local/bin/taillogs
+
+## Install OAR server
+RUN mkdir -p /tmp/oar
+ADD oar-tarball.tar.gz /tmp/oar
+ADD version.txt /tmp/oar/version.txt
+
+RUN make -C /tmp/oar/oar-$(cat /tmp/oar/version.txt) PREFIX=/usr/local server-build
+RUN make -C /tmp/oar/oar-$(cat /tmp/oar/version.txt) PREFIX=/usr/local server-install
+RUN make -C /tmp/oar/oar-$(cat /tmp/oar/version.txt) PREFIX=/usr/local server-setup
+
+RUN test ! -f /usr/local/share/oar/oar-server/init.d/oar-server || \
+    cat /usr/local/share/oar/oar-server/init.d/oar-server > /etc/init.d/oar-server && \
+    chmod +x  /etc/init.d/oar-server
+
+RUN test ! -f /usr/local/share/doc/oar-server/examples/init.d/oar-server || \
+    cat /usr/local/share/doc/oar-server/examples/init.d/oar-server > /etc/init.d/oar-server && \
+    chmod +x  /etc/init.d/oar-server
+
+RUN test ! -f /usr/local/share/oar/oar-server/default/oar-server || \
+    cat /usr/local/share/oar/oar-server/default/oar-server > /etc/default/oar-server
+
+RUN test ! -f /usr/local/share/doc/oar-server/examples/default/oar-server || \
+    cat /usr/local/share/doc/oar-server/examples/default/oar-server > /etc/default/oar-server
+
+RUN chown oar:oar /etc/oar/job_resource_manager.pl && \
+    chmod +x /etc/oar/job_resource_manager.pl
+
+ADD configure_server.sh /tmp/configure_server.sh
+RUN /tmp/configure_server.sh
 
 ## Cleanup
 RUN apt-get remove -y build-essential && \

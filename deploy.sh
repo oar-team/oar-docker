@@ -4,7 +4,6 @@ set -o errexit
 DOCKER=${DOCKER:-docker}
 WORKDIR=/tmp/oarcluster
 BASEDIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
-VERSION=$(cat $BASEDIR/version.txt)
 SSH_CONFIG="$WORKDIR/ssh_config"
 SSH_KEY="$WORKDIR/ssh_insecure_key"
 DNS_IP=
