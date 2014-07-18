@@ -167,3 +167,14 @@
   - local2in:
     - $$kameleon_recipe_dir/assets/config/gitconfig
     - /root/.gitconfig
+
+- install_docker:
+  - download_file_in:
+    - "https://get.docker.io/builds/Linux/x86_64/docker-latest"
+    - /sbin/docker
+  - write_in:
+    - /usr/local/bin/docker
+    - |
+      #!/usr/bin/env bash
+      sudo /sbin/docker $@
+  - exec_in: chmod 755 /sbin/docker /usr/local/bin/psmem
