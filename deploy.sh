@@ -4,6 +4,7 @@ set -o errexit
 DOCKER=${DOCKER:-docker}
 WORKDIR=/tmp/oarcluster
 BASEDIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
+INIT_SCRIPTS="$BASEDIR/init-scripts/"
 SSH_CONFIG="$WORKDIR/ssh_config"
 SSH_KEY="$WORKDIR/ssh_insecure_key"
 DNS_IP=
@@ -31,6 +32,7 @@ start_dns() {
     hostname="dns"
     DNS_CID=$($DOCKER run --dns 127.0.0.1 -d -h $hostname \
               --name oarcluster_dns -v $DNSDIR:/etc/dnsmasq.d \
+              -v $INIT_SCRIPTS/dnsmasq.d:/etc/my_init.d/ \
               $image)
     if [ "$DNS_CID" = "" ]; then
         fail "error: could not start dns container from image $image"
@@ -48,6 +50,7 @@ start_server() {
     SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname \
                  --env "NUM_NODES=$NUM_NODES" --env "COLOR=red" \
                  --name oarcluster_server  --privileged \
+                 -v $INIT_SCRIPTS/server.d:/etc/my_init.d/ \
                  -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUMES_MAP $image \
                  /sbin/my_init /sbin/taillogs --enable-insecure-key)
 
@@ -70,6 +73,7 @@ start_frontend() {
     FRONTEND_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname \
                    --env "NUM_NODES=$NUM_NODES" --env "COLOR=blue" \
                    --name oarcluster_frontend \
+                   -v $INIT_SCRIPTS/frontend.d:/etc/my_init.d/ \
                    -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
                    -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 \
                    $VOLUMES_MAP $image \
@@ -91,6 +95,7 @@ start_nodes() {
         hostname="${name}"
         NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP \
                    -h $hostname --env "COLOR=yellow" \
+                   -v $INIT_SCRIPTS/node.d:/etc/my_init.d/ \
                    --name oarcluster_$name $VOLUMES_MAP $image \
                    $cmd )
 
