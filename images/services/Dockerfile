@@ -8,7 +8,7 @@ RUN echo "user=root" > /etc/dnsmasq.conf ; \
     echo "no-daemon"  >> /etc/dnsmasq.conf ; \
     echo "no-dhcp-interface=eth0"  >> /etc/dnsmasq.conf ; \
     echo "no-hosts"  >> /etc/dnsmasq.conf ; \
-    echo "addn-hosts=/etc/dnsmasq.d/hosts"  >> /etc/dnsmasq.conf ; \
+    echo "addn-hosts=/etc/services.d/hosts"  >> /etc/dnsmasq.conf ; \
     echo "listen-address=__LOCAL_IP__" >> /etc/dnsmasq.conf ; \
     echo "resolv-file=/etc/resolv.dnsmasq.conf" >> /etc/dnsmasq.conf
 
@@ -26,6 +26,6 @@ ADD incron.root /var/spool/incron/root
 RUN apt-get autoremove -y && apt-get autoclean -y && apt-get clean
 RUN rm -rf /tmp/* /var/tmp/*
 
-VOLUME [ "/etc/dnsmasq.d" ]
+VOLUME [ "/etc/services.d" ]
 
 CMD ["/sbin/dnsmasq_cmd"]
