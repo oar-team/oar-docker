@@ -1,4 +1,4 @@
-FROM oarcluster/server
+FROM oarcluster/server:latest
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 ENV DEBIAN_FRONTEND noninteractive

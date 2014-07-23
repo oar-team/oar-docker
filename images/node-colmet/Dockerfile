@@ -1,4 +1,4 @@
-FROM oarcluster/node
+FROM oarcluster/node:latest
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 ENV HOME /root

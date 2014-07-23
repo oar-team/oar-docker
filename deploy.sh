@@ -29,20 +29,20 @@ start_services() {
     mkdir -p $DNSDIR
     echo > $DNSFILE
     image="oarcluster/services:latest"
-    hostname="dns"
+    hostname="services"
     DNS_CID=$($DOCKER run --dns 127.0.0.1 -d -h $hostname \
               --name oarcluster_services -v $DNSDIR:/etc/dnsmasq.d \
               -v $INIT_SCRIPTS/:/var/lib/container/my_init.d/ \
               $image \
               /usr/local/sbin/my_init /usr/local/sbin/taillogs --enable-insecure-key)
     if [ "$DNS_CID" = "" ]; then
-        fail "error: could not start dns container from image $image"
+        fail "error: could not start services container from image $image"
     fi
 
     echo "Started oarcluster_dns : $DNS_CID"
 
     DNS_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $DNS_CID)
-    echo "$DNS_IP dns" >> $DNSFILE
+    echo "$DNS_IP $hostname" >> $DNSFILE
 }
 
 start_server() {

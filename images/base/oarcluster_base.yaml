@@ -53,4 +53,4 @@ setup:
 export:
   - save_docker_appliance:
     - commit:
-      - exec_out: docker commit $(cat MAIN_CONTAINER_ID) oarcluster/base
+      - exec_out: docker export $(cat MAIN_CONTAINER_ID) | docker import - oarcluster/base:$(cat $$kameleon_recipe_dir/VERSION)
