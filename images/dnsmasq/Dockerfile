@@ -19,13 +19,11 @@ RUN echo "# Opendns" > /etc/resolv.dnsmasq.conf ; \
     echo "nameserver 8.8.8.8" >> /etc/resolv.dnsmasq.conf ; \
     echo "nameserver 8.8.4.4" >> /etc/resolv.dnsmasq.conf
 
-ADD dnsmasq_cmd /sbin/dnsmasq_cmd
+ADD dnsmasq_cmd /usr/local/sbin/dnsmasq_cmd
 RUN echo 'root' >> /etc/incron.allow
 ADD incron.root /var/spool/incron/root
 
 RUN apt-get autoremove -y && apt-get autoclean -y && apt-get clean
 RUN rm -rf /tmp/* /var/tmp/*
 
-VOLUME [ "/etc/dnsmasq.d" ]
-
-CMD ["/sbin/dnsmasq_cmd"]
+CMD ["/usr/local/sbin/dnsmasq_cmd"]

@@ -8,5 +8,5 @@ touch /var/log/apache2/access.log
 touch /var/log/apache2/error.log
 touch /var/log/auth.log
 
-/sbin/rtail /var/log/apache2/access.log /var/log/apache2/error.log /var/log/auth.log
+usr/local/sbin/rtail /var/log/apache2/access.log /var/log/apache2/error.log /var/log/auth.log
 

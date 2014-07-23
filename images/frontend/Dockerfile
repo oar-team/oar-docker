@@ -30,8 +30,11 @@ ADD chandler.rb /usr/local/bin/chandler
 RUN chown docker:docker /usr/local/bin/chandler && \
     chmod +x /usr/local/bin/chandler
 
-RUN echo "#!/bin/bash\nsudo /sbin/taillogs" > /usr/local/bin/taillogs
-RUN chmod +x /usr/local/bin/taillogs
+## Scripts
+ADD sbin/ /usr/local/sbin/
+
+RUN echo "#!/bin/bash\nsudo /sbin/taillogs" > /usr/local/bin/taillogs  && \
+    chmod +x /usr/local/bin/taillogs
 
 ## Setup apache2 daemon.
 ADD supervisor/apache2.conf /etc/supervisor/conf.d/apache2.conf
@@ -39,8 +42,6 @@ ADD supervisor/apache2.conf /etc/supervisor/conf.d/apache2.conf
 ADD motd /etc/motd
 
 RUN echo "PrintMotd yes" >> /etc/ssh/sshd_config
-
-ADD sbin/ /sbin/
 
 ## Install OAR frontend node
 RUN mkdir -p /tmp/oar
@@ -65,4 +66,4 @@ RUN rm -f /etc/ssh/ssh_host_*
 EXPOSE 22
 EXPOSE 80
 
-CMD ["/sbin/my_init", "/sbin/taillogs"]
+CMD ["/usr/local/sbin/my_init", "/usr/local/sbin/taillogs"]

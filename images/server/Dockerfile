@@ -15,13 +15,14 @@ RUN apt-get install -y --no-install-recommends \
 ADD etc/oar/job_resource_manager.pl /etc/oar/job_resource_manager.pl
 
 ##  postgresql daemon.
-RUN mkdir -p /etc/service/postgresql
+RUN mkdir -p /etc/service/postgresql/
 
 ## Setup apache2 daemon.
-ADD supervisor/ /etc/supervisor/conf.d/
+ADD supervisor/oar-server.conf /etc/supervisor/conf.d/oar-server.conf
+ADD supervisor/postgresql.conf /etc/supervisor/conf.d/postgresql.conf
 
-ADD sbin /sbin
-RUN echo "#!/bin/bash\nsudo /sbin/taillogs" > /usr/local/bin/taillogs
+ADD sbin /usr/local/sbin
+RUN echo "#!/bin/bash\nsudo /usr/local/sbin/taillogs" > /usr/local/bin/taillogs
 RUN chmod +x /usr/local/bin/taillogs
 
 ## Install OAR server
@@ -62,4 +63,4 @@ RUN apt-get remove -y build-essential && \
 
 EXPOSE 22
 
-CMD ["/sbin/my_init", "/sbin/taillogs"]
+CMD ["/usr/local/sbin/my_init", "/usr/local/sbin/taillogs"]

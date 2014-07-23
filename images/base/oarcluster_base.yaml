@@ -15,10 +15,10 @@ global:
     user_name: docker
 
 bootstrap:
-  - @base
+  - "@base"
 
 setup:
-  - @base
+  - "@base"
   ## core packages
   - install_software:
     - packages: >
@@ -47,11 +47,10 @@ setup:
         php5 libapache2-mod-php5 php5-mcrypt php5-pgsql phppgadmin
   ## server dependencies
   - install_software:
-    - packages: >
-        postgresql
+    - packages: postgresql
   - oarcluster_custom_image
 
 export:
   - save_docker_appliance:
     - commit:
-      - exec_out: docker commit $(cat MAIN_CONTAINER_ID) oarcluster/base:latest
+      - exec_out: docker commit $(cat MAIN_CONTAINER_ID) oarcluster/base

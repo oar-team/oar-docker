@@ -4,6 +4,8 @@
   - exec_in: cp /etc/sudoers /etc/sudoers.orig
   - exec_in: sed -i.bkp -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' /etc/sudoers
 
+- container_lib_path: /var/lib/container
+
 - fix_permission:
   - on_export_init:
     - exec_in: chown -R $$user_name:$$user_name /home/$$user_name
@@ -12,18 +14,21 @@
 - install_my_init_script:
   - local2in:
     - $$kameleon_recipe_dir/assets/sbin/my_init
-    - /sbin/my_init
-  - exec_in: chmod +x /sbin/my_init
-  - exec_in: mkdir -p /etc/my_init.d
-  - exec_in: mkdir -p /etc/container_environment
-  - exec_in: touch /etc/container_environment.sh
-  - exec_in: touch /etc/container_environment.json
-  - exec_in: chmod 700 /etc/container_environment
-  - exec_in: chmod 600 /etc/container_environment.sh /etc/container_environment.json
+    - /usr/local/sbin/my_init
+  - exec_in: chmod +x /usr/local/sbin/my_init
+  - exec_in: mkdir -p $$container_lib_path/my_init.d
+  - exec_in: mkdir -p $$container_lib_path/container_environment
+  - exec_in: touch $$container_lib_path/container_environment.sh
+  - exec_in: touch $$container_lib_path/container_environment.json
+  - exec_in: chmod 700 $$container_lib_path/container_environment
+  - exec_in: chmod 600 $$container_lib_path/container_environment.sh $$container_lib_path/container_environment.json
 
 - configure_supervisor:
-  - exec_in: mkdir -p /etc/supervisor/
-  - exec_in: mkdir -p /var/log/supervisor/
+  - exec_in: mkdir -p $$container_lib_path/supervisor/conf.d
+  - exec_in: mkdir -p $$container_lib_path/supervisor/log
+  - exec_in: rm -rf /etc/supervisor
+  - exec_in: ln -sf $$container_lib_path/supervisor /etc/supervisor
+  - exec_in: ln -sf $$container_lib_path/supervisor/log /var/log/supervisor
   - local2in:
     - $$kameleon_recipe_dir/assets/config/supervisord.conf
     - /etc/supervisor/supervisord.conf
@@ -32,13 +37,15 @@
   - local2in:
     - $$kameleon_recipe_dir/assets/supervisor/sshd.conf
     - /etc/supervisor/conf.d/sshd.conf
+  - exec_in: mv /etc/ssh $$container_lib_path/ssh
+  - exec_in: ln -sf $$container_lib_path/ssh /etc/ssh
   - local2in:
     - $$kameleon_recipe_dir/assets/config/sshd_config
     - /etc/ssh/sshd_config
   - local2in:
     - $$kameleon_recipe_dir/assets/sbin/sshd
-    - /sbin/sshd
-  - exec_in: chmod +x /sbin/sshd
+    - /usr/local/sbin/sshd
+  - exec_in: chmod +x /usr/local/sbin/sshd
   - exec_in: mkdir -p /var/run/sshd
 
 - configure_rsyslogd_daemon:
@@ -50,43 +57,43 @@
   # This tool runs a command as another user and sets $HOME.
   - local2in:
     - $$kameleon_recipe_dir/assets/sbin/setuser
-    - /sbin/setuser
-  - exec_in: chmod +x /sbin/setuser
+    - /usr/local/sbin/setuser
+  - exec_in: chmod +x /usr/local/sbin/setuser
   # This tool allows you to monitor multiple logfiles (local or remote) in a terminal
   - local2in:
     - $$kameleon_recipe_dir/assets/sbin/rtail
-    - /sbin/rtail
-  - exec_in: chmod +x /sbin/rtail
+    - /usr/local/sbin/rtail
+  - exec_in: chmod +x /usr/local/sbin/rtail
   - local2in:
     - $$kameleon_recipe_dir/assets/sbin/split_ssh_pane
     - /usr/local/bin/split_ssh_pane
   - exec_in: chmod 755 /usr/local/bin/split_ssh_pane
   - local2in:
     - $$kameleon_recipe_dir/assets/sbin/ps_mem.py
-    - /sbin/psmem
+    - /usr/local/sbin/psmem
   - write_in:
     - /usr/local/bin/psmem
     - |
       #!/usr/bin/env bash
-      sudo /sbin/psmem $@
-  - exec_in: chmod 755 /sbin/psmem /usr/local/bin/psmem
+      sudo /usr/local/sbin/psmem $@
+  - exec_in: chmod 755 /usr/local/sbin/psmem /usr/local/bin/psmem
 
 - configure_insecure_ssh_keys:
   - local2in:
     - $$kameleon_recipe_dir/assets/config/insecure_key.pub
-    - /etc/insecure_key.pub
+    - $$container_lib_path/insecure_key.pub
   - local2in:
     - $$kameleon_recipe_dir/assets/config/insecure_key
-    - /etc/insecure_key
+    - $$container_lib_path/insecure_key
   - local2in:
     - $$kameleon_recipe_dir/assets/sbin/enable_insecure_key
-    - /sbin/enable_insecure_key
-  - exec_in: chmod +x /sbin/enable_insecure_key
+    - /usr/local/sbin/enable_insecure_key
+  - exec_in: chmod +x /usr/local/sbin/enable_insecure_key
   - exec_in: mkdir -p /root/.ssh
   - exec_in: chmod 700 /root/.ssh
   - exec_in: chown root:root /root/.ssh
-  - exec_in: chmod 644 /etc/insecure_key*
-  - exec_in: chown root:root /etc/insecure_key*
+  - exec_in: chmod 644 $$container_lib_path/insecure_key*
+  - exec_in: chown root:root $$container_lib_path/insecure_key*
 
 - configure_kernel:
   - write_in:
@@ -171,10 +178,10 @@
 - install_docker:
   - download_file_in:
     - "https://get.docker.io/builds/Linux/x86_64/docker-latest"
-    - /sbin/docker
+    - /usr/local/sbin/docker
   - write_in:
     - /usr/local/bin/docker
     - |
       #!/usr/bin/env bash
-      sudo /sbin/docker $@
-  - exec_in: chmod 755 /sbin/docker /usr/local/bin/psmem
+      sudo /usr/local/sbin/docker $@
+  - exec_in: chmod 755 /usr/local/sbin/docker /usr/local/bin/docker

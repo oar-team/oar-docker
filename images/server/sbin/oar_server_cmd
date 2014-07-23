@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-echo_and_run() { echo "$@" ; "$@" ; }
-
 stop() {
     service oar-server stop
 }

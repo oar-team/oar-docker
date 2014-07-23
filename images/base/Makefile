@@ -3,8 +3,12 @@
 IMAGE=oarcluster/base
 RECIPE=oarcluster_base.yaml
 
+all: build clean
+
 build:
-	docker images | grep -q "$(IMAGE)" | awk '{print $3}' | xargs -I {} sudo docker rmi {}
-	sudo kameleon build $(RECIPE)
-	docker images | grep "oarcluster_base" | awk '{print $3}' | xargs -I {} sudo docker rmi {}
+	docker images | grep "$(IMAGE)" | awk '{print $$3}' | xargs -I {} docker rmi {}
+	kameleon build $(RECIPE)
+
+clean:
+	docker images | grep "oarcluster_base" | awk '{print $$3}' | xargs -I {} docker rmi {}
 	rm builds -fr

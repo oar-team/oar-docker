@@ -11,8 +11,8 @@ RUN apt-get update && \
 
 RUN pip install colmet
 
-ADD sbin /sbin
-ADD supervisor /etc/supervisor/conf.d
+ADD sbin /usr/local/sbin
+ADD supervisor/colmet-node.conf /etc/supervisor/conf.d/colmet-node.conf
 
 ## Cleanup
 RUN apt-get autoremove -y && \
@@ -20,4 +20,4 @@ RUN apt-get autoremove -y && \
     rm -rf /tmp/* /var/tmp/*  && \
     rm -f /etc/ssh/ssh_host_*
 
-CMD ["/sbin/init_kvm", "/sbin/my_init", "/sbin/taillogs"]
+CMD ["/usr/local/sbin/init_kvm", "/usr/local/sbin/my_init", "/usr/local/sbin/taillogs"]

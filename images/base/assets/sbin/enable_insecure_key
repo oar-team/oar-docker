@@ -12,9 +12,9 @@ function add_insecure_keys() {
 		mkdir -p "$DIR"
 		chmod 700 "$DIR"
 		echo "Editing $AUTHORIZED_KEYS..."
-		cat /etc/insecure_key.pub >> "$AUTHORIZED_KEYS"
-		cat /etc/insecure_key.pub > $DIR/id_rsa.pub
-		cat /etc/insecure_key > $DIR/id_rsa
+		cat /var/lib/container/insecure_key.pub >> "$AUTHORIZED_KEYS"
+		cat /var/lib/container/insecure_key.pub > $DIR/id_rsa.pub
+		cat /var/lib/container/insecure_key > $DIR/id_rsa
 		echo "Host *
   ForwardX11 no
   StrictHostKeyChecking no
@@ -46,6 +46,6 @@ echo "
     +------------------------------------------------------------------------------+
 
 "
-cat /etc/insecure_key
+cat /var/lib/container/insecure_key
 echo ""
 echo ""
