@@ -1,0 +1,1 @@
+../availables/set_ressources.sh

@@ -211,16 +211,18 @@ def kill_all_processes(time_limit):
 
 def run_startup_files(my_initd_path, level=0):
     # Run /etc/my_init.d/*
-    for name in listdir("/etc/my_init.d"):
-        filename = "/etc/my_init.d/" + name
+    for name in listdir(my_initd_path):
+        filename = os.path.join(my_initd_path, name)
         if is_exe(filename):
             info("Running %s..." % filename)
             run_command_killable_and_import_envvars(filename)
-
-    # Run /etc/rc.local.
-    if is_exe("/etc/rc.local"):
-        info("Running /etc/rc.local...")
-        run_command_killable_and_import_envvars("/etc/rc.local")
+        elif listdir(filename) and name in os.uname()[1] and level == 0:
+            run_startup_files(filename, level + 1)
+    if level == 0:
+        # Run /etc/rc.local.
+        if is_exe("/etc/rc.local"):
+            info("Running /etc/rc.local...")
+            run_command_killable_and_import_envvars("/etc/rc.local")
 
 
 def start_supervisord():

@@ -4,7 +4,7 @@ set -o errexit
 DOCKER=${DOCKER:-docker}
 WORKDIR=/tmp/oarcluster
 BASEDIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
-INIT_SCRIPTS="$BASEDIR/init-scripts/"
+INIT_SCRIPTS="$BASEDIR/my_init.d/"
 SSH_CONFIG="$WORKDIR/ssh_config"
 SSH_KEY="$WORKDIR/ssh_insecure_key"
 DNS_IP=
@@ -32,7 +32,7 @@ start_dns() {
     hostname="dns"
     DNS_CID=$($DOCKER run --dns 127.0.0.1 -d -h $hostname \
               --name oarcluster_dns -v $DNSDIR:/etc/dnsmasq.d \
-              -v $INIT_SCRIPTS/dnsmasq.d:/etc/my_init.d/ \
+              -v $INIT_SCRIPTS/:/var/lib/container/my_init.d/ \
               $image)
     if [ "$DNS_CID" = "" ]; then
         fail "error: could not start dns container from image $image"
@@ -50,9 +50,9 @@ start_server() {
     SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname \
                  --env "NUM_NODES=$NUM_NODES" --env "COLOR=red" \
                  --name oarcluster_server  --privileged \
-                 -v $INIT_SCRIPTS/server.d:/etc/my_init.d/ \
+                 -v $INIT_SCRIPTS/:/var/lib/container/my_init.d/ \
                  -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUMES_MAP $image \
-                 /sbin/my_init /sbin/taillogs --enable-insecure-key)
+                 /usr/local/sbin/my_init /usr/local/sbin/taillogs --enable-insecure-key)
 
     if [ "$SERVER_CID" = "" ]; then
         fail "error: could not start server container from image $image"
@@ -73,11 +73,11 @@ start_frontend() {
     FRONTEND_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname \
                    --env "NUM_NODES=$NUM_NODES" --env "COLOR=blue" \
                    --name oarcluster_frontend \
-                   -v $INIT_SCRIPTS/frontend.d:/etc/my_init.d/ \
+                   -v $INIT_SCRIPTS/:/var/lib/container/my_init.d/ \
                    -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
                    -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 \
                    $VOLUMES_MAP $image \
-                   /sbin/my_init /sbin/taillogs --enable-insecure-key)
+                   /usr/local/sbin/my_init /usr/local/sbin/taillogs --enable-insecure-key)
 
     if [ "$FRONTEND_CID" = "" ]; then
         fail "error: could not start frontend container from image $image"
@@ -89,13 +89,13 @@ start_frontend() {
 
 start_nodes() {
     image=${1:-"oarcluster/node:latest"}
-    cmd=${2:-"/sbin/my_init /sbin/taillogs --enable-insecure-key"}
+    cmd=${2:-"/usr/local/sbin/my_init /usr/local/sbin/taillogs --enable-insecure-key"}
     for i in `seq 1 $NUM_NODES`; do
         name="node${i}"
         hostname="${name}"
         NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP \
                    -h $hostname --env "COLOR=yellow" \
-                   -v $INIT_SCRIPTS/node.d:/etc/my_init.d/ \
+                   -v $INIT_SCRIPTS/:/var/lib/container/my_init.d/ \
                    --name oarcluster_$name $VOLUMES_MAP $image \
                    $cmd )
 
@@ -110,7 +110,7 @@ start_nodes() {
 }
 
 start_nodes_colmet() {
-    start_nodes "oarcluster/node-colmet:latest" "/sbin/init_kvm /sbin/my_init /sbin/taillogs --enable-insecure-key"
+    start_nodes "oarcluster/node-colmet:latest" "/usr/local/sbin/init_kvm /usr/local/sbin/my_init /usr/local/sbin/taillogs --enable-insecure-key"
 }
 
 copy_ssh_config() {
