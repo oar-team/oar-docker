@@ -2,6 +2,7 @@
 set -o errexit
 
 DOCKER=${DOCKER:-docker}
+DOCKER_SOCKET=${DOCKER_SOCKET:-/var/run/docker.sock}
 WORKDIR=/tmp/oarcluster
 BASEDIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 INIT_SCRIPTS="$BASEDIR/my_init.d/"
@@ -23,6 +24,7 @@ fail() {
     echo $@ 1>&2
     exit 1
 }
+
 
 start_services() {
     # Reset DNS configuration
@@ -52,6 +54,7 @@ start_server() {
                  --env "NUM_NODES=$NUM_NODES" --env "COLOR=red" \
                  --name oarcluster_server  --privileged \
                  -v $INIT_SCRIPTS/:/var/lib/container/my_init.d/ \
+                 -v $DOCKER_SOCKET:/var/run/docker.sock \
                  -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUMES_MAP $image \
                  /usr/local/sbin/my_init /usr/local/sbin/taillogs --enable-insecure-key)
 
@@ -75,6 +78,7 @@ start_frontend() {
                    --env "NUM_NODES=$NUM_NODES" --env "COLOR=blue" \
                    --name oarcluster_frontend \
                    -v $INIT_SCRIPTS/:/var/lib/container/my_init.d/ \
+                   -v $DOCKER_SOCKET:/var/run/docker.sock \
                    -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
                    -p 127.0.0.1:$HTTP_FRONTEND_PORT:80 \
                    $VOLUMES_MAP $image \
@@ -97,6 +101,7 @@ start_nodes() {
         NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP \
                    -h $hostname --env "COLOR=yellow" \
                    -v $INIT_SCRIPTS/:/var/lib/container/my_init.d/ \
+                   -v $DOCKER_SOCKET:/var/run/docker.sock \
                    --name oarcluster_$name $VOLUMES_MAP $image \
                    $cmd )
 
