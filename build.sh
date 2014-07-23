@@ -43,7 +43,7 @@ done
 
 rm -rf $TMPDIR
 
-$DOCKER build --rm -t oarcluster/dnsmasq $BASEDIR/images/dnsmasq/
+$DOCKER build --rm -t oarcluster/services $BASEDIR/images/services/
 
 for image in "${NODES[@]}"; do
     $DOCKER build --rm -t oarcluster/$image:${VERSION} $BASEDIR/images/$image/

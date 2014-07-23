@@ -24,16 +24,17 @@ fail() {
     exit 1
 }
 
-start_dns() {
+start_services() {
     # Reset DNS configuration
     mkdir -p $DNSDIR
     echo > $DNSFILE
-    image="oarcluster/dnsmasq:latest"
+    image="oarcluster/services:latest"
     hostname="dns"
     DNS_CID=$($DOCKER run --dns 127.0.0.1 -d -h $hostname \
-              --name oarcluster_dns -v $DNSDIR:/etc/dnsmasq.d \
+              --name oarcluster_services -v $DNSDIR:/etc/dnsmasq.d \
               -v $INIT_SCRIPTS/:/var/lib/container/my_init.d/ \
-              $image)
+              $image \
+              /usr/local/sbin/my_init /usr/local/sbin/taillogs --enable-insecure-key)
     if [ "$DNS_CID" = "" ]; then
         fail "error: could not start dns container from image $image"
     fi
@@ -231,12 +232,12 @@ source $BASEDIR/clean.sh
 
 
 if [[ -n "$ENABLE_COLMET" ]]; then
-  start_dns
+  start_services
   start_server_colmet
   start_frontend
   start_nodes_colmet
 else
-  start_dns
+  start_services
   start_server
   start_frontend
   start_nodes

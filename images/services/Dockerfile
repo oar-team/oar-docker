@@ -1,8 +1,17 @@
-FROM oarcluster/base
+FROM oarcluster/base:0.2
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 
 RUN apt-get update && apt-get install -y dnsmasq-base procps incron
+
+## Setup apache2 daemon.
+ADD supervisor/dnsmasq.conf /etc/supervisor/conf.d/dnsmasq.conf
+
+## Scripts
+ADD sbin/ /usr/local/sbin/
+
+RUN echo "#!/bin/bash\nsudo /sbin/taillogs" > /usr/local/bin/taillogs  && \
+    chmod +x /usr/local/bin/taillogs
 
 RUN echo "user=root" > /etc/dnsmasq.conf ; \
     echo "no-daemon"  >> /etc/dnsmasq.conf ; \
@@ -19,11 +28,10 @@ RUN echo "# Opendns" > /etc/resolv.dnsmasq.conf ; \
     echo "nameserver 8.8.8.8" >> /etc/resolv.dnsmasq.conf ; \
     echo "nameserver 8.8.4.4" >> /etc/resolv.dnsmasq.conf
 
-ADD dnsmasq_cmd /usr/local/sbin/dnsmasq_cmd
 RUN echo 'root' >> /etc/incron.allow
 ADD incron.root /var/spool/incron/root
 
 RUN apt-get autoremove -y && apt-get autoclean -y && apt-get clean
 RUN rm -rf /tmp/* /var/tmp/*
 
-CMD ["/usr/local/sbin/dnsmasq_cmd"]
+CMD ["/usr/local/sbin/my_init", "/usr/local/sbin/taillogs"]

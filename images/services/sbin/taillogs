@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+
+test ! -f /etc/hostname.color || source /etc/hostname.color
+
+usr/local/sbin/rtail /var/log/dnsmasq.log
