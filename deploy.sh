@@ -5,10 +5,10 @@ DOCKER=${DOCKER:-docker}
 DOCKER_SOCKET=${DOCKER_SOCKET:-/var/run/docker.sock}
 WORKDIR=/tmp/oarcluster
 BASEDIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
-INIT_SCRIPTS="$BASEDIR/my_init.d/"
+MY_INIT="$BASEDIR/my_init.d/"
 SSH_CONFIG="$WORKDIR/ssh_config"
 SSH_KEY="$WORKDIR/ssh_insecure_key"
-DNS_IP=
+SERVICES_IP=
 DNSDIR="$WORKDIR/dnsmasq.d"
 DNSFILE="${DNSDIR}/hosts"
 SSH_SERVER_PORT=49217
@@ -25,35 +25,34 @@ fail() {
     exit 1
 }
 
-
 start_services() {
     # Reset DNS configuration
     mkdir -p $DNSDIR
     echo > $DNSFILE
     image="oarcluster/services:latest"
     hostname="services"
-    DNS_CID=$($DOCKER run --dns 127.0.0.1 -d -h $hostname \
+    SERVICES_CID=$($DOCKER run --dns 127.0.0.1 -d -h $hostname \
               --name oarcluster_services -v $DNSDIR:/etc/dnsmasq.d \
-              -v $INIT_SCRIPTS/:/var/lib/container/my_init.d/ \
+              -v $MY_INIT/:/etc/my_init.d/ \
               $image \
               /usr/local/sbin/my_init /usr/local/sbin/taillogs --enable-insecure-key)
-    if [ "$DNS_CID" = "" ]; then
+    if [ "$SERVICES_CID" = "" ]; then
         fail "error: could not start services container from image $image"
     fi
 
-    echo "Started oarcluster_dns : $DNS_CID"
+    echo "Started oarcluster_services : $SERVICES_CID"
 
-    DNS_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $DNS_CID)
-    echo "$DNS_IP $hostname" >> $DNSFILE
+    SERVICES_IP=$($DOCKER inspect --format '{{ .NetworkSettings.IPAddress }}' $SERVICES_CID)
+    echo "$SERVICES_IP services" >> $DNSFILE
 }
 
 start_server() {
     image=${1:-"oarcluster/server:latest"}
     hostname="server"
-    SERVER_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname \
+    SERVER_CID=$($DOCKER run -d -t --dns $SERVICES_IP -h $hostname \
                  --env "NUM_NODES=$NUM_NODES" --env "COLOR=red" \
                  --name oarcluster_server  --privileged \
-                 -v $INIT_SCRIPTS/:/var/lib/container/my_init.d/ \
+                 -v $MY_INIT/:/var/lib/container/my_init.d/ \
                  -v $DNSFILE:/var/lib/container/hosts \
                  -v $DOCKER_SOCKET:/var/run/docker.sock \
                  -p 127.0.0.1:$SSH_SERVER_PORT:22 $VOLUMES_MAP $image \
@@ -75,10 +74,10 @@ start_server_colmet() {
 start_frontend() {
     image="oarcluster/frontend:latest"
     hostname="frontend"
-    FRONTEND_CID=$($DOCKER run -d -t --dns $DNS_IP -h $hostname \
+    FRONTEND_CID=$($DOCKER run -d -t --dns $SERVICES_IP -h $hostname \
                    --env "NUM_NODES=$NUM_NODES" --env "COLOR=blue" \
                    --name oarcluster_frontend \
-                   -v $INIT_SCRIPTS/:/var/lib/container/my_init.d/ \
+                   -v $MY_INIT/:/var/lib/container/my_init.d/ \
                    -v $DNSFILE:/var/lib/container/hosts \
                    -v $DOCKER_SOCKET:/var/run/docker.sock \
                    -p 127.0.0.1:$SSH_FRONTEND_PORT:22 \
@@ -100,9 +99,9 @@ start_nodes() {
     for i in `seq 1 $NUM_NODES`; do
         name="node${i}"
         hostname="${name}"
-        NODE_CID=$(docker run -d -t --privileged --dns $DNS_IP \
+        NODE_CID=$(docker run -d -t --privileged --dns $SERVICES_IP \
                    -h $hostname --env "COLOR=yellow" \
-                   -v $INIT_SCRIPTS/:/var/lib/container/my_init.d/ \
+                   -v $MY_INIT/:/var/lib/container/my_init.d/ \
                    -v $DNSFILE:/var/lib/container/hosts \
                    -v $DOCKER_SOCKET:/var/run/docker.sock \
                    --name oarcluster_$name $VOLUMES_MAP $image \
