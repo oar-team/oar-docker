@@ -305,7 +305,7 @@ Related resources
 - `A minimal Ubuntu base image modified for Docker-friendliness`_
 - `Got a Minute? Spin up a Spark cluster on your laptop with Docker`_
 
-.. _`Kameleon`: http://kameleon.readthedocs.org/en/latest/
+.. _`Kameleon`: http://kameleon.imag.fr
 .. _`the init process`: https://en.wikipedia.org/wiki/Init
 .. _`orphaned child processes`: https://en.wikipedia.org/wiki/Orphan_process
 .. _`reap them`: https://en.wikipedia.org/wiki/Wait_(system_call)
