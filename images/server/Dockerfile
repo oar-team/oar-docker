@@ -35,12 +35,12 @@ RUN make -C /tmp/oar/oar-$(cat /tmp/oar/version.txt) PREFIX=/usr/local server-in
 RUN make -C /tmp/oar/oar-$(cat /tmp/oar/version.txt) PREFIX=/usr/local server-setup
 
 RUN test ! -f /usr/local/share/oar/oar-server/init.d/oar-server || \
-    cat /usr/local/share/oar/oar-server/init.d/oar-server > /etc/init.d/oar-server && \
-    chmod +x  /etc/init.d/oar-server
+    ( cat /usr/local/share/oar/oar-server/init.d/oar-server > /etc/init.d/oar-server && \
+    chmod +x  /etc/init.d/oar-server )
 
 RUN test ! -f /usr/local/share/doc/oar-server/examples/init.d/oar-server || \
-    cat /usr/local/share/doc/oar-server/examples/init.d/oar-server > /etc/init.d/oar-server && \
-    chmod +x  /etc/init.d/oar-server
+    ( cat /usr/local/share/doc/oar-server/examples/init.d/oar-server > /etc/init.d/oar-server && \
+    chmod +x  /etc/init.d/oar-server )
 
 RUN test ! -f /usr/local/share/oar/oar-server/default/oar-server || \
     cat /usr/local/share/oar/oar-server/default/oar-server > /etc/default/oar-server
