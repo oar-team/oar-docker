@@ -33,7 +33,7 @@ start_services() {
     hostname="services"
     SERVICES_CID=$($DOCKER run --dns 127.0.0.1 -d -h $hostname \
               --name oarcluster_services -v $DNSDIR:/etc/dnsmasq.d \
-              -v $MY_INIT/:/etc/my_init.d/ \
+              -v $MY_INIT/:/var/lib/container/my_init.d/ \
               $image \
               /usr/local/sbin/my_init /usr/local/sbin/taillogs --enable-insecure-key)
     if [ "$SERVICES_CID" = "" ]; then
