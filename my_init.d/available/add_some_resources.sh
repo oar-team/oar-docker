@@ -1,12 +1,13 @@
 #!/bin/bash
-set -e
+
 echo_and_run() { echo "$@" ; $@ ; }
 
+
 while ! oarnodes --sql "false" 2> /dev/null; do
+  echo "Waiting the database to be ready..."
   sleep 1
 done
 
-NUM_NODES=4
 NUM_NODECPU=2
 NUM_CPUCORE=2
 NUM_CPUSET=$(grep -e "^processor\s\+:" /proc/cpuinfo | wc -l)
