@@ -8,6 +8,7 @@ BASEDIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}))
 MY_INIT="$BASEDIR/my_init.d/"
 SSH_CONFIG="$WORKDIR/ssh_config"
 SSH_KEY="$WORKDIR/ssh_insecure_key"
+FRONTEND_CID=
 SERVICES_IP=
 DNSDIR="$WORKDIR/dnsmasq.d"
 DNSFILE="${DNSDIR}/hosts"
@@ -77,6 +78,7 @@ start_frontend() {
     FRONTEND_CID=$($DOCKER run -d -t --dns $SERVICES_IP -h $hostname \
                    --env "NUM_NODES=$NUM_NODES" --env "COLOR=blue" \
                    --name oarcluster_frontend \
+                   -v /home \
                    -v $MY_INIT/:/var/lib/container/my_init.d/ \
                    -v $DNSFILE:/var/lib/container/hosts \
                    -v $DOCKER_SOCKET:/var/run/docker.sock \
@@ -101,6 +103,7 @@ start_nodes() {
         hostname="${name}"
         NODE_CID=$(docker run -d -t --privileged --dns $SERVICES_IP \
                    -h $hostname --env "COLOR=yellow" \
+                   --volumes-from $FRONTEND_CID \
                    -v $MY_INIT/:/var/lib/container/my_init.d/ \
                    -v $DNSFILE:/var/lib/container/hosts \
                    -v $DOCKER_SOCKET:/var/run/docker.sock \
