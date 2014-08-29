@@ -1,4 +1,4 @@
-FROM oarcluster/base:0.2
+FROM oarcluster/base:0.3
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 RUN echo "export COLOR=yellow" > /etc/hostname.color

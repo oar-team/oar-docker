@@ -163,7 +163,7 @@
     - $$kameleon_recipe_dir/assets/config/sshrc
     - /home/$$user_name/.ssh/rc
   - local2in:
-    - $$kameleon_recipe_dir/assets/config/tmux.conf
+    - $$kameleon_recipe_dir/assets/config/sshrc
     - /root/.ssh/rc
   - exec_in: chmod +x /home/$$user_name/.ssh/rc /root/.ssh/rc
 
