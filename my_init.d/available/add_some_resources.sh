@@ -8,9 +8,9 @@ while ! oarnodes --sql "false" 2> /dev/null; do
   sleep 1
 done
 
-NUM_NODECPU=2
-NUM_CPUCORE=2
-NUM_CPUSET=$(grep -e "^processor\s\+:" /proc/cpuinfo | wc -l)
+NUM_NODECPU=$(grep "^physical id" /proc/cpuinfo | sort -u | wc -l)
+NUM_CPUCORE=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
+NUM_CPUSET=$(grep -e "^processor\s\+:" /proc/cpuinfo | sort -u | wc -l)
 core=0
 cpu=0
 for ((node=1;node<=$NUM_NODES; node++)); do
