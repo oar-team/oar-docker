@@ -125,7 +125,7 @@ start_nodes_colmet() {
 }
 
 copy_ssh_config() {
-    cp "$BASEDIR/images/base/assets/config/insecure_key" "$SSH_KEY"
+    cp "$BASEDIR/images/base/config/insecure_key" "$SSH_KEY"
     chmod 600 $SSH_KEY
     chown $USER:$USER $SSH_KEY
     cat > "$SSH_CONFIG" <<< "

@@ -1,4 +1,4 @@
-FROM oarcluster/base:0.3
+FROM oarcluster/base:latest
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 ENV HOME /root
@@ -23,18 +23,15 @@ RUN apt-get install -y php5 libapache2-mod-php5 php5-mcrypt php5-pgsql
 RUN apt-get install -y phppgadmin
 
 ## Install chandler
-RUN wget -q https://rubygems.org/downloads/naturalsort-1.1.1.gem -O /tmp/naturalsort-1.1.1.gem
-RUN wget -q https://rubygems.org/downloads/json-1.8.1.gem -O /tmp/json-1.8.1.gem
-RUN gem install /tmp/naturalsort-1.1.1.gem /tmp/json-1.8.1.gem --no-ri --no-rdoc
-ADD chandler.rb /usr/local/bin/chandler
-RUN chown docker:docker /usr/local/bin/chandler && \
-    chmod +x /usr/local/bin/chandler
+RUN wget -q https://rubygems.org/downloads/naturalsort-1.1.1.gem -O /tmp/naturalsort-1.1.1.gem && \
+    wget -q https://rubygems.org/downloads/json-1.8.1.gem -O /tmp/json-1.8.1.gem && \
+    gem install /tmp/naturalsort-1.1.1.gem /tmp/json-1.8.1.gem --no-ri --no-rdoc
 
 ## Scripts
 ADD sbin/ /usr/local/sbin/
-
-RUN echo "#!/bin/bash\nsudo /sbin/taillogs" > /usr/local/bin/taillogs  && \
-    chmod +x /usr/local/bin/taillogs
+RUN chmod +x /usr/local/sbin/*
+ADD bin/ /usr/local/bin/
+RUN chmod 755 /usr/local/bin/*
 
 ## Setup apache2 daemon.
 ADD supervisor/apache2.conf /etc/supervisor/conf.d/apache2.conf
@@ -60,8 +57,7 @@ ADD configure_frontend.sh /tmp/configure_frontend.sh
 RUN /tmp/configure_frontend.sh
 
 ## Cleanup
-RUN rm -rf /tmp/* /var/tmp/*
-RUN rm -f /etc/ssh/ssh_host_*
+RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
 
 EXPOSE 22
 EXPOSE 80

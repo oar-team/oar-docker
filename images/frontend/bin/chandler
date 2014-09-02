@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 
 # "Chandler"
 # Simple example ruby script using the OAR RESTFUL API
@@ -95,5 +95,5 @@ nodes.natural_sort.each do |node|
     col = 0
     puts
   end
-end 
+end
 printf("\n\n\033[42m \033[0m=Free \033[46m \033[0m=Standby \033[47m\033[30mJ\033[0m=Job \033[41m\033[30mS\033[0m=Suspected \033[41m\033[30mA\033[0m=Absent \033[41m\033[30mD\033[0m=Dead \033[42m\033[30mB\033[0m=Besteffort\n\n")

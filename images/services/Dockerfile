@@ -1,4 +1,4 @@
-FROM oarcluster/base:0.3
+FROM oarcluster/base:latest
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 
@@ -9,9 +9,7 @@ ADD supervisor/dnsmasq.conf /etc/supervisor/conf.d/dnsmasq.conf
 
 ## Scripts
 ADD sbin/ /usr/local/sbin/
-
-RUN echo "#!/bin/bash\nsudo /sbin/taillogs" > /usr/local/bin/taillogs  && \
-    chmod +x /usr/local/bin/taillogs
+RUN chmod +x /usr/local/sbin/*
 
 RUN echo "user=root" > /etc/dnsmasq.conf ; \
     echo "no-daemon"  >> /etc/dnsmasq.conf ; \
@@ -31,7 +29,6 @@ RUN echo "# Opendns" > /etc/resolv.dnsmasq.conf ; \
 RUN echo 'root' >> /etc/incron.allow
 ADD incron.root /var/spool/incron/root
 
-RUN apt-get autoremove -y && apt-get autoclean -y && apt-get clean
-RUN rm -rf /tmp/* /var/tmp/*
+RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
 
 CMD ["/usr/local/sbin/my_init", "/usr/local/sbin/taillogs"]

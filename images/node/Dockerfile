@@ -1,11 +1,10 @@
-FROM oarcluster/base:0.3
+FROM oarcluster/base:latest
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 RUN echo "export COLOR=yellow" > /etc/hostname.color
 
 ADD sbin/ /usr/local/sbin/
-RUN echo "#!/bin/bash\nsudo /usr/local/sbin/taillogs" > /usr/local/bin/taillogs
-RUN chmod +x /usr/local/bin/taillogs
+RUN chmod +x /usr/local/sbin/*
 
 ADD supervisor/oar-node.conf /etc/supervisor/conf.d/oar-node.conf
 
@@ -19,6 +18,6 @@ RUN make -C /tmp/oar/oar-$(cat /tmp/oar/version.txt) PREFIX=/usr/local node-inst
 RUN make -C /tmp/oar/oar-$(cat /tmp/oar/version.txt) PREFIX=/usr/local node-setup
 
 ## Cleanup
-RUN rm -rf /tmp/*
+RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
 
-CMD ["/usr/local/sbin/my_init", "/sbin/taillogs"]
+CMD ["/usr/local/sbin/my_init", "/usr/local/sbin/taillogs"]

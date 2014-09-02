@@ -43,6 +43,7 @@ done
 
 rm -rf $TMPDIR
 
+$DOCKER build --rm -t oarcluster/base $BASEDIR/images/base/
 $DOCKER build --rm -t oarcluster/services $BASEDIR/images/services/
 
 for image in "${NODES[@]}"; do

@@ -1,4 +1,4 @@
-FROM oarcluster/base:0.3
+FROM oarcluster/base:latest
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 ENV OAR_VERSION 2.5
@@ -22,8 +22,7 @@ ADD supervisor/oar-server.conf /etc/supervisor/conf.d/oar-server.conf
 ADD supervisor/postgresql.conf /etc/supervisor/conf.d/postgresql.conf
 
 ADD sbin /usr/local/sbin
-RUN echo "#!/bin/bash\nsudo /usr/local/sbin/taillogs" > /usr/local/bin/taillogs
-RUN chmod +x /usr/local/bin/taillogs
+RUN chmod +x /usr/local/sbin/*
 
 ## Install OAR server
 RUN mkdir -p /tmp/oar
@@ -55,11 +54,7 @@ ADD configure_server.sh /tmp/configure_server.sh
 RUN /tmp/configure_server.sh
 
 ## Cleanup
-RUN apt-get remove -y build-essential && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /tmp/* /var/tmp/*  && \
-    rm -f /etc/ssh/ssh_host_*
+RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
 
 EXPOSE 22
 
