@@ -4,6 +4,7 @@ import sys
 import distutils.dir_util
 import click
 import docker
+from functools import update_wrapper
 
 
 HERE = op.dirname(__file__)
@@ -31,8 +32,6 @@ class Context(object):
         # oar archive url
         self.oar_version = "unknown"
         self.oar_website = "http://oar-ftp.imag.fr/oar"
-        self.oar_tarball = "%s/2.5/sources/stable/oar-2.5.3.tar.gz" \
-                           % self.oar_website
         self.oar_tarball = "%s/2.5/sources/stable/oar-2.5.3.tar.gz" \
                            % self.oar_website
 
@@ -97,8 +96,22 @@ class OARClusterCLI(click.MultiCommand):
             mod = __import__('oarcluster.commands.cmd_' + name,
                              None, None, ['cli'])
         except ImportError:
+            raise
             return
         return mod.cli
+
+
+def handle_exception(f):
+    @click.pass_context
+    def new_func(ctx, *args, **kwargs):
+        try:
+            return ctx.invoke(f, *args, **kwargs)
+        except click.ClickException:
+            raise
+        except Exception as e:
+            raise click.ClickException("%s" % e)
+
+    return update_wrapper(new_func, f)
 
 
 @click.command(cls=OARClusterCLI, context_settings=CONTEXT_SETTINGS)
@@ -114,3 +127,11 @@ def cli(ctx, workdir, docker_host):
     if docker_host is not None:
         ctx.docker_host = docker_host
     ctx.update()
+
+
+def main(*arg, **kwargs):
+    try:
+        cli(*arg, **kwargs)
+    except Exception as e:
+        sys.stderr.write("\nError: %s\n" % e)
+        sys.exit(1)
