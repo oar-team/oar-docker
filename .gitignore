@@ -2,10 +2,8 @@
 *.py[co]
 *~
 *.log
-env
 *#
 **#
-# Packages
 *.egg
 *.egg-info
 dist
@@ -13,12 +11,7 @@ build
 src/
 eggs
 parts
-bin
-var
 sdist
-develop-eggs
-.installed.cfg
-
 # Installer logs
 pip-log.txt
 
@@ -26,6 +19,5 @@ pip-log.txt
 .coverage
 .tox
 .vagrant
-shared_data
 .oarcluster
 *.tar.gz
