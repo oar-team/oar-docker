@@ -40,21 +40,9 @@ ADD motd /etc/motd
 
 RUN echo "PrintMotd yes" >> /etc/ssh/sshd_config
 
-## Install OAR frontend node
-RUN mkdir -p /tmp/oar
-ADD oar-tarball.tar.gz /tmp/oar
-ADD version.txt /tmp/oar/version.txt
-
-RUN make -C /tmp/oar/oar-$(cat /tmp/oar/version.txt) PREFIX=/usr/local user-build tools-build
-RUN make -C /tmp/oar/oar-$(cat /tmp/oar/version.txt) PREFIX=/usr/local user-install drawgantt-svg-install monika-install www-conf-install api-install tools-install
-RUN make -C /tmp/oar/oar-$(cat /tmp/oar/version.txt) PREFIX=/usr/local user-setup drawgantt-svg-setup monika-setup www-conf-setup api-setup tools-setup
-
-RUN sed -i s/__OAR_VERSION__/$(cat /tmp/oar/version.txt)/ /etc/motd
-RUN chmod 644 /etc/motd
-
 ## Configure OAR
-ADD configure_frontend.sh /tmp/configure_frontend.sh
-RUN /tmp/configure_frontend.sh
+ADD postinstall.sh /root/postinstall.sh
+RUN chmod +x /root/postinstall.sh
 
 ## Cleanup
 RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
