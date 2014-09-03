@@ -1,13 +1,13 @@
 Build your own OAR cluster with docker
 --------------------------------------
 
-Docker-oarcluster is a set of docker images especially configured for deploying
+OAR-docker is a set of docker images especially configured for deploying
 your own OAR cluster. The main idea is to have a mini development cluster with
 a frontend, a server and some nodes that launch in just a few seconds on a
 simple laptop.
 
 
-Why use docker-oarcluster ?
+Why use OAR-docker ?
 ---------------------------
 
 Various case scenarios may affect you:
@@ -194,7 +194,7 @@ Apart from these few differences, both images have more or less the same feature
 |                              |                                                                    |
 |                              | This causes processes to be hard killed with SIGKILL, which        |
 |                              | doesn't give them a chance to correctly deinitialize things.       |
-|                              | This can cause file corruption. docker-oarcluster comes with an    |
+|                              | This can cause file corruption. OAR-docker comes with an    |
 |                              | init process `/sbin/my_init` that performs both of these tasks     |
 |                              | correctly.                                                         |
 +------------------------------+--------------------------------------------------------------------+
@@ -270,7 +270,7 @@ Here is the list of services that run on each container :
 Security
 --------
 
-Docker-oarcluster is a development project and a testing one. It is in no way secure.
+OAR-docker is a development project and a testing one. It is in no way secure.
 Besides, the private ssh key used is also insecured since it is public (you can find it in the sources).
 
 
