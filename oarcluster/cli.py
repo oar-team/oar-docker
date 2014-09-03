@@ -19,6 +19,7 @@ class Context(object):
 
     def __init__(self):
         self.version = '0.1'
+        self.state = {"images": [], "containers": []}
         self._docker_client = None
         self.prefix = "oarcluster"
         self.current_dir = os.getcwd()
@@ -67,6 +68,10 @@ class Context(object):
         if self.verbose:
             self.log(msg, *args)
 
+    def save_state(self):
+        if self.state:
+            print("save state")
+
     @property
     def docker(self):
         if self._docker_client is None:
@@ -110,6 +115,10 @@ def handle_exception(f):
             raise
         except Exception as e:
             raise click.ClickException("%s" % e)
+        finally:
+            cmds = ["build", "destroy", "install", "start", "stop"]
+            if ctx.command.name in cmds:
+                ctx.obj.save_state()
 
     return update_wrapper(new_func, f)
 
