@@ -1,10 +1,10 @@
 import os
 import os.path as op
 import sys
-import distutils.dir_util
 import click
 import docker
 from functools import update_wrapper
+from oarcluster.utils import copy_tree
 
 
 HERE = op.dirname(__file__)
@@ -41,6 +41,7 @@ class Context(object):
         self.ssh_config = op.join(self.envdir, "ssh_config")
         self.ssh_key = op.join(self.envdir, "ssh_insecure_key")
         self.dnsfile = op.join(self.envdir, "dnsmasq.d", "hosts")
+        self.postinstall_dir = op.join(self.envdir, "postinstall")
 
     def assert_valid_env(self):
         if not os.path.isdir(self.envdir):
@@ -51,11 +52,7 @@ class Context(object):
     def copy_tree(self, src, dest, overwrite=False):
         if os.path.exists(dest) and not overwrite:
             raise click.ClickException("File exists : '%s'" % dest)
-        try:
-            distutils.dir_util.copy_tree(src, dest, preserve_symlinks=True,
-                                         dry_run=overwrite)
-        except Exception as e:
-            raise click.ClickException("%s" % e)
+        copy_tree(src, dest)
 
     def log(self, msg, *args):
         """Logs a message to stderr."""

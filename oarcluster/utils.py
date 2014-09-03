@@ -1,7 +1,11 @@
+import codecs
+import hashlib
 import json
 import os
 import codecs
 import hashlib
+import os.path as op
+import filecmp
 import click
 
 
@@ -92,3 +96,42 @@ def print_output_event(event, stream, is_terminal):
         stream.write("%s%s" % (event['stream'], terminator))
     else:
         stream.write("%s%s\n" % (status, terminator))
+def copy_file(srcname, dstname, preserve_symlinks=True):
+    if preserve_symlinks and os.path.islink(srcname):
+        linkto = os.readlink(srcname)
+        os.symlink(linkto, dstname)
+    else:
+        shutil.copy2(srcname, dstname)
+
+
+def copy_tree(src, dest):
+    """
+    Copy all files in the source path to the destination path.
+    """
+    create = click.style('  create', fg="green")
+    overwrite = click.style('overwrite', fg="yellow")
+    identical = click.style('identical', fg="blue")
+    cwd = os.getcwd() + "/"
+    for path, dirs, files in os.walk(src):
+        relative_path = path[len(src):].lstrip(os.sep)
+        if not op.exists(op.join(dest, relative_path)):
+            os.mkdir(op.join(dest, relative_path))
+        for i, subdir in enumerate(dirs):
+            if subdir.startswith('.'):
+                del dirs[i]
+        for filename in files:
+            src_file_path = op.join(path, filename)
+            dest_file_path = op.join(dest, relative_path, filename)
+            if dest_file_path.startswith(cwd):
+                fancy_relative_path = dest_file_path.lstrip(cwd)
+            else:
+                fancy_relative_path = dest_file_path
+            if op.exists(dest_file_path):
+                if filecmp.cmp(src_file_path, dest_file_path):
+                    click.echo("   " + identical + "  " + fancy_relative_path)
+                else:
+                    click.echo("   " + overwrite + "  " + fancy_relative_path)
+                    copy_file(src_file_path, dest_file_path)
+            else:
+                click.echo("   " + create + "  " + fancy_relative_path)
+                copy_file(src_file_path, dest_file_path)
