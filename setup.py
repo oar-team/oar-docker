@@ -20,6 +20,7 @@ setup(
     install_requires=[
         'Click',
         'docker-py',
+        'sh',
     ],
     packages=['oarcluster'],
     description='Dockerfiles to build oar images for testing and development.',
@@ -30,6 +31,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        oarcluster=oarcluster.cli:cli
+        oarcluster=oarcluster.cli:main
     ''',
 )
