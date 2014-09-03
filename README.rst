@@ -38,7 +38,9 @@ Launch ``build.sh`` script to build all oarcluster images.
 
 ::
 
-    $ ./build.sh
+    $ ./build.sh <OAR-tarball>
+
+OAR tarball can be provided as a path to a file or as a URL.
 
 
 Deploying a cluster
