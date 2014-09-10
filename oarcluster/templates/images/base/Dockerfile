@@ -11,10 +11,10 @@ ENV DEBCONF_NOWARNINGS yes
 RUN echo "export COLOR=green" > /etc/hostname.color
 
 ## enable wheezy backports:
-RUN echo "deb http://http.debian.net/debian wheezy main non-free" > /etc/apt/sources.list && \
-    echo "deb http://http.debian.net/debian wheezy-updates main" >> /etc/apt/sources.list && \
-    echo "deb http://security.debian.org wheezy/updates main" >> /etc/apt/sources.list && \
-    echo "deb http://http.debian.net/debian wheezy-backports main contrib" >> /etc/apt/sources.list && \
+RUN echo "deb http://http.debian.net/debian wheezy main contrib non-free" > /etc/apt/sources.list && \
+    echo "deb http://http.debian.net/debian wheezy-updates main contrib non-free" >> /etc/apt/sources.list && \
+    echo "deb http://security.debian.org wheezy/updates main contrib non-free" >> /etc/apt/sources.list && \
+    echo "deb http://http.debian.net/debian wheezy-backports main contrib non-free" >> /etc/apt/sources.list && \
     apt-get update -q
 
 ## Prepare and install packages
