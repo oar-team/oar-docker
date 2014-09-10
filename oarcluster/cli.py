@@ -105,13 +105,10 @@ class OARClusterCLI(click.MultiCommand):
     def get_command(self, ctx, name):
         if sys.version_info[0] == 2:
             name = name.encode('ascii', 'replace')
-        try:
+        if name in self.list_commands(ctx):
             mod = __import__('oarcluster.commands.cmd_' + name,
                              None, None, ['cli'])
-        except ImportError:
-            raise
-            return
-        return mod.cli
+            return mod.cli
 
 
 def pass_state(f):
