@@ -53,6 +53,7 @@ class Context(object):
         if os.path.exists(dest) and not overwrite:
             raise click.ClickException("File exists : '%s'" % dest)
         copy_tree(src, dest)
+        chmod("600", self.ssh_key)
 
     def log(self, msg, *args):
         """Logs a message to stderr."""
