@@ -31,4 +31,4 @@ ADD incron.root /var/spool/incron/root
 
 RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
 
-CMD ["/usr/local/sbin/my_init", "/usr/local/sbin/taillogs"]
+CMD ["/usr/local/sbin/my_init", "/usr/local/sbin/taillogs", "--enable-insecure-key"]

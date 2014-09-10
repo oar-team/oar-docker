@@ -50,4 +50,4 @@ RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
 EXPOSE 22
 EXPOSE 80
 
-CMD ["/usr/local/sbin/my_init", "/usr/local/sbin/taillogs"]
+CMD ["/usr/local/sbin/my_init", "/usr/local/sbin/taillogs", "--enable-insecure-key"]
