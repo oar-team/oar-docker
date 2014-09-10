@@ -76,6 +76,11 @@ class Container(object):
         return self.dictionary["Config"]["Hostname"]
 
     @property
+    def ip(self):
+        self.inspect_if_not_inspected()
+        return self.dictionary["NetworkSettings"]["IPAddress"]
+
+    @property
     def environment(self):
         self.inspect_if_not_inspected()
         out = {}
