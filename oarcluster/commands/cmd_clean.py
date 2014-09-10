@@ -3,10 +3,9 @@ from oarcluster.cli import pass_context, pass_state
 
 
 @click.command('clean')
-@click.option('-f', '--force', is_flag=True, help='Force')
 @pass_state
 @pass_context
-def cli(ctx, state, force):
+def cli(ctx, state):
     """Remove all stopped containers and untagged images"""
     removed = click.style("removed", fg="blue")
     for container in ctx.get_containers(state):
