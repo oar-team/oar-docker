@@ -40,9 +40,9 @@ ADD motd /etc/motd
 
 RUN echo "PrintMotd yes" >> /etc/ssh/sshd_config
 
-## Configure OAR
-ADD postinstall.sh /root/postinstall.sh
-RUN chmod +x /root/postinstall.sh
+## Add postinstall scripts
+ADD install_oar.sh /root/install_oar.sh
+RUN chmod +x /root/*.sh
 
 ## Cleanup
 RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
