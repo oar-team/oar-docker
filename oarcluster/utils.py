@@ -146,3 +146,13 @@ def copy_tree(src, dest):
             else:
                 click.echo("   " + create + "  " + fancy_relative_path)
                 copy_file(src_file_path, dest_file_path)
+
+
+def human_filesize(bytes):
+    """Human-readable file size.
+    """
+    for x in ['bytes', 'KB', 'MB', 'GB']:
+        if bytes < 1024.0:
+            return "%3.1f %s" % (bytes, x)
+        bytes /= 1024.0
+    return "%3.1f %s" % (bytes, 'TB')
