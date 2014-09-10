@@ -8,9 +8,8 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN echo "export COLOR=red" > /etc/hostname.color
 
 ## Prepare packages
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends \
-    postgresql postgresql-client
+RUN apt-get update -q
+RUN apt-get install -y --no-install-recommends postgresql-client
 
 ADD etc/oar/job_resource_manager.pl /etc/oar/job_resource_manager.pl
 
@@ -19,7 +18,6 @@ RUN mkdir -p /etc/service/postgresql/
 
 ## Setup supervisor services.
 ADD supervisor/oar-server.conf /etc/supervisor/conf.d/oar-server.conf
-ADD supervisor/postgresql.conf /etc/supervisor/conf.d/postgresql.conf
 
 ADD sbin /usr/local/sbin
 RUN chmod +x /usr/local/sbin/*

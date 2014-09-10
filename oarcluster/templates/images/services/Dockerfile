@@ -2,10 +2,11 @@ FROM oarcluster/base:latest
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 
-RUN apt-get update && apt-get install -y dnsmasq-base procps incron
+RUN apt-get update -q
+RUN apt-get install -y postgresql dnsmasq-base procps incron
 
-## Setup apache2 daemon.
-ADD supervisor/dnsmasq.conf /etc/supervisor/conf.d/dnsmasq.conf
+## Setup supervisor services
+ADD supervisor/ /etc/supervisor/conf.d/
 
 ## Scripts
 ADD sbin/ /usr/local/sbin/
@@ -28,6 +29,15 @@ RUN echo "# Opendns" > /etc/resolv.dnsmasq.conf ; \
 
 RUN echo 'root' >> /etc/incron.allow
 ADD incron.root /var/spool/incron/root
+
+## Configure database
+# configure PostgreSQL to listen for remote connections
+RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/9.1/main/postgresql.conf
+# configure PostgreSQL to accept remote connections (from any host):
+RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/9.1/main/pg_hba.conf
+# set insecure postgres password
+RUN service postgresql start && \
+    sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
 
 RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
 
