@@ -164,6 +164,15 @@ def pass_state(f):
     return update_wrapper(new_func, f)
 
 
+def invoke_after_stop(f):
+    @click.pass_context
+    def new_func(ctx, *args, **kwargs):
+        stop_cmd = ctx.parent.command.get_command(ctx, "stop")
+        ctx.invoke(stop_cmd)
+        return ctx.invoke(f, *args, **kwargs)
+
+    return update_wrapper(new_func, f)
+
     @click.pass_context
     def new_func(ctx, *args, **kwargs):
         try:
