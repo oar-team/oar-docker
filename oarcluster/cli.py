@@ -6,6 +6,7 @@ import docker
 import json
 from functools import update_wrapper
 from oarcluster.utils import copy_tree
+from oarcluster.container import Container
 from sh import chmod
 
 
@@ -79,6 +80,43 @@ class Context(object):
             except:
                 pass
         return state
+
+    def get_containers(self, state):
+        containers = self.docker.containers(quiet=False, all=True, trunc=False,
+                                            latest=False)
+        for container in containers:
+            if not container["Id"][:12] in state["containers"]:
+                continue
+            yield Container.from_id(self.docker, container["Id"])
+
+    def get_containers_ids(self, state):
+        for container in self.get_containers(state):
+            yield container.short_id
+
+    def get_images_ids(self, state):
+        for image in self.get_images(state):
+            yield image["Id"][:12]
+
+    def get_images(self, state):
+        images = self.docker.images(name=None, quiet=False,
+                                    all=False, viz=False)
+        for image in images:
+            if not image["Id"][:12] in state["images"]:
+                continue
+            yield image
+
+    def remove_image(self, image, force=True):
+        image_name = ', '.join(image["RepoTags"])
+        image_id = image["Id"]
+        self.docker.remove_image(image_id, force=force)
+        removed = click.style("Removed", fg="blue")
+        self.log("Image %s (%s) --> %s" % (image_id, image_name, removed))
+
+    def save_image(self, image_id, repository, tag):
+        saved = click.style("Saved", fg="green")
+        image_name = "%s:%s" % (repository, tag)
+        self.docker.tag(image_id, repository=repository, tag=tag, force=True)
+        self.log("Image %s (%s) --> %s" % (image_id, image_name, saved))
 
     @property
     def docker(self):
