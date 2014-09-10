@@ -142,7 +142,7 @@ def pass_state(f):
     return update_wrapper(new_func, f)
 
 
-@click.command(cls=OARClusterCLI, context_settings=CONTEXT_SETTINGS)
+@click.command(cls=OARClusterCLI, context_settings=CONTEXT_SETTINGS, chain=True)
 @click.option('--workdir', type=click.Path(exists=True, file_okay=False,
                                            resolve_path=True),
               help='Changes the folder to operate on.')
