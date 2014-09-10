@@ -173,18 +173,16 @@ def invoke_after_stop(f):
 
     return update_wrapper(new_func, f)
 
+
+def invoke_before_clean(f):
     @click.pass_context
     def new_func(ctx, *args, **kwargs):
         try:
             return ctx.invoke(f, *args, **kwargs)
-        except click.ClickException:
-            raise
-        except Exception as e:
-            raise click.ClickException("%s" % e)
         finally:
-            cmds = ["build", "destroy", "install", "start", "stop"]
-            if ctx.command.name in cmds:
-                ctx.obj.save_state()
+            clean_cmd = ctx.parent.command.get_command(ctx, "clean")
+            click.echo("Cleanup...")
+            ctx.invoke(clean_cmd)
 
     return update_wrapper(new_func, f)
 
