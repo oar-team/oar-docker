@@ -12,17 +12,15 @@ def get_containers_table(ctx, state):
         image_name = c.dictionary['Config']['Image']
         created = arrow.get(c.dictionary['Created']).humanize()
         if c.is_running:
-            color = "green"
+            status = click.style(c.human_readable_state, fg="green")
         else:
-            color = "red"
-        ip = c.dictionary["NetworkSettings"]["IPAddress"]
-        rows.append([c.name, c.short_id, image_name, c.human_readable_command,
-                    created, click.style(c.human_readable_state, fg=color),
-                    ip, c.human_readable_ports])
+            status = click.style(c.human_readable_state, fg="red")
+        rows.append([c.hostname, c.ip, status, c.human_readable_ports,
+                    c.short_id, image_name, c.human_readable_command, created])
     if not rows:
         rows.append(["", "", "", "", "", "", "", ""])
-    return rows, ["Containers", "ID", "Image", "Command", "Created", "Status",
-                  "IP", "Ports"]
+    return rows, ["Containers", "IP", "Status", "Ports", "ID", "Image",
+                  "Command", "Created"]
 
 
 def get_images_table(ctx, state):
