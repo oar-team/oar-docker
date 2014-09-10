@@ -302,8 +302,8 @@ parser.add_argument('--skip-startup-files', dest='skip_startup_files',
 parser.add_argument('--skip-supervisor', dest='skip_supervisord',
                     action='store_const', const=True, default=False,
                     help='Do not run supervisor services')
-parser.add_argument('--no-kill-all-on-exit', dest='kill_all_on_exit',
-                    action='store_const', const=False, default=True,
+parser.add_argument('--kill-all-on-exit', dest='kill_all_on_exit',
+                    action='store_const', const=True, default=False,
                     help='Don\'t kill all processes on the system upon exiting')
 parser.add_argument('--quiet', dest='log_level',
                     action='store_const', const=LOG_LEVEL_WARN, default=LOG_LEVEL_INFO,
