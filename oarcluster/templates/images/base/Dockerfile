@@ -7,7 +7,7 @@ ENV LC_ALL C
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBIAN_PRIORITY critical
 ENV DEBCONF_NOWARNINGS yes
-
+ENV COLOR green
 RUN echo "export COLOR=green" > /etc/hostname.color
 
 ## enable wheezy backports:
@@ -110,7 +110,7 @@ RUN echo "blacklist pcspkr" >> /etc/modprobe.d/fbdev-blacklist.conf && \
     printf '%s\n' 9p 9pnet 9pnet_virtio | tee -a /etc/initramfs-tools/modules && \
     update-initramfs -u
 
-RUN pip install ipdb grin termcolor
+RUN pip install ipdb grin
 
 ## fix ssh forwarding agent with sudo:
 RUN echo "Defaults env_keep += \"SSH_AUTH_SOCK\"" > /etc/sudoers.d/root_ssh_agent && \

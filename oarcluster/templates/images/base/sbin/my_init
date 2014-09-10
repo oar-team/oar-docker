@@ -254,6 +254,9 @@ def main(args):
     import_envvars(False)
     export_envvars()
 
+    if not args.skip_supervisord:
+        supervisor_pid = start_supervisord()
+
     if args.enable_insecure_key:
         install_insecure_key()
 
@@ -262,9 +265,6 @@ def main(args):
 
     supervisor_exited = False
     exit_code = None
-
-    if not args.skip_supervisord:
-        supervisor_pid = start_supervisord()
     try:
         exit_status = None
         if len(args.main_command) == 0:

@@ -11,7 +11,7 @@ class Container(object):
 
     @classmethod
     def from_id(cls, client, id):
-        return cls(client, client.inspect_container(id))
+        return cls(client, client.inspect_container(id), True)
 
     @classmethod
     def create(cls, client, **options):
@@ -69,6 +69,11 @@ class Container(object):
             return ' '.join(self.dictionary['Config']['Cmd'])
         else:
             return ''
+
+    @property
+    def hostname(self):
+        self.inspect_if_not_inspected()
+        return self.dictionary["Config"]["Hostname"]
 
     @property
     def environment(self):

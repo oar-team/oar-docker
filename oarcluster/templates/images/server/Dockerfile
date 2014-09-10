@@ -5,6 +5,7 @@ ENV OAR_VERSION 2.5
 ENV HOME /root
 ENV LC_ALL C
 ENV DEBIAN_FRONTEND noninteractive
+ENV COLOR red
 RUN echo "export COLOR=red" > /etc/hostname.color
 
 ## Prepare packages
