@@ -3,8 +3,10 @@ import os.path as op
 import sys
 import click
 import docker
+import json
 from functools import update_wrapper
 from oarcluster.utils import copy_tree
+from sh import chmod
 
 
 HERE = op.dirname(__file__)
@@ -15,7 +17,6 @@ class Context(object):
 
     def __init__(self):
         self.version = '0.1'
-        self.state = {"images": [], "containers": []}
         self._docker_client = None
         self.prefix = "oarcluster"
         self.current_dir = os.getcwd()
@@ -28,10 +29,12 @@ class Context(object):
 
     def update(self):
         self.envdir = op.join(self.workdir, ".%s" % self.prefix)
+        self.ssh_key = op.join(self.envdir, "images", "base", "config",
+                               "insecure_key")
         self.ssh_config = op.join(self.envdir, "ssh_config")
-        self.ssh_key = op.join(self.envdir, "ssh_insecure_key")
         self.dnsfile = op.join(self.envdir, "dnsmasq.d", "hosts")
         self.postinstall_dir = op.join(self.envdir, "postinstall")
+        self.state_file = op.join(self.envdir, "state.json")
 
     def assert_valid_env(self):
         if not os.path.isdir(self.envdir):
@@ -56,9 +59,26 @@ class Context(object):
         if self.verbose:
             self.log(msg, *args)
 
-    def save_state(self):
-        if self.state:
-            print("save state")
+    def save_state(self, state):
+        if op.isdir(op.dirname(self.state_file)):
+            with open(self.state_file, "w+") as json_file:
+                state["images"] = list(set(state["images"]))
+                state["containers"] = list(set(state["containers"]))
+                json_file.write(json.dumps(state))
+
+    def load_state(self):
+        state = {"images": [], "containers": []}
+        if op.isfile(self.state_file):
+            try:
+                with open(self.state_file) as json_file:
+                    state = json.loads(json_file.read())
+                    images = set([im[:12] for im in state["images"]])
+                    state["images"] = list(images)
+                    containers = set([c[:12] for c in state["containers"]])
+                    state["containers"] = list(containers)
+            except:
+                pass
+        return state
 
     @property
     def docker(self):
@@ -94,7 +114,21 @@ class OARClusterCLI(click.MultiCommand):
         return mod.cli
 
 
-def handle_exception(f):
+def pass_state(f):
+    @click.pass_context
+    def new_func(ctx, *args, **kwargs):
+        ctx.obj.assert_valid_env()
+        state = ctx.obj.load_state()
+        state["containers"] = list(ctx.obj.get_containers_ids(state))
+        state["images"] = list(ctx.obj.get_images_ids(state))
+        try:
+            return ctx.invoke(f, state, *args, **kwargs)
+        finally:
+            ctx.obj.save_state(state)
+
+    return update_wrapper(new_func, f)
+
+
     @click.pass_context
     def new_func(ctx, *args, **kwargs):
         try:
