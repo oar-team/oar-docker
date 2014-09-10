@@ -149,4 +149,6 @@ RUN chown -R docker:docker /home/docker
 
 RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
 
+RUN /usr/local/sbin/enable_insecure_key
+
 CMD ["/usr/local/sbin/my_init", "/usr/local/sbin/taillogs"]

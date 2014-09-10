@@ -187,7 +187,7 @@ def start_nodes_containers(ctx, state, command, extra_binds, dns_ip,
 
 
 def deploy(ctx, state, num_nodes, volumes, http_port, needed_tag, parent_cmd):
-    command = ["my_init", "taillogs", "--enable-insecure-key"]
+    command = ["my_init", "taillogs"]
     nodes = ("services", "frontend", "server", "node")
     check_images_requirements(ctx, state, nodes, needed_tag, parent_cmd)
 
