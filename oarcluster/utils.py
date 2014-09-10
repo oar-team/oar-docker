@@ -9,10 +9,21 @@ import string
 import sys
 import tarfile
 import filecmp
+import socket
 
 import click
 import requests
 from sh import git, ErrorReturnCode
+
+
+def check_tcp_port_open(ip, port):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.connect((ip, int(port)))
+        s.close()
+        return True
+    except:
+        return False
 
 
 def touch(fname, times=None):
