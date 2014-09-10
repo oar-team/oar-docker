@@ -17,6 +17,11 @@ def touch(fname, times=None):
         os.utime(fname, times)
 
 
+def empty_file(path):
+    touch(path)
+    open(path, 'w').close()
+
+
 def sha1_checksum(string):
     return hashlib.sha1(string).hexdigest()
 
