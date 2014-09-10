@@ -13,10 +13,6 @@ CONTEXT_SETTINGS = dict(auto_envvar_prefix='OARCLUSTER')
 
 class Context(object):
 
-    @property
-    def oar_version_file(self):
-        return op.join(self.workdir, "version-%s.txt" % self.oar_version)
-
     def __init__(self):
         self.version = '0.1'
         self.state = {"images": [], "containers": []}
@@ -26,15 +22,9 @@ class Context(object):
         self.workdir = self.current_dir
         self.templates_dir = op.abspath(op.join(HERE, 'templates'))
         self.docker_host = None
-        self.volumes = []
-        self.num_nodes = 3
-        self.connect_ssh = False
-        self.enable_colmet = False
         # oar archive url
-        self.oar_version = "unknown"
-        self.oar_website = "http://oar-ftp.imag.fr/oar"
-        self.oar_tarball = "%s/2.5/sources/stable/oar-2.5.3.tar.gz" \
-                           % self.oar_website
+        self.oar_website = "http://oar-ftp.imag.fr/oar/2.5/sources/stable"
+        self.oar_tarball = "%s/oar-2.5.3.tar.gz" % self.oar_website
 
     def update(self):
         self.envdir = op.join(self.workdir, ".%s" % self.prefix)
