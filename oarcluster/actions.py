@@ -176,7 +176,7 @@ def start_nodes_containers(ctx, state, command, extra_binds, dns_ip,
         binds.update(extra_binds)
         container = Container.create(ctx.docker, image=image, name=name,
                                      detach=True, hostname=hostname,
-                                     ports=[22, 80], command=command)
+                                     ports=[22], command=command)
         state["containers"].append(container.short_id)
         container.start(binds=binds, privileged=True, dns=dns_ip,
                         volumes_from=frontend.id)
