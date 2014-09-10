@@ -5,6 +5,9 @@ ENV CONTAINER_LIB_PATH /var/lib/container
 ENV HOME /root
 ENV LC_ALL C
 ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_PRIORITY critical
+ENV DEBCONF_NOWARNINGS yes
+
 RUN echo "export COLOR=green" > /etc/hostname.color
 
 ## enable wheezy backports:
