@@ -29,20 +29,19 @@ function add_insecure_keys() {
 	fi
 }
 
+add_insecure_keys /root/.ssh/authorized_keys root
+
 if id -u docker >/dev/null 2>&1; then
-    INSTALLED=1
     add_insecure_keys /home/docker/.ssh/authorized_keys docker
 fi
 
 if id -u oar >/dev/null 2>&1; then
-    INSTALLED=1
     AUTHORIZED_KEYS_OAR=/var/lib/oar/.ssh/authorized_keys
     add_insecure_keys $AUTHORIZED_KEYS_OAR oar
     # oarsh need OAR_KEY env varibale to be set
     echo "environment=\"OAR_KEY=1\" $(cat $AUTHORIZED_KEYS_OAR)" > $AUTHORIZED_KEYS_OAR
 fi
 
-if [ ! -z $INSTALLED ]; then
 echo "
 
     +------------------------------------------------------------------------------+
@@ -55,4 +54,3 @@ echo "
 cat /var/lib/container/insecure_key
 echo ""
 echo ""
-fi
