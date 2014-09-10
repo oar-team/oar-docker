@@ -2,11 +2,17 @@ import codecs
 import hashlib
 import json
 import os
-import codecs
-import hashlib
 import os.path as op
+import random
+import shutil
+import string
+import sys
+import tarfile
 import filecmp
+
 import click
+import requests
+from sh import git, ErrorReturnCode
 
 
 def touch(fname, times=None):
@@ -24,6 +30,58 @@ def empty_file(path):
 
 def sha1_checksum(string):
     return hashlib.sha1(string).hexdigest()
+
+
+def check_tarball(path):
+    try:
+        with tarfile.open(path):
+                return True
+    except:
+        return False
+
+
+def check_git(path):
+    try:
+        with open(os.devnull, 'w') as devnull:
+            git('-C', path, "status", _out=devnull, _err=devnull)
+            return True
+    except ErrorReturnCode:
+        return False
+
+
+def check_url(name):
+    """Returns true if the name looks like a URL"""
+    if ':' not in name:
+        return False
+    scheme = name.split(':', 1)[0].lower()
+    return scheme in ['http', 'https', 'file', 'ftp']
+
+
+def git_pull_or_clone(src, dest):
+    if op.exists(dest):
+        remote_url = git("-C", dest, "config", "--get", "remote.origin.url")
+        if remote_url.rstrip() == src:
+            git("-C", dest, "pull", "--progress",
+                _out=sys.stdout, _err=sys.stderr)
+        else:
+            shutil.rmtree(dest)
+    else:
+        git.clone(src, dest, "--progress", _out=sys.stdout, _err=sys.stderr)
+
+
+def download_file(file_url, dest):
+    r = requests.get(file_url)
+    total_length = int(r.headers['Content-Length'].strip())
+
+    def stream():
+        for chunk in r.iter_content(chunk_size=1024):
+            yield chunk
+    with open(dest, 'wb+') as f:
+        with click.progressbar(stream,
+                               lenght=((total_length / 1024) + 1)) as bar:
+            for chunk in bar:
+                f.write(chunk)
+                f.flush()
 
 
 ## From https://github.com/docker/fig/blob/master/fig/progress_stream.py
@@ -114,6 +172,8 @@ def random_key(length):
 
 def copy_file(srcname, dstname, preserve_symlinks=True):
     if preserve_symlinks and os.path.islink(srcname):
+        if os.path.islink(dstname):
+            os.unlink(dstname)
         linkto = os.readlink(srcname)
         os.symlink(linkto, dstname)
     else:
