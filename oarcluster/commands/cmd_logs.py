@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 from Queue import Queue, Empty
-import sys
 from threading import Thread
 
 import click
@@ -77,8 +76,7 @@ class LogPrinter(object):
     def run(self):
         mux = Multiplexer(self.generators)
         for line in mux.loop():
-            click.echo(line.strip("\n"))
-            # sys.output.write(line)
+            click.echo(line, nl=False)
 
     def _calculate_prefix_width(self, containers):
         """
@@ -119,7 +117,7 @@ class LogPrinter(object):
         """
         color = container.environment.get("COLOR", "white")
         name = click.style(container.hostname, fg=color)
-        padding = ' ' * (self.prefix_width - len(name))
+        padding = ' ' * (self.prefix_width - len(container.hostname))
         return ''.join([name, padding, ' | '])
 
     def _attach(self, container):
