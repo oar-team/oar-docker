@@ -1,14 +1,14 @@
 Build your own OAR cluster with docker
 --------------------------------------
 
-Docker-oardocker is a set of docker images especially configured for deploying
+oar-docker is a set of docker images especially configured for deploying
 your own OAR cluster. The main idea is to have a mini development cluster with
 a frontend, a server and some nodes that launch in just a few seconds on a
 simple laptop.
 
 
-Why use docker-oardocker ?
----------------------------
+Why use oar-docker ?
+--------------------
 
 Various case scenarios may affect you:
  - Quickly test OAR on a cluster
@@ -31,272 +31,36 @@ Demo
 Usage
 -----
 
-Building images
-~~~~~~~~~~~~~~~
-
-Launch ``build.sh`` script to build all oardocker images.
-
 ::
 
-    $ ./build.sh
+    Usage: oardocker [OPTIONS] COMMAND1 [ARGS]... [COMMAND2 [ARGS]...]...
 
+      Manage a small OAR developpement cluster with docker.
 
-Deploying a cluster
-~~~~~~~~~~~~~~~~~~~
+    Options:
+      --workdir DIRECTORY  Changes the folder to operate on.
+      --docker-host TEXT
+      --help               Show this message and exit.
 
-To deploy a cluster on your machine, launch ``deploy.sh`` script
-and specify the desired number of nodes::
+    Commands:
+      build       Build base images
+      clean       Remove all stopped containers and untagged...
+      destroy     Stop containers and remove all images
+      init        Initialize a new environment.
+      install     Install and configure OAR from src
+      logs        Fetch the logs of all containers.
+      ssh         Connect to machine via SSH.
+      ssh-config  Output OpenSSH valid configuration to connect...
+      start       Start the cluster
+      status      Output status of the cluster
+      stop        Stop the running cluster
 
-    ./deploy.sh
-    usage: ./deploy.sh -n <#nodes> [[-v </host:/container>]] [-c|--connect]
-
-The ``--connect`` option is used to automatically connect to the frontend.
-
-::
-
-    $ ./deploy.sh -n 2 -c
-    Default data volume used: /home/user/oardocker/shared_data
-    Cleanup old containers
-    OK
-    Started oardocker_dns : 61a20adb81a38a32bf2016e5342792e9162c22df61831603c7d182c40dab2f32
-    Started oardocker_server : a59589299915d0ba7f5e37d1aee1c6b359b58e574f6567a3778667fb30c771eb
-    Started oardocker_frontend : cd9baa5612a9a12008c7eb55055e4682dbe20e8f93289b37af99a98a86c70e9d
-    Started oardocker_node1 : 1822654c6bcdeca0438063993b4c9589d7b0dcb55afaccf30a199394c214e9d6
-    Started oardocker_node2 : 2b4b05a1c6011bbaf822aac951eb93fa5d3e5a4e580ad54d3bcc21319b27593a
-
-    ***********************************************************************
-
-    API  : http://localhost:48080/oarapi/
-    Monika : http://localhost:48080/monika
-    Drawgantt : http://localhost:48080/drawgantt-svg
-    PhpPgAdmin : http://localhost:48080/phppgadmin
-
-    SSH  : ssh -F /tmp/oardocker/ssh_config frontend
-           ssh -F /tmp/oardocker/ssh_config server
-
-    Logs : docker logs -f oardocker_server
-           docker logs -f oardocker_frontend
-           docker logs -f oardocker_nodexxx
-
-    Data :
-           /home/user/oardocker/shared_data ~> /data
-
-    ***********************************************************************
-    Waiting for SSH to become available...
-    Auto connecting to the frontend...
-                                                           ##        .
-          ###      ##     ######                     ## ## ##       ==
-         ## ##     ##     ##   ##                 ## ## ## ##      ===
-        ##   ##   ####    ##   ##             /""""""""""""""""\___/ ===
-        ##   ##   ## #    ######         ~~~ {~~ ~~~~ ~~~ ~~~~ ~~ ~ /  ===- ~~~
-        ##   ##  ######   ## ##               \______ o          __/
-         ## ##   ##   #   ##  ##                \    \        __/
-          ###   ###   ##  ##   ##                \____\______/
-
-                        ###                         ##
-                ####     ##                         ##
-               ##  ##    ##                         ##
-              ##         ##     ##   ##   #####   ######    #####   ## ###
-              ##         ##     ##   ##  ##         ##     ##   ##  ###
-              ##         ##     ##   ##   ####      ##     #######  ##
-               ##  ##    ##     ##  ###      ##     ##     ##       ##
-                ####    ####     ### ##  #####       ###    #####   ##
-
-
-    OAR version : 2.5
-    password : docker
-
-    You can, for example, directly:
-     $ oarsub -I
-
-    Or check the API:
-     $ wget -O - http://localhost/oarapi/resources.yaml
-
-    Check the API more deeply, submitting a job as the "docker" user:
-     $ curl -i -X POST http://docker:docker@localhost/oarapi-priv/jobs.json \
-         -H'Content-Type: application/json' \
-         -d '{"resource":"/nodes=1,walltime=00:10:00", "command":"sleep 600"}'
-    docker@frontend ~
-    $
-
-Connecting using SSH
-~~~~~~~~~~~~~~~~~~~~
-
-To connect to the frontend or to the server, use the ssh configuration
-file generated by the ``deploy.sh`` script::
-
-    $ ssh -F /tmp/oardocker/ssh_config frontend -t /bin/bash
-    docker@frontend ~
-    $
-
-From the frontend, you can connect to any cluster node.
-
-::
-
-    ssh server|node1|node2|...
-
-
-Stopping the cluster
-~~~~~~~~~~~~~~~~~~~~
-
-Use the ``clean.sh`` script to stop and remove
-all containers previously launched.
-
-::
-
-    $ ./clean.sh
-    Cleanup old containers
-    oardocker_node2 --> Stopped
-    oardocker_node1 --> Stopped
-    oardocker_frontend --> Stopped
-    oardocker_server --> Stopped
-    oardocker_dns --> Stopped
-    oardocker_node2 --> Removed
-    oardocker_node1 --> Removed
-    oardocker_frontend --> Removed
-    oardocker_server --> Removed
-    oardocker_dns --> Removed
-    OK
-
-What's inside images ?
-----------------------
-
-Each image is build from the baseoardocker/base image. This image is
-widely inspired by `baseimage-docker`_, a special Docker image
-that is configured for correct use within Docker containers.
-
-Major differences with baseimage-docker include :
- - It is based on debian and not on ubuntu
- - It uses supervisord and not runit
- - It uses rsyslog and not syslog-ng
- - It adds the docker users (sudo) by default
- - It contains a more complete software base (perl, postgresql, ruby...)
-
-Apart from these few differences, both images have more or less the same features.
-
-+------------------------------+--------------------------------------------------------------------+
-|          Component           |                   Why is it included ? / Remarks                   |
-+------------------------------+--------------------------------------------------------------------+
-| Debian Wheezy                | The base system.                                                   |
-+------------------------------+--------------------------------------------------------------------+
-|                              |                                                                    |
-| A **correct** init process   | According to the Unix process model, `the init process`_ (PID 1)   |
-|                              | inherits all `orphaned child processes`_ and must `reap them`_.    |
-|                              |                                                                    |
-|                              | Most Docker containers do not have an init process that does this  |
-|                              | correctly, and as a result their containers become filled with     |
-|                              | `zombie processes`_ over time.                                     |
-|                              |                                                                    |
-|                              | Furthermore `docker stop` sends SIGTERM to the init process, which |
-|                              | is then supposed to stop all services. Unfortunately most init     |
-|                              | systems don't do this correctly within Docker since they're built  |
-|                              | for hardware shutdowns instead.                                    |
-|                              |                                                                    |
-|                              | This causes processes to be hard killed with SIGKILL, which        |
-|                              | doesn't give them a chance to correctly deinitialize things.       |
-|                              | This can cause file corruption. docker-oardocker comes with an    |
-|                              | init process `/sbin/my_init` that performs both of these tasks     |
-|                              | correctly.                                                         |
-+------------------------------+--------------------------------------------------------------------+
-| Fixes APT issues with docker | See https://github.com/dotcloud/docker/issues/1024.                |
-+------------------------------+--------------------------------------------------------------------+
-| rsyslog                      | A syslog daemon is necessary so that many services - including     |
-|                              | the kernel itself - can correctly log to /var/log/syslog.          |
-|                              | If no syslog daemon is running, a lot of important messages        |
-|                              | are silently swallowed. Only listens locally.                      |
-+------------------------------+--------------------------------------------------------------------+
-| ssh server                   | Allows you to easily login to your container to inspect or         |
-|                              | administer things. Password and challenge-response authentication  |
-|                              | are disabled by default. Only key authentication is allowed.       |
-+------------------------------+--------------------------------------------------------------------+
-| `supervisord`_               | Replaces Debian SysV Init. Used for service supervision and        |
-|                              | management. Much easier to use than SysV init and supports         |
-|                              | restarting daemons when they crash. Much easier to use and         |
-|                              | more lightweight than Upstart.                                     |
-+------------------------------+--------------------------------------------------------------------+
-| `setuser`                    | A tool for running a command as another user. Easier to use than   |
-|                              | `su`, has a smaller attack vector than `sudo`, and unlike `chpst`  |
-|                              | this tool sets `$HOME` correctly. Available as `/sbin/setuser`.    |
-+------------------------------+--------------------------------------------------------------------+
-| `taillogs`                   | A small tail wrapper that prints for each container all            |
-|                              | importants logs.                                                   |
-+------------------------------+--------------------------------------------------------------------+
-| dev tools                    | Some developpement tools with minimal configuration : tmux, vim,   |
-|                              | ipython, git...                                                    |
-+------------------------------+--------------------------------------------------------------------+
-
-You can refer to the `baseimage-docker`_ documentation.
-
-The cluster is composed of a OAR server (oar-server + postgresql), a frontend
-that is used to visualize jobs (drawgant, monika, oar API), a mini DNS server
-(dnsmasq) and finally OAR nodes (oar-node).
-
-::
-
-    $ docker ps
-    CONTAINER ID        IMAGE                       COMMAND                CREATED             STATUS              PORTS                                              NAMES
-    c064303e59ad        oardocker/node:2.5         /sbin/my_init /sbin/   2 seconds ago       Up 1 seconds                                                           oardocker_node2
-    06e7ab7208c3        oardocker/node:2.5         /sbin/my_init /sbin/   2 seconds ago       Up 1 seconds                                                           oardocker_node1
-    06106bd42084        oardocker/frontend:2.5     /sbin/my_init /sbin/   2 seconds ago       Up 2 seconds        127.0.0.1:48080->80/tcp, 127.0.0.1:49218->22/tcp   oardocker_frontend
-    d6bc9786fa18        oardocker/server:2.5       /sbin/my_init /sbin/   2 seconds ago       Up 2 seconds        127.0.0.1:49217->22/tcp                            oardocker_server
-    375700d34e13        oardocker/dnsmasq:latest   /sbin/dnsmasq_cmd      2 seconds ago       Up 2 seconds                                                           oardocker_dns
-
-Here is the list of services that run on each container :
-
-**Frontend**::
-
-    docker@frontend ~ $ supervisorctl status
-    apache2                          RUNNING    pid 44, uptime 0:01:33
-    rsyslogd                         RUNNING    pid 42, uptime 0:01:33
-    sshd                             RUNNING    pid 43, uptime 0:01:33
-
-**Server**::
-
-    $ supervisorctl status
-    oar-server                       RUNNING    pid 69, uptime 0:02:26
-    postgresql                       RUNNING    pid 43, uptime 0:02:28
-    rsyslogd                         RUNNING    pid 44, uptime 0:02:28
-    sshd                             RUNNING    pid 46, uptime 0:02:28
-
-**Node**::
-
-    $ supervisorctl status
-    oar-node                         RUNNING    pid 45, uptime 0:02:49
-    rsyslogd                         RUNNING    pid 43, uptime 0:02:49
-    sshd                             RUNNING    pid 44, uptime 0:02:49
-
-**Nameserver**: The nameserver only runs dnsmasq process.
 
 Security
 --------
 
-Docker-oardocker is a development project and a testing one. It is in no way secure.
+oar-docker is a development project and a testing one. It is in no way secure.
 Besides, the private ssh key used is also insecured since it is public (you can find it in the sources).
-
-
-Build your own oardocker/base image
-------------------------------------
-
-To build a docker base image, we use our appliance building tool : `Kameleon`_
-
-Start by installing kameleon ::
-
-    $ gem install kameleon-builder
-
-The kameleon recipe can be found directly in the sources::
-
-    $ cd images/base
-    $ sudo make
-
-Once done, you can test your image::
-
-    $ docker images | grep oardocker/base
-    $ oardocker/base    latest    20db8cc7add3    About a minute ago    746.1 MB
-
-::
-
-    $ docker run -it --rm oardocker/base echo "Hello"
-    Hello
 
 
 Related resources
@@ -304,13 +68,3 @@ Related resources
 
 - `A minimal Ubuntu base image modified for Docker-friendliness`_
 - `Got a Minute? Spin up a Spark cluster on your laptop with Docker`_
-
-.. _`Kameleon`: http://kameleon.imag.fr
-.. _`the init process`: https://en.wikipedia.org/wiki/Init
-.. _`orphaned child processes`: https://en.wikipedia.org/wiki/Orphan_process
-.. _`reap them`: https://en.wikipedia.org/wiki/Wait_(system_call)
-.. _`zombie processes`: https://en.wikipedia.org/wiki/Zombie_process
-.. _`supervisord`: http://supervisord.org/
-.. _`baseimage-docker`: http://phusion.github.io/baseimage-docker/
-.. _`A minimal Ubuntu base image modified for Docker-friendliness`: http://phusion.github.io/baseimage-docker/
-.. _`Got a Minute? Spin up a Spark cluster on your laptop with Docker`: https://amplab.cs.berkeley.edu/2013/10/23/got-a-minute-spin-up-a-spark-cluster-on-your-laptop-with-docker
