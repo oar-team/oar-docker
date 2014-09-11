@@ -1,5 +1,23 @@
 .vagrant
-shared_data
+*.py[co]
 *~
-*.tar.gz
+*.log
+*#
+**#
+*.egg
+*.egg-info
+dist
+build
+src/
+eggs
+parts
+sdist
+# Installer logs
+pip-log.txt
 
+# Unit test / coverage reports
+.coverage
+.tox
+.vagrant
+.oardocker
+*.tar.gz
