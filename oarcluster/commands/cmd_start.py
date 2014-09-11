@@ -14,3 +14,8 @@ from oarcluster.actions import deploy
 def cli(ctx, state, nodes, volumes, http_port):
     """Start the cluster"""
     deploy(ctx, state, nodes, volumes, http_port, "latest", "setup")
+    ctx.log("\nInformations:\n")
+    ctx.log("API        : http://localhost:%s/oarapi/" % http_port)
+    ctx.log("Monika     : http://localhost:%s/monika" % http_port)
+    ctx.log("Drawgantt  : http://localhost:%s/drawgantt-svg" % http_port)
+    ctx.log("PhpPgAdmin : http://localhost:%s/phppgadmin" % http_port)
