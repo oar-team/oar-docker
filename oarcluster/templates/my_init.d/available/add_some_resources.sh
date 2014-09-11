@@ -3,11 +3,6 @@
 echo_and_run() { echo "$@" ; $@ ; }
 
 
-while ! oarnodes --sql "false" 2> /dev/null; do
-  echo "Waiting the database to be ready..."
-  sleep 1
-done
-
 NUM_NODECPU=$(grep "^physical id" /proc/cpuinfo | sort -u | wc -l)
 NUM_CPUCORE=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
 NUM_CPUSET=$(grep -e "^processor\s\+:" /proc/cpuinfo | sort -u | wc -l)
