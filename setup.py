@@ -1,21 +1,21 @@
-import re
-import ast
+import os.path as op
 from setuptools import setup
+from oardocker import VERSION
+
+here = op.abspath(op.dirname(__file__))
 
 
-_version_re = re.compile(r'__version__\s+=\s+(.*)')
-
-
-with open('oardocker/__init__.py', 'rb') as f:
-    version = str(ast.literal_eval(_version_re.search(
-        f.read().decode('utf-8')).group(1)))
+def read(fname):
+    ''' Return the file content. '''
+    with open(op.join(here, fname)) as f:
+        return f.read()
 
 
 setup(
-    name='oardocker',
+    name='oar-docker',
     author='Salem Harrache',
     author_email='salem.harrache@inria.fr',
-    version=version,
+    version=VERSION,
     url='https://github.com/oar-team/docker-oardocker',
     install_requires=[
         'Click',
@@ -26,7 +26,8 @@ setup(
         'dockerpty',
     ],
     packages=['oardocker'],
-    description='Dockerfiles to build oar images for testing and development.',
+    description='Manage a small OAR developpement cluster with docker.',
+    long_description=read('README.rst') + '\n\n' + read('CHANGELOG.rst'),
     classifiers=[
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python',
