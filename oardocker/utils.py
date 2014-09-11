@@ -196,7 +196,7 @@ def copy_tree(src, dest):
     Copy all files in the source path to the destination path.
     """
     create = click.style('   create', fg="green")
-    chmod_str = click.style('    chmod', fg="cyan")
+    chmod = click.style('    chmod', fg="cyan")
     overwrite = click.style('overwrite', fg="yellow")
     identical = click.style('identical', fg="blue")
     cwd = os.getcwd() + "/"
@@ -224,10 +224,11 @@ def copy_tree(src, dest):
             else:
                 click.echo("   " + create + "  " + fancy_relative_path)
                 copy_file(src_file_path, dest_file_path)
-            if src_file_path.startswith(initd_path):
+            if src_file_path.startswith(initd_path) or "bin/" in dest_file_path:
                 if not os.path.islink(dest_file_path):
-                    os.system("chmod +x %s" % dest_file_path)
-                    click.echo("   " + chmod_str + "  " + fancy_relative_path)
+                    if not os.access(dest_file_path, os.X_OK):
+                        os.system("chmod +x %s" % dest_file_path)
+                        click.echo("   " + chmod + "  " + fancy_relative_path)
 
 
 def human_filesize(bytes):
