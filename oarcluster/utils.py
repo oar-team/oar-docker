@@ -81,15 +81,15 @@ def git_pull_or_clone(src, dest):
 
 
 def download_file(file_url, dest):
-    r = requests.get(file_url)
-    total_length = int(r.headers['Content-Length'].strip())
+    req = requests.get(file_url)
+    total_length = int(req.headers['Content-Length'].strip())
 
     def stream():
-        for chunk in r.iter_content(chunk_size=1024):
+        for chunk in req.iter_content(chunk_size=1024):
             yield chunk
     with open(dest, 'wb+') as f:
-        with click.progressbar(stream,
-                               lenght=((total_length / 1024) + 1)) as bar:
+        with click.progressbar(stream(),
+                               length=((total_length / 1024) + 1)) as bar:
             for chunk in bar:
                 f.write(chunk)
                 f.flush()
