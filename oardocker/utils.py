@@ -1,15 +1,15 @@
 import codecs
+import filecmp
 import hashlib
 import json
 import os
 import os.path as op
 import random
 import shutil
+import socket
 import string
 import sys
 import tarfile
-import filecmp
-import socket
 
 import click
 import requests
@@ -195,10 +195,12 @@ def copy_tree(src, dest):
     """
     Copy all files in the source path to the destination path.
     """
-    create = click.style('  create', fg="green")
+    create = click.style('   create', fg="green")
+    chmod_str = click.style('    chmod', fg="cyan")
     overwrite = click.style('overwrite', fg="yellow")
     identical = click.style('identical', fg="blue")
     cwd = os.getcwd() + "/"
+    initd_path = op.join(src, "my_init.d")
     for path, dirs, files in os.walk(src):
         relative_path = path[len(src):].lstrip(os.sep)
         if not op.exists(op.join(dest, relative_path)):
@@ -210,7 +212,7 @@ def copy_tree(src, dest):
             src_file_path = op.join(path, filename)
             dest_file_path = op.join(dest, relative_path, filename)
             if dest_file_path.startswith(cwd):
-                fancy_relative_path = dest_file_path.lstrip(cwd)
+                fancy_relative_path = dest_file_path.replace(cwd, "")
             else:
                 fancy_relative_path = dest_file_path
             if op.exists(dest_file_path):
@@ -222,6 +224,10 @@ def copy_tree(src, dest):
             else:
                 click.echo("   " + create + "  " + fancy_relative_path)
                 copy_file(src_file_path, dest_file_path)
+            if src_file_path.startswith(initd_path):
+                if not os.path.islink(dest_file_path):
+                    os.system("chmod +x %s" % dest_file_path)
+                    click.echo("   " + chmod_str + "  " + fancy_relative_path)
 
 
 def human_filesize(bytes):

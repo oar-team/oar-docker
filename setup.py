@@ -27,6 +27,7 @@ setup(
     ],
     packages=find_packages(),
     include_package_data=True,
+    zip_safe=False,
     description='Manage a small OAR developpement cluster with docker.',
     long_description=read('README.rst') + '\n\n' + read('CHANGELOG.rst'),
     classifiers=[
