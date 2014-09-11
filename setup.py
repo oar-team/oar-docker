@@ -1,5 +1,5 @@
 import os.path as op
-from setuptools import setup
+from setuptools import setup, find_packages
 from oardocker import VERSION
 
 here = op.abspath(op.dirname(__file__))
@@ -25,7 +25,8 @@ setup(
         'arrow',
         'dockerpty',
     ],
-    packages=['oardocker'],
+    packages=find_packages(),
+    include_package_data=True,
     description='Manage a small OAR developpement cluster with docker.',
     long_description=read('README.rst') + '\n\n' + read('CHANGELOG.rst'),
     classifiers=[
