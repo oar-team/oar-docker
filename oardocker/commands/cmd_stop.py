@@ -1,7 +1,7 @@
 import click
-from oarcluster.cli import pass_context, pass_state
+from oardocker.cli import pass_context, pass_state
 
-from oarcluster.utils import empty_file
+from oardocker.utils import empty_file
 
 
 @click.command('stop')

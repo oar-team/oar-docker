@@ -4,7 +4,7 @@ from Queue import Queue, Empty
 from threading import Thread
 
 import click
-from oarcluster.cli import pass_context, pass_state
+from oardocker.cli import pass_context, pass_state
 
 
 def split_buffer(reader, separator):

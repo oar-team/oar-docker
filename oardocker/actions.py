@@ -1,9 +1,9 @@
 import os
 import os.path as op
 import click
-from oarcluster.utils import check_tarball, check_git, check_url, \
+from oardocker.utils import check_tarball, check_git, check_url, \
     download_file, git_pull_or_clone, touch
-from oarcluster.container import Container
+from oardocker.container import Container
 
 
 def check_images_requirements(ctx, state, nodes, needed_tag, parent_cmd):

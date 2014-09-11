@@ -4,9 +4,9 @@ import sys
 import re
 
 import click
-from oarcluster.cli import pass_context, pass_state, invoke_after_stop, \
+from oardocker.cli import pass_context, pass_state, invoke_after_stop, \
     invoke_before_clean
-from oarcluster.utils import stream_output
+from oardocker.utils import stream_output
 
 
 def get_image_id(events):
@@ -36,7 +36,7 @@ def get_image_id(events):
 def cli(ctx, state, no_cache, quiet, rm):
     """Build base images"""
     ctx.assert_valid_env()
-    ctx.log('Starting oarcluster build')
+    ctx.log('Starting oardocker build')
     dockerfiles = glob.glob(op.join(ctx.envdir, "images", "*",
                             "Dockerfile"))
     dockerfiles.sort()

@@ -1,4 +1,4 @@
-FROM oarcluster/base:latest
+FROM oardocker/base:latest
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 ENV COLOR yellow
 RUN echo "export COLOR=yellow" > /etc/hostname.color

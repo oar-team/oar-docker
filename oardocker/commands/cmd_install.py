@@ -1,7 +1,7 @@
 import click
-from oarcluster.cli import pass_context, pass_state, invoke_after_stop, \
+from oardocker.cli import pass_context, pass_state, invoke_after_stop, \
     invoke_before_clean
-from oarcluster.actions import install
+from oardocker.actions import install
 
 
 @click.command('install')

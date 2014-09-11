@@ -5,13 +5,13 @@ import click
 import docker
 import json
 from functools import update_wrapper
-from oarcluster.utils import copy_tree
-from oarcluster.container import Container
+from oardocker.utils import copy_tree
+from oardocker.container import Container
 from sh import chmod
 
 
 HERE = op.dirname(__file__)
-CONTEXT_SETTINGS = dict(auto_envvar_prefix='OARCLUSTER')
+CONTEXT_SETTINGS = dict(auto_envvar_prefix='oardocker')
 
 
 class Context(object):
@@ -19,7 +19,7 @@ class Context(object):
     def __init__(self):
         self.version = '0.1'
         self._docker_client = None
-        self.prefix = "oarcluster"
+        self.prefix = "oardocker"
         self.current_dir = os.getcwd()
         self.workdir = self.current_dir
         self.templates_dir = op.abspath(op.join(HERE, 'templates'))
@@ -39,9 +39,9 @@ class Context(object):
 
     def assert_valid_env(self):
         if not os.path.isdir(self.envdir):
-            raise click.ClickException("Missing oarcluster env directory."
-                                       " Run `oarcluster init` to create"
-                                       " a new oarcluster environment")
+            raise click.ClickException("Missing oardocker env directory."
+                                       " Run `oardocker init` to create"
+                                       " a new oardocker environment")
 
     def copy_tree(self, src, dest, overwrite=False):
         if os.path.exists(dest) and not overwrite:
@@ -130,7 +130,7 @@ pass_context = click.make_pass_decorator(Context, ensure=True)
 cmd_folder = op.abspath(op.join(HERE, 'commands'))
 
 
-class OARClusterCLI(click.MultiCommand):
+class oardockerCLI(click.MultiCommand):
 
     def list_commands(self, ctx):
         commands = []
@@ -144,7 +144,7 @@ class OARClusterCLI(click.MultiCommand):
         if sys.version_info[0] == 2:
             name = name.encode('ascii', 'replace')
         if name in self.list_commands(ctx):
-            mod = __import__('oarcluster.commands.cmd_' + name,
+            mod = __import__('oardocker.commands.cmd_' + name,
                              None, None, ['cli'])
             return mod.cli
 
@@ -187,7 +187,7 @@ def invoke_before_clean(f):
     return update_wrapper(new_func, f)
 
 
-@click.command(cls=OARClusterCLI, context_settings=CONTEXT_SETTINGS, chain=True)
+@click.command(cls=oardockerCLI, context_settings=CONTEXT_SETTINGS, chain=True)
 @click.option('--workdir', type=click.Path(exists=True, file_okay=False,
                                            resolve_path=True),
               help='Changes the folder to operate on.')

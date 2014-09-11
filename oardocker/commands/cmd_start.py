@@ -1,6 +1,6 @@
 import click
-from oarcluster.cli import pass_context, pass_state, invoke_after_stop
-from oarcluster.actions import deploy
+from oardocker.cli import pass_context, pass_state, invoke_after_stop
+from oardocker.actions import deploy
 
 
 @click.command('start')

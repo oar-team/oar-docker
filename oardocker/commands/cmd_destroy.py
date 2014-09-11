@@ -1,5 +1,5 @@
 import click
-from oarcluster.cli import pass_context, pass_state, invoke_after_stop
+from oardocker.cli import pass_context, pass_state, invoke_after_stop
 
 
 @click.command('destroy')

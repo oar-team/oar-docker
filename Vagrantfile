@@ -3,12 +3,12 @@
 
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/trusty64"
-  config.vm.hostname = "oarcluster"
+  config.vm.hostname = "oardocker"
   config.vm.provision "docker", images: ["scratch"]
 
   # share src folder
   config.vm.synced_folder ".", "/vagrant", disabled: true
-  config.vm.synced_folder ".", "/home/vagrant/docker-oarcluster"
+  config.vm.synced_folder ".", "/home/vagrant/docker-oardocker"
 
   # enable ssh forward agent for all VMs
   config.ssh.forward_agent = true

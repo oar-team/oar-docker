@@ -107,6 +107,6 @@ sed -i "s/\$conf\['servers'\]\[0\]\['host'\] = 'localhost';/\$conf\['servers'\]\
 sed -i "s/\$CONF\['db_type'\]=\"mysql\"/\$CONF\['db_type'\]=\"pg\"/g" /etc/oar/drawgantt-config.inc.php
 sed -i "s/\$CONF\['db_server'\]=\"127.0.0.1\"/\$CONF\['db_server'\]=\"services\"/g" /etc/oar/drawgantt-config.inc.php
 sed -i "s/\$CONF\['db_port'\]=\"3306\"/\$CONF\['db_port'\]=\"5432\"/g" /etc/oar/drawgantt-config.inc.php
-sed -i "s/\"My OAR resources\"/\"Docker oarcluster resources\"/g" /etc/oar/drawgantt-config.inc.php
+sed -i "s/\"My OAR resources\"/\"Docker oardocker resources\"/g" /etc/oar/drawgantt-config.inc.php
 
 echo "$VERSION" | tee /oar_version

@@ -1,8 +1,8 @@
 import time
 import os
 import click
-from oarcluster.cli import pass_context, pass_state
-from oarcluster.utils import touch, check_tcp_port_open
+from oardocker.cli import pass_context, pass_state
+from oardocker.utils import touch, check_tcp_port_open
 
 
 @click.command('ssh')
@@ -20,7 +20,7 @@ def cli(ctx, state, hostname):
     containers = dict((c.hostname, c) for c in ctx.get_containers(state))
     if not hostname in containers.keys():
         raise click.ClickException("The container must be started before "
-                                   "running this command. Run  `oarcluster"
+                                   "running this command. Run  `oardocker"
                                    " start` first")
     ipaddress = containers[hostname].ip
     if not check_tcp_port_open(ipaddress, 22):

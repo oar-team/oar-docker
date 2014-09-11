@@ -1,6 +1,6 @@
 import click
-from oarcluster.cli import pass_context, pass_state
-from oarcluster.actions import generate_ssh_config
+from oardocker.cli import pass_context, pass_state
+from oardocker.actions import generate_ssh_config
 
 
 @click.command('ssh-config')

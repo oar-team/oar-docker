@@ -19,5 +19,5 @@ pip-log.txt
 .coverage
 .tox
 .vagrant
-.oarcluster
+.oardocker
 *.tar.gz

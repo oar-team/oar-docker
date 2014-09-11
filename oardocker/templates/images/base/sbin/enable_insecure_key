@@ -4,7 +4,7 @@ set -e
 function add_insecure_keys() {
 	AUTHORIZED_KEYS=$1
 	USER=$2
-	if [[ -e "$AUTHORIZED_KEYS" ]] && grep -q oarcluster-docker-insecure-key "$AUTHORIZED_KEYS"; then
+	if [[ -e "$AUTHORIZED_KEYS" ]] && grep -q oardocker-docker-insecure-key "$AUTHORIZED_KEYS"; then
 		echo "Insecure key has already been added to $AUTHORIZED_KEYS."
 	else
 		DIR=`dirname "$AUTHORIZED_KEYS"`
