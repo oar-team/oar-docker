@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from Queue import Queue, Empty
 from threading import Thread
 
+import time
 import click
 from oardocker.cli import pass_context, pass_state
 
@@ -41,42 +42,43 @@ class Multiplexer(object):
         self.generators = generators
         self.queue = Queue()
 
-    def loop(self):
-        self._init_readers()
+    def loop(self, callback):
+        def loop_target(callback):
+            while True:
+                try:
+                    item = self.queue.get(timeout=0.1)
+                    if item is STOP:
+                        break
+                    else:
+                        callback(item)
+                except Empty:
+                    pass
 
-        while True:
-            try:
-                item = self.queue.get(timeout=0.1)
-                if item is STOP:
-                    break
-                else:
-                    yield item
-            except Empty:
-                pass
+        def _enqueue_output(generator):
+            for item in generator:
+                self.queue.put(item)
 
-    def _init_readers(self):
+        loop_thread = Thread(target=loop_target, args=(callback,))
+        loop_thread.daemon = True
+        loop_thread.start()
         for generator in self.generators:
-            t = Thread(target=_enqueue_output, args=(generator, self.queue))
+            t = Thread(target=_enqueue_output, args=(generator,))
             t.daemon = True
             t.start()
-
-
-def _enqueue_output(generator, queue):
-    for item in generator:
-        queue.put(item)
+            time.sleep(0.1)
+        while loop_thread.is_alive():
+            loop_thread.join(1)
 
 
 class LogPrinter(object):
-    def __init__(self, containers, attach_params=None):
+    def __init__(self, containers):
         self.containers = containers
-        self.attach_params = attach_params or {}
         self.prefix_width = self._calculate_prefix_width(containers)
         self.generators = self._make_log_generators()
 
     def run(self):
         mux = Multiplexer(self.generators)
-        for line in mux.loop():
-            click.echo(line, nl=False)
+        mux.loop(callback=lambda x: click.echo(x, nl=False))
 
     def _calculate_prefix_width(self, containers):
         """
@@ -103,10 +105,8 @@ class LogPrinter(object):
         prefix = self._generate_prefix(container).encode('utf-8')
         # Attach to container before log printer starts running
         line_generator = split_buffer(self._attach(container), '\n')
-
         for line in line_generator:
             yield prefix + line
-
         exit_code = container.wait()
         yield "%s exited with code %s\n" % (container.name, exit_code)
         yield STOP
@@ -125,21 +125,29 @@ class LogPrinter(object):
             'stdout': True,
             'stderr': True,
             'stream': True,
+            'logs': True,
         }
-        params.update(self.attach_params)
-        params = dict((name, 1 if value else 0) for (name, value) in list(params.items()))
         return container.attach(**params)
 
 
 @click.command('logs')
-@click.option('-f', '--follow', is_flag=True, default=False,
-              help="Follow log output")
+@click.argument('hostname', required=False, default="")
 @pass_state
 @pass_context
-def cli(ctx, state, follow):
+def cli(ctx, state, hostname):
     """Fetch the logs of all containers."""
     containers = list(ctx.get_containers(state))
+    if hostname:
+        node_name = ''.join([i for i in hostname if not i.isdigit()])
+        nodes = ("frontend", "services", "node", "server")
+        if not node_name in nodes:
+            raise click.ClickException("Cannot find the container with the "
+                                       "name '%s'" % hostname)
+        containers = [c for c in containers if c.hostname == hostname]
     if not containers:
-        click.echo("Nothing to see !")
+        print_msg = "container" if hostname else "containers"
+        raise click.ClickException("The %s must be started before "
+                                   "running this command. Run  `oardocker"
+                                   " start` first" % print_msg)
     else:
-        LogPrinter(containers, attach_params={'logs': True}).run()
+        LogPrinter(containers).run()
