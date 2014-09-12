@@ -1,15 +1,16 @@
 import time
-import os
 import click
 from oardocker.cli import pass_context, pass_state
 from oardocker.utils import touch, check_tcp_port_open
+from subprocess import call
 
 
 @click.command('ssh')
 @click.argument('hostname', required=False, default="frontend")
+@click.option('-l', 'user', required=False)
 @pass_state
 @pass_context
-def cli(ctx, state, hostname):
+def cli(ctx, state, hostname, user):
     """Connect to machine via SSH."""
     touch(ctx.ssh_config)
     node_name = ''.join([i for i in hostname if not i.isdigit()])
@@ -29,4 +30,8 @@ def cli(ctx, state, hostname):
             time.sleep(1)
             click.echo(".", nl=False)
         click.echo("")
-    os.system('ssh -F %s %s' % (ctx.ssh_config, hostname))
+    extra_args = []
+    if user:
+        extra_args += ['-l', user]
+    cmdline = ["ssh", "-F", ctx.ssh_config, hostname] + extra_args
+    call(cmdline)
