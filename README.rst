@@ -23,10 +23,27 @@ Various case scenarios may affect you:
 Demo
 ----
 
-.. image:: images/screenshot.png
+.. image:: docs/screenshot.png
     :align: center
     :target: https://asciinema.org/a/8353
 
+
+Installation
+------------
+
+You can install, upgrade, uninstall oar-docker with these commands::
+
+  $ pip install oar-docker
+  $ pip install --upgrade oar-docker
+  $ pip uninstall oar-docker
+
+Or from git::
+
+  $ pip install git+https://github.com/oar-team/oar-docker.git
+
+Or if you don't have pip::
+
+  $ easy_install oar-docker
 
 Usage
 -----
