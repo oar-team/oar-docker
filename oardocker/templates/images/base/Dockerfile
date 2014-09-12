@@ -26,7 +26,7 @@ RUN apt-get install -y \
     qemu-kvm linux-image-amd64 net-tools bridge-utils uml-utilities perl \
     perl-base build-essential taktuk libdbi-perl libsort-versions-perl \
     libdbd-pg-perl postgresql-client inetutils-ping rsyslog git \
-    tmux/wheezy-backports openssh-server netcat
+    tmux/wheezy-backports openssh-server netcat unionfs-fuse
 
 ## frontend dependencies
 RUN apt-get install -y \

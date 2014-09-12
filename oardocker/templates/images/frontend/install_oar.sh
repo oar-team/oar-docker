@@ -4,18 +4,30 @@ set -e
 TMPDIR=$(mktemp -d --tmpdir install_oar.XXXXXXXX)
 SRCDIR="$TMPDIR/src"
 
+mkdir -p $SRCDIR
+
+on_exit() {
+    mountpoint -q $SRCDIR && umount $SRCDIR || true
+    rm -rf $TMPDIR
+}
+
+trap "{ on_exit; kill 0; }" EXIT
+
 fail() {
     echo $@ 1>&2
-    rm -rf $TMPDIR
     exit 1
 }
 
 # Create tarball
 if [ -d "$1"  ]; then
-    pushd $1
-    TARBALL_PATH=$(make tarball 2>&1 | tail -1)
-    TARBALL=$(readlink -m "$1/$TARBALL_PATH")
+    GIT_SRC="$(readlink -m $1)"
+    RWSRCDIR="$TMPDIR/src-rw"
+    mkdir -p $RWSRCDIR
+    unionfs-fuse -o cow -o allow_other,use_ino,suid,dev,nonempty $RWSRCDIR=RW:$GIT_SRC=RO $SRCDIR
+    pushd $SRCDIR
+    VERSION=$(git describe)
     popd
+    [ -n "${VERSION}" ] || fail "error: fail to retrieve OAR version"
 else
     TARBALL=$1
     [ -n "$TARBALL" ] || fail "error: You must provide a URL to a OAR tarball"
@@ -25,20 +37,16 @@ else
     else
         TARBALL="$(readlink -m $TARBALL)"
     fi
+    VERSION=$(tar xfz $TARBALL --wildcards "*/sources/core/common-libs/lib/OAR/Version.pm" --to-command "grep -e 'my \$OARVersion'" | sed -e 's/^[^"]\+"\(.\+\)";$/\1/')
+    tar xf $TARBALL -C $SRCDIR
+    [ -n "${VERSION}" ] || fail "error: fail to retrieve OAR version"
+    SRCDIR=$SRCDIR/oar-${VERSION}
 fi
 
-VERSION=$(tar xfz $TARBALL --wildcards "*/sources/core/common-libs/lib/OAR/Version.pm" --to-command "grep -e 'my \$OARVersion'" | sed -e 's/^[^"]\+"\(.\+\)";$/\1/')
-[ -n "${VERSION}" ] || fail "error: fail to retrieve OAR version"
-
-mkdir $SRCDIR
-tar xf $TARBALL -C $SRCDIR
-
 # Install OAR
-make -C $SRCDIR/oar-${VERSION} PREFIX=/usr/local user-build tools-build
-make -C $SRCDIR/oar-${VERSION} PREFIX=/usr/local user-install drawgantt-svg-install monika-install www-conf-install api-install tools-install
-make -C $SRCDIR/oar-${VERSION} PREFIX=/usr/local user-setup drawgantt-svg-setup monika-setup www-conf-setup api-setup tools-setup
-
-rm -rf "$TMPDIR"
+make -C $SRCDIR PREFIX=/usr/local user-build tools-build
+make -C $SRCDIR PREFIX=/usr/local user-install drawgantt-svg-install monika-install www-conf-install api-install tools-install
+make -C $SRCDIR PREFIX=/usr/local user-setup drawgantt-svg-setup monika-setup www-conf-setup api-setup tools-setup
 
 # Configure MOTD
 sed -i s/__OAR_VERSION__/${VERSION}/ /etc/motd
