@@ -68,10 +68,7 @@ def install(ctx, state, src, needed_tag, tag, message, parent_cmd):
     command = ["/root/install_oar.sh", src_cpath]
     for node in nodes:
         image = "%s/%s:%s" % (ctx.prefix, node, needed_tag)
-        name = image.replace("/", "_").replace(":", "_")\
-                    .replace("_%s" % needed_tag, "_install")
-        container = Container.create(ctx.docker, image=image, name=name,
-                                     command=command)
+        container = Container.create(ctx.docker, image=image, command=command)
         state["containers"].append(container.short_id)
         exit_code = container.start_and_attach(binds=binds, privileged=True)
         if exit_code:
@@ -126,12 +123,10 @@ def start_server_container(ctx, state, command, extra_binds, dns_ip,
                            num_nodes):
     image = "%s/server:latest" % ctx.prefix
     hostname = "server"
-    name = image.replace("/", "_").replace(":", "_")\
-                .replace("_latest", "")
     binds = {}
     binds.update(extra_binds)
     env = {"NUM_NODES": num_nodes}
-    container = Container.create(ctx.docker, image=image, name=name,
+    container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
                                  environment=env, ports=[22],
                                  command=command)
@@ -149,12 +144,10 @@ def start_frontend_container(ctx, state, command, extra_binds, dns_ip,
                              num_nodes, http_port):
     image = "%s/frontend:latest" % ctx.prefix
     hostname = "frontend"
-    name = image.replace("/", "_").replace(":", "_")\
-                .replace("_latest", "")
     binds = {}
     binds.update(extra_binds)
     env = {"NUM_NODES": num_nodes}
-    container = Container.create(ctx.docker, image=image, name=name,
+    container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
                                  environment=env, volumes=["/home"],
                                  ports=[22, 80], command=command)
@@ -174,11 +167,9 @@ def start_nodes_containers(ctx, state, command, extra_binds, dns_ip,
     image = "%s/node:latest" % ctx.prefix
     for i in xrange(1, num_nodes + 1):
         hostname = "node%d" % i
-        name = image.replace("/", "_").replace(":", "_")\
-                    .replace("_latest", "%d" % i)
         binds = {}
         binds.update(extra_binds)
-        container = Container.create(ctx.docker, image=image, name=name,
+        container = Container.create(ctx.docker, image=image,
                                      detach=True, hostname=hostname,
                                      ports=[22], command=command)
         state["containers"].append(container.short_id)
