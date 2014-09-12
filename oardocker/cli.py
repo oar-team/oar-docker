@@ -35,6 +35,7 @@ class Context(object):
         self.ssh_config = op.join(self.envdir, "ssh_config")
         self.dnsfile = op.join(self.envdir, "dnsmasq.d", "hosts")
         self.postinstall_dir = op.join(self.envdir, "postinstall")
+        self.envid_file = op.join(self.envdir, "envid")
         self.state_file = op.join(self.envdir, "state.json")
 
     def assert_valid_env(self):
