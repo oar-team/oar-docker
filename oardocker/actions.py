@@ -73,7 +73,11 @@ def install(ctx, state, src, needed_tag, tag, message, parent_cmd):
         container = Container.create(ctx.docker, image=image, name=name,
                                      command=command)
         state["containers"].append(container.short_id)
-        container.start_and_attach(binds=binds)
+        exit_code = container.start_and_attach(binds=binds, privileged=True)
+        if exit_code:
+            msg = "Container %s exited with code %s\n" % (container.id,
+                                                          exit_code)
+            raise click.ClickException(msg)
         oar_version = container.logs().strip().split('\n')[-1]
         repository = "%s/%s" % (ctx.prefix, node)
         commit = container.commit(repository=repository, tag=tag,
