@@ -77,7 +77,8 @@ Security
 --------
 
 oar-docker is a development project and a testing one. It is in no way secure.
-Besides, the private ssh key used is also insecured since it is public (you can find it in the sources).
+Besides, the private ssh key used is also insecured since it is public (you can
+find it in the sources).
 
 
 Related resources

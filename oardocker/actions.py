@@ -98,15 +98,13 @@ def start_services_container(ctx, state, command, extra_binds):
     touch(ctx.dnsfile)
     image = "%s/services:latest" % ctx.prefix
     hostname = "services"
-    name = image.replace("/", "_").replace(":", "_")\
-                .replace("_latest", "")
     my_initd = op.join(ctx.envdir, "my_init.d")
     binds = {
         my_initd: {'bind': "/var/lib/container/my_init.d/", 'ro': True},
         ctx.dnsfile: {'bind': "/etc/dnsmasq.d/hosts", 'ro': True},
     }
     binds.update(extra_binds)
-    container = Container.create(ctx.docker, image=image, name=name,
+    container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname, ports=[22],
                                  command=command)
     state["containers"].append(container.short_id)
