@@ -37,9 +37,13 @@ You can install, upgrade, uninstall oar-docker with these commands::
   $ pip install --upgrade oar-docker
   $ pip uninstall oar-docker
 
-Or from git::
+Or from git (last development version)::
 
   $ pip install git+https://github.com/oar-team/oar-docker.git
+
+Or if you already pulled the sources::
+
+  $ pip install path/to/sources
 
 Or if you don't have pip::
 
