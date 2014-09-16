@@ -23,7 +23,7 @@ Various case scenarios may affect you:
 Demo
 ----
 
-.. image:: images/screenshot.png
+.. image:: docs/screenshot.png
     :align: center
     :target: https://asciinema.org/a/8353
 
