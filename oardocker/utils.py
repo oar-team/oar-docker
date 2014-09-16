@@ -54,7 +54,8 @@ def check_tarball(path):
 def check_git(path):
     try:
         with open(os.devnull, 'w') as devnull:
-            git('-C', path, "status", _out=devnull, _err=devnull)
+            git("--git-dir", op.join(path, ".git"), "--work-tree", path,
+                "status", _out=devnull, _err=devnull)
             return True
     except ErrorReturnCode:
         return False
@@ -70,10 +71,12 @@ def check_url(name):
 
 def git_pull_or_clone(src, dest):
     if op.exists(dest):
-        remote_url = git("-C", dest, "config", "--get", "remote.origin.url")
+        remote_url = git("--git-dir", op.join(dest, ".git"),
+                         "--work-tree", dest, "config",
+                         "--get", "remote.origin.url")
         if remote_url.rstrip() == src:
-            git("-C", dest, "pull", "--progress",
-                _out=sys.stdout, _err=sys.stderr)
+            git("--git-dir", op.join(dest, ".git"), "--work-tree",
+                dest, "pull", "--progress", _out=sys.stdout, _err=sys.stderr)
         else:
             shutil.rmtree(dest)
     else:
