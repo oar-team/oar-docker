@@ -193,6 +193,7 @@ def invoke_before_clean(f):
                                            resolve_path=True),
               help='Changes the folder to operate on.')
 @click.option('--docker-host', default="unix://var/run/docker.sock")
+@click.version_option()
 @pass_context
 def cli(ctx, workdir, docker_host):
     """Manage a small OAR developpement cluster with docker."""
