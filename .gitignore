@@ -21,3 +21,4 @@ pip-log.txt
 .vagrant
 .oardocker
 *.tar.gz
+venv
