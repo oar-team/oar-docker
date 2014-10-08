@@ -209,4 +209,5 @@ Host {}
         for c in sorted(ctx.get_containers(state), key=key_sort):
             ipaddress = c.dictionary["NetworkSettings"]["IPAddress"]
             hostname = c.dictionary["Config"]["Hostname"]
-            ssh_config.write(entry.format(hostname, ipaddress))
+            if ipaddress:
+                ssh_config.write(entry.format(hostname, ipaddress))
