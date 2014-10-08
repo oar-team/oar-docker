@@ -172,7 +172,8 @@ ff02::2 ip6-allrouters
     my_initd = op.join(ctx.envdir, "my_init.d")
     extra_binds = {
         my_initd: {'bind': "/var/lib/container/my_init.d/", 'ro': True},
-        ctx.dnsfile: {'bind': "/etc/hosts", 'ro': True}
+        ctx.dnsfile: {'bind': "/etc/hosts", 'ro': True},
+        ctx.cgroup_path: {'bind': "/sys/fs/cgroup", 'ro': True}
     }
     for volume in volumes:
         host_path, container_path = volume.split(":")

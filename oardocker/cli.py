@@ -24,6 +24,7 @@ class Context(object):
         self.workdir = self.current_dir
         self.templates_dir = op.abspath(op.join(HERE, 'templates'))
         self.docker_host = None
+        self.cgroup_path = None
         # oar archive url
         self.oar_website = "http://oar-ftp.imag.fr/oar/2.5/sources/stable"
         self.oar_tarball = "%s/oar-2.5.3.tar.gz" % self.oar_website
@@ -192,15 +193,18 @@ def invoke_before_clean(f):
 @click.option('--workdir', type=click.Path(exists=True, file_okay=False,
                                            resolve_path=True),
               help='Changes the folder to operate on.')
-@click.option('--docker-host', default="unix://var/run/docker.sock")
+@click.option('--docker-host', default="unix://var/run/docker.sock",
+              help="The docker socket [default: unix://var/run/docker.sock]")
+@click.option('--cgroup-path', default="/sys/fs/cgroup",
+              help="The cgroup file system path [default: /sys/fs/cgroup]")
 @click.version_option()
 @pass_context
-def cli(ctx, workdir, docker_host):
+def cli(ctx, workdir, docker_host, cgroup_path):
     """Manage a small OAR developpement cluster with docker."""
     if workdir is not None:
         ctx.workdir = workdir
-    if docker_host is not None:
-        ctx.docker_host = docker_host
+    ctx.docker_host = docker_host
+    ctx.cgroup_path = cgroup_path
     ctx.update()
 
 
