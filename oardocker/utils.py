@@ -39,6 +39,11 @@ def empty_file(path):
     open(path, 'w').close()
 
 
+def append_file(path, content):
+    with open(path, "a+") as fd:
+        fd.write(content)
+
+
 def sha1_checksum(string):
     return hashlib.sha1(string).hexdigest()
 

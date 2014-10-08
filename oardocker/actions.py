@@ -2,7 +2,7 @@ import os
 import os.path as op
 import click
 from oardocker.utils import check_tarball, check_git, check_url, \
-    download_file, git_pull_or_clone, touch
+    download_file, git_pull_or_clone, touch, empty_file, append_file
 from oardocker.container import Container
 
 
@@ -94,31 +94,7 @@ def log_started(hostname):
     click.echo("Container %s --> %s" % (hostname, started))
 
 
-def start_services_container(ctx, state, command, extra_binds):
-    touch(ctx.dnsfile)
-    image = "%s/services:latest" % ctx.prefix
-    hostname = "services"
-    my_initd = op.join(ctx.envdir, "my_init.d")
-    binds = {
-        my_initd: {'bind': "/var/lib/container/my_init.d/", 'ro': True},
-        ctx.dnsfile: {'bind': "/etc/dnsmasq.d/hosts", 'ro': True},
-    }
-    binds.update(extra_binds)
-    container = Container.create(ctx.docker, image=image,
-                                 detach=True, hostname=hostname, ports=[22],
-                                 command=command)
-    state["containers"].append(container.short_id)
-    container.start(binds=binds, privileged=False, dns="127.0.0.1",
-                    volumes_from=None)
-    log_started(hostname)
-    container.inspect()
-    ipaddress = container.dictionary["NetworkSettings"]["IPAddress"]
-    add_dns_entry(ctx, ipaddress, hostname)
-    return container, ipaddress
-
-
-def start_server_container(ctx, state, command, extra_binds, dns_ip,
-                           num_nodes):
+def start_server_container(ctx, state, command, extra_binds, num_nodes):
     image = "%s/server:latest" % ctx.prefix
     hostname = "server"
     binds = {}
@@ -129,17 +105,17 @@ def start_server_container(ctx, state, command, extra_binds, dns_ip,
                                  environment=env, ports=[22],
                                  command=command)
     state["containers"].append(container.short_id)
-    container.start(binds=binds, privileged=True, dns=dns_ip,
+    container.start(binds=binds, privileged=True,
                     volumes_from=None)
     log_started(hostname)
     container.inspect()
     ipaddress = container.dictionary["NetworkSettings"]["IPAddress"]
-    add_dns_entry(ctx, ipaddress, hostname)
+    append_file(ctx.dnsfile, "%s %s\n" % (ipaddress, hostname))
     return container, ipaddress
 
 
-def start_frontend_container(ctx, state, command, extra_binds, dns_ip,
-                             num_nodes, http_port):
+def start_frontend_container(ctx, state, command, extra_binds, num_nodes,
+                             http_port):
     image = "%s/frontend:latest" % ctx.prefix
     hostname = "frontend"
     binds = {}
@@ -150,18 +126,18 @@ def start_frontend_container(ctx, state, command, extra_binds, dns_ip,
                                  environment=env, volumes=["/home"],
                                  ports=[22, 80], command=command)
     state["containers"].append(container.short_id)
-    container.start(binds=binds, privileged=True, dns=dns_ip,
+    container.start(binds=binds, privileged=True,
                     port_bindings={80: ('127.0.0.1', http_port)},
                     volumes_from=None)
     log_started(hostname)
     container.inspect()
     ipaddress = container.dictionary["NetworkSettings"]["IPAddress"]
-    add_dns_entry(ctx, ipaddress, hostname)
+    append_file(ctx.dnsfile, "%s %s\n" % (ipaddress, hostname))
     return container, ipaddress
 
 
-def start_nodes_containers(ctx, state, command, extra_binds, dns_ip,
-                           num_nodes, frontend):
+def start_nodes_containers(ctx, state, command, extra_binds, num_nodes,
+                           frontend):
     image = "%s/node:latest" % ctx.prefix
     for i in xrange(1, num_nodes + 1):
         hostname = "node%d" % i
@@ -171,31 +147,40 @@ def start_nodes_containers(ctx, state, command, extra_binds, dns_ip,
                                      detach=True, hostname=hostname,
                                      ports=[22], command=command)
         state["containers"].append(container.short_id)
-        container.start(binds=binds, privileged=True, dns=dns_ip,
+        container.start(binds=binds, privileged=True,
                         volumes_from=frontend.id)
         log_started(hostname)
         container.inspect()
         ipaddress = container.dictionary["NetworkSettings"]["IPAddress"]
-        add_dns_entry(ctx, ipaddress, hostname)
+        append_file(ctx.dnsfile, "%s %s\n" % (ipaddress, hostname))
 
 
 def deploy(ctx, state, num_nodes, volumes, http_port, needed_tag, parent_cmd):
+    etc_hosts = """fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+127.0.0.1   localhost
+::1 localhost ip6-localhost ip6-loopback
+"""
+    empty_file(ctx.dnsfile)
+    append_file(ctx.dnsfile, etc_hosts)
     command = ["my_init", "taillogs", "--enable-insecure-key"]
-    nodes = ("services", "frontend", "server", "node")
+    nodes = ("frontend", "server", "node")
     check_images_requirements(ctx, state, nodes, needed_tag, parent_cmd)
 
     my_initd = op.join(ctx.envdir, "my_init.d")
     extra_binds = {
-        my_initd: {'bind': "/var/lib/container/my_init.d/", 'ro': True}
+        my_initd: {'bind': "/var/lib/container/my_init.d/", 'ro': True},
+        ctx.dnsfile: {'bind': "/etc/hosts", 'ro': True}
     }
     for volume in volumes:
         host_path, container_path = volume.split(":")
         extra_binds[host_path] = {'bind': container_path, "ro": False}
-    _, dns_ip = start_services_container(ctx, state, command, extra_binds)
-    start_server_container(ctx, state, command, extra_binds, dns_ip, num_nodes)
+    start_server_container(ctx, state, command, extra_binds, num_nodes)
     frontend, _ = start_frontend_container(ctx, state, command, extra_binds,
-                                           dns_ip, num_nodes, http_port)
-    start_nodes_containers(ctx, state, command, extra_binds, dns_ip,
+                                           num_nodes, http_port)
+    start_nodes_containers(ctx, state, command, extra_binds,
                            num_nodes, frontend)
     generate_ssh_config(ctx, state)
 
