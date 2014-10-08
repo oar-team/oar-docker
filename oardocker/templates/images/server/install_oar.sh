@@ -78,15 +78,10 @@ sed -e 's/^\(DB_BASE_PASSWD\)=.*/\1="oar"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DB_BASE_LOGIN\)=.*/\1="oar"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DB_BASE_PASSWD_RO\)=.*/\1="oar_ro"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DB_BASE_LOGIN_RO\)=.*/\1="oar_ro"/' -i /etc/oar/oar.conf
-# Use cpuset inside container
-sudo sed -i 's/job_resource_manager_cgroups\.pl/job_resource_manager\.pl/g' /etc/oar/oar.conf
 
 sed -e 's/^DB_HOSTNAME\=.*/DB_HOSTNAME\=\"server\"/' -i /etc/oar/oar.conf
 sed -e 's/^SERVER_HOSTNAME\=.*/SERVER_HOSTNAME\=\"server\"/' -i /etc/oar/oar.conf
 
-sed -e 's/#exit/exit/' -i /etc/oar/job_resource_manager.pl
-
-chown oar:oar /etc/oar/job_resource_manager.pl
-chmod +x /etc/oar/job_resource_manager.pl
+sed -e 's/#exit/exit/' -i /etc/oar/job_resource_manager_cgroups.pl
 
 echo "$VERSION" | tee /oar_version

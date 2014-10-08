@@ -12,8 +12,6 @@ RUN echo "export COLOR=red" > /etc/hostname.color
 RUN apt-get update -q
 RUN apt-get install -y --no-install-recommends postgresql
 
-ADD etc/oar/job_resource_manager.pl /etc/oar/job_resource_manager.pl
-
 ##  postgresql daemon.
 RUN mkdir -p /etc/service/postgresql/
 
