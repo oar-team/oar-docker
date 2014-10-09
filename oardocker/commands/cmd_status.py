@@ -18,7 +18,7 @@ def get_containers_table(ctx, state):
         rows.append([c.hostname, c.ip, status, c.human_readable_ports,
                     c.short_id, image_name, created])
     if not rows:
-        rows.append(["", "", "", "", "", "", "", ""])
+        rows.append(["", "", "", "", "", "", ""])
     return rows, ["Containers", "IP", "Status", "Ports", "ID", "Image",
                   "Created"]
 
