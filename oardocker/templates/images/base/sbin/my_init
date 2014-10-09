@@ -44,6 +44,14 @@ def debug(message):
         print("*** %s" % message)
 
 
+def touch(fname, times=None):
+    dirname = '/'.join(fname.split('/')[:-1])
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+    with file(fname, 'a'):
+        os.utime(fname, times)
+
+
 def ignore_signals_and_raise_keyboard_interrupt(signame):
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -261,7 +269,12 @@ def main(args):
         install_insecure_key()
 
     if not args.skip_startup_files:
-        run_startup_files("/var/lib/container/my_init.d")
+        if not os.path.exists("/var/lib/container/ignore_startup_files"):
+            run_startup_files("/var/lib/container/my_init.d")
+
+    if args.skip_startup_files_next_time:
+        # Ignore this startup files next time
+        touch("/var/lib/container/ignore_startup_files")
 
     supervisor_exited = False
     exit_code = None
@@ -309,7 +322,10 @@ parser.add_argument('--enable-insecure-key', dest='enable_insecure_key',
                     help='Install the insecure SSH key')
 parser.add_argument('--skip-startup-files', dest='skip_startup_files',
                     action='store_const', const=True, default=False,
-                    help='Skip running /etc/my_init.d/* and /etc/rc.local')
+                    help='Skip running /var/lib/container/my_init.d/* and /etc/rc.local')
+parser.add_argument('--skip-startup-files-next-time', dest='skip_startup_files_next_time',
+                    action='store_const', const=True, default=False,
+                    help='Enable running /var/lib/container/my_init.d/* and /etc/rc.local only once')
 parser.add_argument('--skip-supervisor', dest='skip_supervisord',
                     action='store_const', const=True, default=False,
                     help='Do not run supervisor services')
