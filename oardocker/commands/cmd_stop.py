@@ -8,7 +8,7 @@ from oardocker.utils import empty_file
 @pass_state
 @pass_context
 def cli(ctx, state):
-    """Stop the running cluster"""
+    """Stop and remove all containers"""
     stopped = click.style("Stopped", fg="red")
     removed = click.style("Removed", fg="blue")
     for container in ctx.get_containers(state):

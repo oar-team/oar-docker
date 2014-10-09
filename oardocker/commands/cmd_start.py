@@ -12,7 +12,7 @@ from oardocker.actions import deploy
 @pass_context
 @invoke_after_stop
 def cli(ctx, state, nodes, volumes, http_port):
-    """Start the cluster"""
+    """Create and start the containers"""
     deploy(ctx, state, nodes, volumes, http_port, "latest", "setup")
     ctx.log("\n%s\n" % ("*" * 72))
     ctx.log("API        : http://localhost:%s/oarapi/" % http_port)
