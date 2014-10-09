@@ -2,7 +2,7 @@ import os
 import os.path as op
 import click
 from oardocker.utils import check_tarball, check_git, check_url, \
-    download_file, git_pull_or_clone, touch, empty_file, append_file
+    download_file, git_pull_or_clone, touch, append_file, empty_file
 from oardocker.container import Container
 
 
@@ -84,11 +84,6 @@ def install(ctx, state, src, needed_tag, tag, message, parent_cmd):
         container.remove(v=False, link=False, force=True)
 
 
-def add_dns_entry(ctx, ip_address, hostname):
-    with open(ctx.dnsfile, "a+") as dnsfile:
-        dnsfile.write("%s %s\n" % (ip_address, hostname))
-
-
 def log_started(hostname):
     started = click.style("Started", fg="green")
     click.echo("Container %s --> %s" % (hostname, started))
@@ -108,10 +103,8 @@ def start_server_container(ctx, state, command, extra_binds, num_nodes):
     container.start(binds=binds, privileged=True,
                     volumes_from=None)
     log_started(hostname)
-    container.inspect()
-    ipaddress = container.dictionary["NetworkSettings"]["IPAddress"]
-    append_file(ctx.dnsfile, "%s %s\n" % (ipaddress, hostname))
-    return container, ipaddress
+    update_etc_hosts(ctx, container)
+    return container
 
 
 def start_frontend_container(ctx, state, command, extra_binds, num_nodes,
@@ -130,10 +123,8 @@ def start_frontend_container(ctx, state, command, extra_binds, num_nodes,
                     port_bindings={80: ('127.0.0.1', http_port)},
                     volumes_from=None)
     log_started(hostname)
-    container.inspect()
-    ipaddress = container.dictionary["NetworkSettings"]["IPAddress"]
-    append_file(ctx.dnsfile, "%s %s\n" % (ipaddress, hostname))
-    return container, ipaddress
+    update_etc_hosts(ctx, container)
+    return container
 
 
 def start_nodes_containers(ctx, state, command, extra_binds, num_nodes,
@@ -150,22 +141,13 @@ def start_nodes_containers(ctx, state, command, extra_binds, num_nodes,
         container.start(binds=binds, privileged=True,
                         volumes_from=frontend.id)
         log_started(hostname)
-        container.inspect()
-        ipaddress = container.dictionary["NetworkSettings"]["IPAddress"]
-        append_file(ctx.dnsfile, "%s %s\n" % (ipaddress, hostname))
+        update_etc_hosts(ctx, container)
 
 
 def deploy(ctx, state, num_nodes, volumes, http_port, needed_tag, parent_cmd):
-    etc_hosts = """fe00::0 ip6-localnet
-ff00::0 ip6-mcastprefix
-ff02::1 ip6-allnodes
-ff02::2 ip6-allrouters
-127.0.0.1   localhost
-::1 localhost ip6-localhost ip6-loopback
-"""
-    empty_file(ctx.dnsfile)
-    append_file(ctx.dnsfile, etc_hosts)
-    command = ["my_init", "taillogs", "--enable-insecure-key"]
+    generate_ssh_config(ctx, state)
+    command = ["my_init", "taillogs", "--enable-insecure-key",
+               "--skip-startup-files-next-time"]
     nodes = ("frontend", "server", "node")
     check_images_requirements(ctx, state, nodes, needed_tag, parent_cmd)
 
@@ -179,8 +161,8 @@ ff02::2 ip6-allrouters
         host_path, container_path = volume.split(":")
         extra_binds[host_path] = {'bind': container_path, "ro": False}
     start_server_container(ctx, state, command, extra_binds, num_nodes)
-    frontend, _ = start_frontend_container(ctx, state, command, extra_binds,
-                                           num_nodes, http_port)
+    frontend = start_frontend_container(ctx, state, command, extra_binds,
+                                        num_nodes, http_port)
     start_nodes_containers(ctx, state, command, extra_binds,
                            num_nodes, frontend)
     generate_ssh_config(ctx, state)
@@ -212,3 +194,23 @@ Host {}
             hostname = c.dictionary["Config"]["Hostname"]
             if ipaddress:
                 ssh_config.write(entry.format(hostname, ipaddress))
+
+
+def generate_empty_etc_hosts(ctx, state):
+    empty_file(ctx.dnsfile)
+    default_etc_hosts = """fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+127.0.0.1   localhost
+::1 localhost ip6-localhost ip6-loopback
+"""
+    append_file(ctx.dnsfile, default_etc_hosts)
+
+
+def update_etc_hosts(ctx, container):
+    container.inspect()
+    ipaddress = container.dictionary["NetworkSettings"]["IPAddress"]
+    hostname = container.dictionary["Config"]["Hostname"]
+    if ipaddress:
+        append_file(ctx.dnsfile, "%s %s\n" % (ipaddress, hostname))
