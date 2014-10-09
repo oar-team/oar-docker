@@ -25,7 +25,7 @@ def check_images_requirements(ctx, state, nodes, needed_tag, parent_cmd):
                                    "`%s` command" % parent_cmd)
 
 
-def install(ctx, state, src, needed_tag, tag, message, parent_cmd):
+def install(ctx, state, src, needed_tag, tag, parent_cmd):
     nodes = ("frontend", "server", "node")
     check_images_requirements(ctx, state, nodes, needed_tag, parent_cmd)
     if not op.exists(ctx.postinstall_dir):
@@ -78,7 +78,7 @@ def install(ctx, state, src, needed_tag, tag, message, parent_cmd):
         oar_version = container.logs().strip().split('\n')[-1]
         repository = "%s/%s" % (ctx.prefix, node)
         commit = container.commit(repository=repository, tag=tag,
-                                  message=message.format(oar_version))
+                                  message=oar_version)
         ctx.save_image(commit['Id'], tag=tag, repository=repository)
         state["images"].append(commit['Id'])
         container.remove(v=False, link=False, force=True)

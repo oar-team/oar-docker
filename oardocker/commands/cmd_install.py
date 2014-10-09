@@ -15,5 +15,4 @@ def cli(ctx, state, src):
     install(ctx, state, src,
             needed_tag="base",
             tag="latest",
-            message="OAR {} installed",
             parent_cmd="build")

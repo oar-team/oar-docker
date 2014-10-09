@@ -18,14 +18,16 @@ fail() {
     exit 1
 }
 
-# Create tarball
 if [ -d "$1"  ]; then
     GIT_SRC="$(readlink -m $1)"
     RWSRCDIR="$TMPDIR/src-rw"
     mkdir -p $RWSRCDIR
     unionfs-fuse -o cow -o allow_other,use_ino,suid,dev,nonempty $RWSRCDIR=RW:$GIT_SRC=RO $SRCDIR
     pushd $SRCDIR
-    VERSION=$(git describe)
+    BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+    test -n "$(git status --porcelain)" && DIRTY_GIT="*" || DIRTY_GIT=""
+    VERSION="$(git describe)${DIRTY_GIT}"
+    COMMENT="OAR ${VERSION} (git branch ${BRANCH})"
     popd
     [ -n "${VERSION}" ] || fail "error: fail to retrieve OAR version"
 else
@@ -38,6 +40,7 @@ else
         TARBALL="$(readlink -m $TARBALL)"
     fi
     VERSION=$(tar xfz $TARBALL --wildcards "*/sources/core/common-libs/lib/OAR/Version.pm" --to-command "grep -e 'my \$OARVersion'" | sed -e 's/^[^"]\+"\(.\+\)";$/\1/')
+    COMMENT="OAR ${VERSION} (tarball)"
     tar xf $TARBALL -C $SRCDIR
     [ -n "${VERSION}" ] || fail "error: fail to retrieve OAR version"
     SRCDIR=$SRCDIR/oar-${VERSION}
@@ -51,3 +54,4 @@ make -C $SRCDIR PREFIX=/usr/local node-setup
 echo "Nothing to do to configure oar node !"
 
 echo "$VERSION" | tee /oar_version
+echo "$COMMENT"
