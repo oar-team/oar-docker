@@ -16,11 +16,11 @@ def get_containers_table(ctx, state):
         else:
             status = click.style(c.human_readable_state, fg="red")
         rows.append([c.hostname, c.ip, status, c.human_readable_ports,
-                    c.short_id, image_name, c.human_readable_command, created])
+                    c.short_id, image_name, created])
     if not rows:
         rows.append(["", "", "", "", "", "", "", ""])
     return rows, ["Containers", "IP", "Status", "Ports", "ID", "Image",
-                  "Command", "Created"]
+                  "Created"]
 
 
 def get_images_table(ctx, state):
