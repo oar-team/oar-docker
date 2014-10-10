@@ -55,8 +55,6 @@ RUN useradd -m docker -s /bin/bash && \
 RUN cp /etc/sudoers /etc/sudoers.orig && \
     sed -i.bkp -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' /etc/sudoers
 
-
-
 ## Install init process.
 ADD sbin/my_init /usr/local/sbin/my_init
 RUN chmod +x /usr/local/sbin/my_init && \
@@ -104,12 +102,6 @@ RUN chmod +x /usr/local/sbin/enable_insecure_key && \
     chmod 644 $CONTAINER_LIB_PATH/insecure_key* && \
     chown root:root $CONTAINER_LIB_PATH/insecure_key*
 
-## Configure modules
-# blacklist unused modules and enable 9p modules:
-RUN echo "blacklist pcspkr" >> /etc/modprobe.d/fbdev-blacklist.conf && \
-    printf '%s\n' 9p 9pnet 9pnet_virtio | tee -a /etc/initramfs-tools/modules && \
-    update-initramfs -u
-
 RUN pip install ipdb grin
 
 ## fix ssh forwarding agent with sudo:
@@ -137,12 +129,6 @@ RUN chmod +x /home/docker/.ssh/rc /root/.ssh/rc
 # configure git:
 ADD config/gitconfig /home/docker/.gitconfig
 ADD config/gitconfig /root/.gitconfig
-
-# install docker:
-RUN wget -q --no-check-certificate \
-    "https://get.docker.io/builds/Linux/x86_64/docker-latest" \
-    -O /usr/local/sbin/docker && \
-    chmod +x /usr/local/sbin/docker
 
 ## fix_permission:
 RUN chown -R docker:docker /home/docker
