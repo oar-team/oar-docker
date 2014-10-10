@@ -1,6 +1,19 @@
 oar-docker CHANGELOG
 ====================
 
+version 0.1.3
+=============
+
+Released on Sep 10 2014
+
+- Added `oar reset` cmd to restart containers
+- Added a better comments about oardocker images with git information
+- Used default job_resource_manager script (from oar sources)
+- Mount the host cgroup path in the containers (default path is /sys/fs/cgroup)
+- Removed stopped containers from ssh_config
+- Remove dnsmasq and mount a custom /etc/hosts for the nodes (need docker >= 1.2.0)
+
+
 version 0.1.2
 =============
 
