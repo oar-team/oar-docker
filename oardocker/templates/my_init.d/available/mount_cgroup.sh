@@ -1,7 +1,7 @@
 #!/bin/bash
-# This script prepopulate OAR cgroup directory hierarchy, as use in the
-# job_resource_manager_cgroup.pl script, in order to have nodes use different
-# subdirectories and avoid conflitcs to to having all nodes actually running on
+# This script prepopulates OAR cgroup directory hierarchy, as used in the
+# job_resource_manager_cgroups.pl script, in order to have nodes use different
+# subdirectories and avoid conflitcs due to having all nodes actually running on
 # the same host machine
 
 ENABLE_MEMCG="NO"
