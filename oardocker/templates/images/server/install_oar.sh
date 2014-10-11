@@ -85,7 +85,8 @@ sed -e 's/^\(DB_BASE_LOGIN_RO\)=.*/\1="oar_ro"/' -i /etc/oar/oar.conf
 sed -e 's/^DB_HOSTNAME\=.*/DB_HOSTNAME\=\"server\"/' -i /etc/oar/oar.conf
 sed -e 's/^SERVER_HOSTNAME\=.*/SERVER_HOSTNAME\=\"server\"/' -i /etc/oar/oar.conf
 
-sed -e 's/#exit/exit/' -i /etc/oar/job_resource_manager_cgroups.pl
+#This line must be uncommented if the mount_cgroup.sh script is not used
+#sed -e 's/#exit/exit/' -i /etc/oar/job_resource_manager_cgroups.pl
 
 echo "$VERSION" | tee /oar_version
 echo "$COMMENT"
