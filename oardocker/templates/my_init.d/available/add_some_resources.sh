@@ -3,28 +3,47 @@
 echo_and_run() { echo "$@" ; $@ ; }
 
 
-/usr/local/sbin/oarproperty -a cpu
-/usr/local/sbin/oarproperty -a core
-/usr/local/sbin/oarproperty -a thread
+oarproperty -a cpu
+oarproperty -a core
+oarproperty -a thread
 
-NODE_COUNT=$NUM_NODES;
-CPU_COUNT=$(grep "^physical id" /proc/cpuinfo | sort -u | wc -l)
-CORE_COUNT=$(grep "^core id" /proc/cpuinfo | sort -u | wc -l)
-CPUSET=$(grep -e "^processor\s\+:" /proc/cpuinfo | sort -u | wc -l)
-THREAD_COUNT=$((CPUSET/CORE_COUNT))
-cpu=0
-core=0
-thread=0
-for ((node=1;node<=$NODE_COUNT; node++)); do
-  hostname="node${node}"
-  while [ $cpu -lt $((CPU_COUNT * node)) ]; do
-    while [ $core -lt $((CORE_COUNT * (cpu+1))) ]; do
-      while [ $thread -lt $((THREAD_COUNT * (core+1))) ]; do
-        echo_and_run oarnodesetting -a -h $hostname -p cpu=$cpu -p core=$core -p thread=$thread -p cpuset=$((thread % $CPUSET))
-        thread=$((thread+1))
-      done
-      core=$((core+1))
-    done
-    cpu=$((cpu+1))
+OLDIFS=$IFS
+
+IFS=$'\n'
+CPU=0
+CORE=0
+THREAD=0
+cpu=
+core=
+thread=
+for ((h=0;h<$NUM_NODES;h++)) do
+  cpus=
+  cores=
+  threads=
+  for l in $(< /proc/cpuinfo); do
+    case $l in
+    "processor"*)
+      thread=${l#*: }
+      threads[$thread]=$thread
+    ;;
+    "core id"*)
+      core=${l#*: }
+      cores[$core]=$core
+    ;;
+    "physical id"*)
+      cpu=${l#*: }
+      cpus[$cpu]=$cpu
+    ;;
+    esac
+    if [ -n "$thread" -a -n "$core" -a -n "$cpu" ]; then
+      echo_and_run oarnodesetting -a -h node$((h+1)) -p cpu=$((CPU + cpu)) -p core=$((CORE + core)) -p thread=$((THREAD + thread)) -p cpuset=$thread
+      cpu=
+      core=
+      thread=
+    fi
   done
+  CPU=$((CPU + ${#cpus[*]}))
+  CORE=$((CORE + ${#cores[*]}))
+  THREAD=$((THREAD + ${#threads[*]}))
 done
+IFS=$OLDIFS
