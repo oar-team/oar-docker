@@ -86,6 +86,7 @@ ln -sf /etc/oar/apache2/oar-restful-api-priv.conf /etc/apache2/conf.d/oar-restfu
 htpasswd -b -c /etc/oar/api-users docker docker
 htpasswd -b /etc/oar/api-users oar docker
 
+sed -e "s/^\(hostname = \).*/\1server/" -i /etc/oar/monika.conf
 sed -e "s/^\(username.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
 sed -e "s/^\(password.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
 sed -e "s/^\(dbtype.*\)mysql.*/\1psql/" -i /etc/oar/monika.conf
