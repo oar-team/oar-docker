@@ -222,8 +222,11 @@ def run_startup_files(my_initd_path, level=0):
     for name in listdir(my_initd_path):
         filename = os.path.join(my_initd_path, name)
         if is_exe(filename):
-            info("Running %s..." % filename)
-            run_command_killable_and_import_envvars(filename)
+            if filename.endswith("~"):
+                warn("%s is skipped" % filename)
+            else:
+                info("Running %s..." % filename)
+                run_command_killable_and_import_envvars(filename)
         elif listdir(filename) and name in os.uname()[1] and level == 0:
             run_startup_files(filename, level + 1)
     if level == 0:
