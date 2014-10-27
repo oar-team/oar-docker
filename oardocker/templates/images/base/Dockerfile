@@ -44,7 +44,7 @@ RUN apt-get install -y python-dev python-zmq python-pip python-tables  \
 RUN apt-get install -y dnsmasq-base inotify-tools procps
 
 ## server dependencies
-RUN apt-get install -y postgresql
+RUN apt-get install -y postgresql python-psycopg2
 
 ## add user docker
 RUN useradd -m docker -s /bin/bash && \
