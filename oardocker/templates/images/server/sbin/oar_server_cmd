@@ -1,0 +1,18 @@
+#!/bin/bash
+set -e
+
+stop() {
+    service oar-server stop
+}
+
+start() {
+    echo "Waiting OAR database to be available..."
+    wait_pgsql --host server --user oar --password oar
+    service oar-server start
+}
+
+start
+
+trap "{ stop; kill 0; }" EXIT
+
+tail -f /var/log/oar.log
