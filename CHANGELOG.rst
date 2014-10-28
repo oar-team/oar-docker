@@ -1,6 +1,19 @@
 oar-docker CHANGELOG
 ====================
 
+version 0.1.4
+=============
+
+Released on Oct 28th 2014
+
+- Ignored my-init scripts if filename ends by "~"
+- Added wait_pgsql script to wait postgresql to be available
+- Fixed monika config (db server hostname is server)
+- Removed old code
+- Adapt cgroup mount script to job_resource_manager_cgroup.pl and remove old cpuset workaround
+- Fixed cpu/core/thread affinity
+
+
 version 0.1.3
 =============
 
