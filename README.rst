@@ -20,14 +20,6 @@ Various case scenarios may affect you:
    use the resources in the guest machine to compile or run your project.
 
 
-Demo
-----
-
-.. image:: docs/screenshot.png
-    :align: center
-    :target: https://asciinema.org/a/8353
-
-
 Installation
 ------------
 
