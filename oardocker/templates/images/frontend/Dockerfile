@@ -11,22 +11,18 @@ RUN echo "export COLOR=blue" > /etc/hostname.color
 RUN apt-get update
 RUN apt-get install -y \
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl \
-    libtie-ixhash-perl libwww-perl libgd-ruby1.8 apache2-mpm-prefork \
-    libcgi-fast-perl libapache2-mod-fastcgi librestclient-ruby1.8 \
-    libdbd-pg-ruby1.8 ruby1.8 rubygems1.8 ruby-switch
+    libtie-ixhash-perl libwww-perl apache2-mpm-prefork \
+    libcgi-fast-perl libapache2-mod-fastcgi ruby1.9
 
-RUN ruby-switch --set ruby1.8
+## Install chandler requirements
+RUN gem install restclient naturalsort rspec
+
 
 # Install php
 RUN apt-get install -y php5 libapache2-mod-php5 php5-mcrypt php5-pgsql
 
 # Install phppgadmin
 RUN apt-get install -y phppgadmin
-
-## Install chandler
-RUN wget -q https://rubygems.org/downloads/naturalsort-1.1.1.gem -O /tmp/naturalsort-1.1.1.gem && \
-    wget -q https://rubygems.org/downloads/json-1.8.1.gem -O /tmp/json-1.8.1.gem && \
-    gem install /tmp/naturalsort-1.1.1.gem /tmp/json-1.8.1.gem --no-ri --no-rdoc
 
 ## Scripts
 ADD sbin/ /usr/local/sbin/
