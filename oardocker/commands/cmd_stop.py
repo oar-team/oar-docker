@@ -2,6 +2,7 @@ import click
 from oardocker.cli import pass_context, pass_state
 
 from oardocker.utils import empty_file
+from oardocker.actions import generate_empty_etc_hosts
 
 
 @click.command('stop')
@@ -23,4 +24,4 @@ def cli(ctx, state):
         if not image_name.startswith(ctx.prefix):
             ctx.docker.remove_image(image_name, force=True)
     empty_file(ctx.ssh_config)
-    empty_file(ctx.dnsfile)
+    generate_empty_etc_hosts(ctx, state)
