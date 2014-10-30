@@ -4,13 +4,12 @@ server {
     access_log  /var/log/nginx/oar_web_access.log;
     error_log   /var/log/nginx/oar_web_error.log;
 
-    root /usr/local/share/oar-web-status/;
-
     location /drawgantt {
         rewrite ^/drawgantt(.*)$ /drawgantt-svg$1;
     }
 
     location /drawgantt-svg {
+        root /usr/local/share/oar-web-status/;
         index index.php;
     }
 
@@ -34,4 +33,13 @@ server {
         fastcgi_param SCRIPT_FILENAME   /usr/local/lib/cgi-bin/oarapi/oarapi.cgi;
         fastcgi_pass unix:/var/run/fcgiwrap.sock;
     }
+
+    location ~ .*.php$ {
+        try_files $uri =404;
+        fastcgi_pass unix:/var/run/php5-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param REMOTE_ADDR $http_x_real_ip;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+   }
 }
