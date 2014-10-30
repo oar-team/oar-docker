@@ -55,99 +55,107 @@ make -C $SRCDIR PREFIX=/usr/local user-setup drawgantt-svg-setup monika-setup ww
 sed -i s/__OAR_VERSION__/${VERSION}/ /etc/motd
 chmod 644 /etc/motd
 
+
+## Configure HTTP
+chown www-data -R /usr/local/lib/site_perl
+chown www-data -R /usr/local/share/oar-web-status/
+
 ## Configure apache
 a2enmod ident
 a2enmod headers
 a2enmod rewrite
+
+
 
 ## Configure basic private auth api
 
 htpasswd -b -c /etc/oar/api-users docker docker
 htpasswd -b /etc/oar/api-users oar docker
 
-cat > /etc/apache2/conf-available/oar-restful-api.conf <<"EOF"
-# Example Apache2 configuration for the OAR API
+# cat > /etc/apache2/conf-available/oar-restful-api.conf <<"EOF"
+# # Example Apache2 configuration for the OAR API
 
-# Aliases to the API.
-# Be aware that the oarapi directory should only be readable by the httpd
-# daemon and that the cgi inside are sgid oar. Any change to this permissions
-# may cause your system to be vulnerable.
-ScriptAlias /oarapi /usr/local/lib/cgi-bin/oarapi/oarapi.cgi
-ScriptAlias /oarapi-debug /usr/local/lib/cgi-bin/oarapi/oarapi-debug.cgi
+# # Aliases to the API.
+# # Be aware that the oarapi directory should only be readable by the httpd
+# # daemon and that the cgi inside are sgid oar. Any change to this permissions
+# # may cause your system to be vulnerable.
+# ScriptAlias /oarapi /usr/local/lib/cgi-bin/oarapi/oarapi.cgi
+# ScriptAlias /oarapi-debug /usr/local/lib/cgi-bin/oarapi/oarapi-debug.cgi
 
-# FastCGI server
-<IfModule mod_fastcgi.c>
-FastCgiServer /usr/local/lib/cgi-bin/oarapi/oarapi.cgi
-</IfModule>
+# # FastCGI server
+# <IfModule mod_fastcgi.c>
+# FastCgiServer /usr/local/lib/cgi-bin/oarapi/oarapi.cgi
+# </IfModule>
 
-# Authentication configuration for access to the API
-<Directory /usr/local/lib/cgi-bin/oarapi>
-     Options +ExecCGI -MultiViews +FollowSymLinks
+# # Authentication configuration for access to the API
+# <Directory /usr/local/lib/cgi-bin/oarapi>
+#      Options +ExecCGI -MultiViews +FollowSymLinks
 
-     # FastCGI handler
-     <IfModule mod_fastcgi.c>
-     AddHandler fcgid-script .cgi
-     </IfModule>
-     order deny,allow
-     deny from all
-     allow from 127.0.0.0/255.0.0.0 ::1/128
-     allow from all
-     # Pidentd may be useful for testing without a login/passwd or when you
-     # fully trust some hosts (ie users have no way to fake their login name).
-     # Ident trust may be disabled into the api itself.
-     <IfModule ident_module>
-       IdentityCheck On
+#      # FastCGI handler
+#      <IfModule mod_fastcgi.c>
+#      AddHandler fcgid-script .cgi
+#      </IfModule>
+#      order deny,allow
+#      deny from all
+#      allow from 127.0.0.0/255.0.0.0 ::1/128
+#      allow from all
+#      # Pidentd may be useful for testing without a login/passwd or when you
+#      # fully trust some hosts (ie users have no way to fake their login name).
+#      # Ident trust may be disabled into the api itself.
+#      <IfModule ident_module>
+#        IdentityCheck On
 
-       <IfModule headers_module>
-         # Set the X-REMOTE_IDENT http header value to REMOTE_IDENT env value
-         RequestHeader set X_REMOTE_IDENT %{REMOTE_IDENT}e
-         # or For https:
-         #RequestHeader set X_REMOTE_IDENT %{REMOTE_IDENT}s
-         # Or if it doesn't work, enable mod_rewrite and try this:
-         <IfModule rewrite_module>
-            RewriteEngine On
-            RewriteCond %{REMOTE_IDENT} (.*)
-            RewriteRule .* - [E=MY_REMOTE_IDENT:%1]
-            RequestHeader add X-REMOTE_IDENT %{MY_REMOTE_IDENT}e
-         </IfModule>
-       </IfModule>
+#        <IfModule headers_module>
+#          # Set the X-REMOTE_IDENT http header value to REMOTE_IDENT env value
+#          RequestHeader set X_REMOTE_IDENT %{REMOTE_IDENT}e
+#          # or For https:
+#          #RequestHeader set X_REMOTE_IDENT %{REMOTE_IDENT}s
+#          # Or if it doesn't work, enable mod_rewrite and try this:
+#          <IfModule rewrite_module>
+#             RewriteEngine On
+#             RewriteCond %{REMOTE_IDENT} (.*)
+#             RewriteRule .* - [E=MY_REMOTE_IDENT:%1]
+#             RequestHeader add X-REMOTE_IDENT %{MY_REMOTE_IDENT}e
+#          </IfModule>
+#        </IfModule>
 
-     </IfModule>
-</Directory>
-EOF
+#      </IfModule>
+# </Directory>
+# EOF
 
-cat > /etc/apache2/conf-available/oar-restful-api-priv.conf <<"EOF"
-ScriptAlias /oarapi-priv /usr/local/lib/cgi-bin/oarapi/oarapi.cgi
-ScriptAlias /oarapi-priv-debug /usr/local/lib/cgi-bin/oarapi/oarapi.cgi
+# cat > /etc/apache2/conf-available/oar-restful-api-priv.conf <<"EOF"
+# ScriptAlias /oarapi-priv /usr/local/lib/cgi-bin/oarapi/oarapi.cgi
+# ScriptAlias /oarapi-priv-debug /usr/local/lib/cgi-bin/oarapi/oarapi.cgi
 
-<Location /oarapi-priv>
- Options +ExecCGI -MultiViews +FollowSymLinks
- AuthType      basic
- AuthUserfile  /etc/oar/api-users
- AuthName      "OAR API authentication"
- Require valid-user
- #RequestHeader set X_REMOTE_IDENT %{REMOTE_USER}e
- RewriteEngine On
- RewriteCond %{REMOTE_USER} (.*)
- RewriteRule .* - [E=MY_REMOTE_IDENT:%1]
- RequestHeader add X-REMOTE_IDENT %{MY_REMOTE_IDENT}e
-</Location>
-EOF
+# <Location /oarapi-priv>
+#  Options +ExecCGI -MultiViews +FollowSymLinks
+#  AuthType      basic
+#  AuthUserfile  /etc/oar/api-users
+#  AuthName      "OAR API authentication"
+#  Require valid-user
+#  #RequestHeader set X_REMOTE_IDENT %{REMOTE_USER}e
+#  RewriteEngine On
+#  RewriteCond %{REMOTE_USER} (.*)
+#  RewriteRule .* - [E=MY_REMOTE_IDENT:%1]
+#  RequestHeader add X-REMOTE_IDENT %{MY_REMOTE_IDENT}e
+# </Location>
+# EOF
 
-cat > /etc/apache2/conf-available/oar-web-status.conf <<"EOF"
-ScriptAlias /monika /usr/local/lib/cgi-bin/monika.cgi
-Alias /monika.css /usr/local/share/oar-web-status/monika.css
-Alias /drawgantt-svg /usr/local/share/oar-web-status/drawgantt-svg
-Alias /drawgantt /usr/local/share/oar-web-status/drawgantt-svg
-<Directory /usr/local/share/oar-web-status>
-        Options Indexes FollowSymlinks
-        # Require all granted  # <- seems to be needed for apache >= 2.3
-</Directory>
-EOF
+# cat > /etc/apache2/conf-available/oar-web-status.conf <<"EOF"
+# ScriptAlias /monika /usr/local/lib/cgi-bin/monika.cgi
+# Alias /monika.css /usr/local/share/oar-web-status/monika.css
+# Alias /drawgantt-svg /usr/local/share/oar-web-status/drawgantt-svg
+# Alias /drawgantt /usr/local/share/oar-web-status/drawgantt-svg
+# <Directory /usr/local/share/oar-web-status>
+#         Options Indexes FollowSymlinks
+#         # Require all granted  # <- seems to be needed for apache >= 2.3
+# </Directory>
+# EOF
 
-ln -sf  /etc/apache2/conf-available/oar-restful-api.conf /etc/apache2/conf-enabled/oar-restful-api.conf
-ln -sf  /etc/apache2/conf-available/oar-restful-api-priv.conf /etc/apache2/conf-enabled/oar-restful-api-priv.conf
-ln -sf  /etc/apache2/conf-available/oar-web-status.conf /etc/apache2/conf-enabled/oar-web-status.conf
+# ln -sf  /etc/apache2/conf-available/oar-restful-api.conf /etc/apache2/conf-enabled/oar-restful-api.conf
+# ln -sf  /etc/apache2/conf-available/oar-restful-api-priv.conf /etc/apache2/conf-enabled/oar-restful-api-priv.conf
+# ln -sf  /etc/apache2/conf-available/oar-web-status.conf /etc/apache2/conf-enabled/oar-web-status.conf
+
 
 sed -e "s/^\(hostname = \).*/\1server/" -i /etc/oar/monika.conf
 sed -e "s/^\(username.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf

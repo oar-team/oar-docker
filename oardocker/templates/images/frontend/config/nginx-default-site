@@ -1,0 +1,37 @@
+server {
+    listen 80 default_server;
+
+    access_log  /var/log/nginx/oar_web_access.log;
+    error_log   /var/log/nginx/oar_web_error.log;
+
+    root /usr/local/share/oar-web-status/;
+
+    location /drawgantt {
+        rewrite ^/drawgantt(.*)$ /drawgantt-svg$1;
+    }
+
+    location /drawgantt-svg {
+        index index.php;
+    }
+
+    location /monika {
+        include fastcgi_params;
+        fastcgi_param DOCUMENT_ROOT     /usr/local/lib/site_perl;
+        fastcgi_param SCRIPT_FILENAME   /usr/local/lib/cgi-bin/monika.cgi;
+        fastcgi_pass unix:/var/run/fcgiwrap.sock;
+    }
+
+    location /oarapi {
+        include fastcgi_params;
+        fastcgi_param DOCUMENT_ROOT     /usr/local/lib/site_perl;
+        fastcgi_param SCRIPT_FILENAME   /usr/local/lib/cgi-bin/oarapi/oarapi.cgi;
+        fastcgi_pass unix:/var/run/fcgiwrap.sock;
+    }
+
+    location /oarapi-priv {
+        include fastcgi_params;
+        fastcgi_param DOCUMENT_ROOT     /usr/local/lib/site_perl;
+        fastcgi_param SCRIPT_FILENAME   /usr/local/lib/cgi-bin/oarapi/oarapi.cgi;
+        fastcgi_pass unix:/var/run/fcgiwrap.sock;
+    }
+}

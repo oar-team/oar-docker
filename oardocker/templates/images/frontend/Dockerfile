@@ -11,15 +11,14 @@ RUN echo "export COLOR=blue" > /etc/hostname.color
 RUN apt-get update
 RUN apt-get install -y \
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl \
-    libtie-ixhash-perl libwww-perl apache2-mpm-prefork \
-    libcgi-fast-perl libapache2-mod-fastcgi ruby1.9
+    libtie-ixhash-perl libwww-perl nginx libcgi-fast-perl ruby1.9 fcgiwrap \
+    nginx
 
 ## Install chandler requirements
-RUN gem install restclient naturalsort rspec
-
+RUN gem install rest-client naturalsort rspec
 
 # Install php
-RUN apt-get install -y php5 libapache2-mod-php5 php5-mcrypt php5-pgsql
+RUN apt-get install -y php5 php5-fpm php5-pgsql php5-mcrypt php-apc
 
 # Install phppgadmin
 RUN apt-get install -y phppgadmin
@@ -30,9 +29,6 @@ RUN chmod +x /usr/local/sbin/*
 ADD bin/ /usr/local/bin/
 RUN chmod 755 /usr/local/bin/*
 
-## Setup apache2 daemon.
-ADD supervisor/apache2.conf /etc/supervisor/conf.d/apache2.conf
-
 ADD motd /etc/motd
 
 RUN echo "PrintMotd yes" >> /etc/ssh/sshd_config
@@ -40,6 +36,17 @@ RUN echo "PrintMotd yes" >> /etc/ssh/sshd_config
 ## Add postinstall scripts
 ADD install_oar.sh /root/install_oar.sh
 RUN chmod +x /root/*.sh
+
+## Configure cgi + http
+ADD config/nginx.conf /etc/nginx/nginx.conf
+ADD config/nginx-default-site /etc/nginx/sites-enabled/default
+RUN cp /usr/share/doc/fcgiwrap/examples/nginx.conf /etc/nginx/fcgiwrap.conf
+ADD config/php-fpm.conf /etc/php5/fpm/php-fpm.conf
+
+## Configure services.
+ADD supervisor/nginx.conf /etc/supervisor/conf.d/nginx.conf
+ADD supervisor/php-fpm.conf /etc/supervisor/conf.d/php-fpm.conf
+ADD supervisor/fcgiwrap.conf /etc/supervisor/conf.d/fcgiwrap.conf
 
 ## Cleanup
 RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
