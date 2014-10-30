@@ -41,15 +41,17 @@ RUN chmod +x /root/*.sh
 ADD config/nginx.conf /etc/nginx/nginx.conf
 ADD config/nginx-default-site /etc/nginx/sites-enabled/default
 RUN cp /usr/share/doc/fcgiwrap/examples/nginx.conf /etc/nginx/fcgiwrap.conf
-
 ADD config/php-fpm.conf /etc/php5/fpm/php-fpm.conf
 
 ## Configure services.
-ADD circus/oar_web.ini /etc/circus.d/oar_web.ini
-
+ADD supervisor/nginx.conf /etc/supervisor/conf.d/nginx.conf
+ADD supervisor/php-fpm.conf /etc/supervisor/conf.d/php-fpm.conf
+ADD supervisor/fcgiwrap.conf /etc/supervisor/conf.d/fcgiwrap.conf
 
 ## Cleanup
 RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
 
 EXPOSE 22
 EXPOSE 80
+
+CMD ["/usr/local/sbin/my_init", "/usr/local/sbin/taillogs", "--enable-insecure-key"]

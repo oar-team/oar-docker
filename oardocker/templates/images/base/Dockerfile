@@ -21,7 +21,7 @@ RUN echo "deb http://http.debian.net/debian jessie main contrib non-free" > /etc
 ## core packages
 RUN apt-get install -y \
     debian-keyring sudo less vim nano bash-completion apt-transport-https \
-    ca-certificates psmisc openssh-client curl wget python \
+    ca-certificates psmisc openssh-client curl wget python supervisor \
     iptables socat ifupdown locales isc-dhcp-client net-tools iproute2 \
     qemu-kvm linux-image-amd64 net-tools bridge-utils uml-utilities perl \
     perl-base build-essential taktuk libdbi-perl libsort-versions-perl \
@@ -41,9 +41,6 @@ RUN apt-get install -y python-dev python-zmq python-pip python-tables  \
 
 ## server dependencies
 RUN apt-get install -y postgresql python-psycopg2
-
-## Python
-RUN pip install -I pip ipdb grin circus
 
 ## add user docker
 RUN useradd -m docker -s /bin/bash && \
@@ -65,18 +62,25 @@ RUN chmod +x /usr/local/sbin/my_init && \
     chmod 600 $CONTAINER_LIB_PATH/container_environment.sh && \
     chmod 600 $CONTAINER_LIB_PATH/container_environment.json
 
-## Configure circusd
-ADD config/circusd.ini /etc/circusd.ini
-ADD circus/rc_local.ini /etc/circus.d/rc_local.ini
+## Configure supervisor
+RUN mkdir -p $CONTAINER_LIB_PATH/supervisor/conf.d && \
+    mkdir -p $CONTAINER_LIB_PATH/supervisor/log && \
+    rm -rf /etc/supervisor && \
+    ln -sf $CONTAINER_LIB_PATH/supervisor /etc/supervisor && \
+    ln -sf $CONTAINER_LIB_PATH/supervisor/log /var/log/supervisor
+ADD config/supervisord.conf /etc/supervisor/supervisord.conf
 
 ## configure sshd daemon:
-ADD circus/sshd.ini /etc/circus.d/sshd.ini
+ADD supervisor/sshd.conf /etc/supervisor/conf.d/sshd.conf
 RUN mv /etc/ssh $CONTAINER_LIB_PATH/ssh && \
     ln -sf $CONTAINER_LIB_PATH/ssh /etc/ssh
 ADD config/sshd_config /etc/ssh/sshd_config
 ADD sbin/sshd /usr/local/sbin/sshd
 RUN chmod +x /usr/local/sbin/sshd && \
     mkdir -p /var/run/sshd
+
+## configure rsyslogd daemon:
+ADD supervisor/rsyslogd.conf /etc/supervisor/conf.d/rsyslogd.conf
 
 ## add helpers scripts:
 ADD sbin/ /usr/local/sbin/
@@ -93,6 +97,8 @@ RUN chmod +x /usr/local/sbin/enable_insecure_key && \
     chown root:root /root/.ssh && \
     chmod 644 $CONTAINER_LIB_PATH/insecure_key* && \
     chown root:root $CONTAINER_LIB_PATH/insecure_key*
+
+RUN pip install ipdb grin
 
 ## fix ssh forwarding agent with sudo:
 RUN echo "Defaults env_keep += \"SSH_AUTH_SOCK\"" > /etc/sudoers.d/root_ssh_agent && \
@@ -125,4 +131,4 @@ RUN chown -R docker:docker /home/docker
 
 RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
 
-CMD ["/usr/local/bin/circusd", "/etc/circusd.ini"]
+CMD ["/usr/local/sbin/my_init", "/usr/local/sbin/taillogs"]

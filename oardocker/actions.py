@@ -146,7 +146,8 @@ def start_nodes_containers(ctx, state, command, extra_binds, num_nodes,
 
 def deploy(ctx, state, num_nodes, volumes, http_port, needed_tag, parent_cmd):
     generate_ssh_config(ctx, state)
-    command = ["/usr/local/bin/circusd", "/etc/circusd.ini"]
+    command = ["my_init", "taillogs", "--enable-insecure-key",
+               "--skip-startup-files-next-time"]
     nodes = ("frontend", "server", "node")
     check_images_requirements(ctx, state, nodes, needed_tag, parent_cmd)
 

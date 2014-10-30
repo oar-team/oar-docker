@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+test ! -f /etc/hostname.color || source /etc/hostname.color
+
+mkdir -p /var/log/apache2/
+touch /var/log/apache2/access.log
+touch /var/log/apache2/error.log
+touch /var/log/auth.log
+
+usr/local/sbin/rtail /var/log/apache2/access.log /var/log/apache2/error.log /var/log/auth.log
+
