@@ -2,8 +2,8 @@
 set -e
 
 OAR_SSHD_CONF="/etc/oar/sshd_config"
-PIDFILE="/var/run/$NAME_sshd.pid"
-SSHD_OPTS="-D -f $OAR_SSHD_CONF -o PidFile=$PIDFILE"
+PIDFILE="/var/run/oar_node.pid"
+SSHD_OPTS="-D -f $OAR_SSHD_CONF -o PidFile=$PIDFILE -E /dev/stdout"
 
 if [[ ! -e /etc/oar/oar_ssh_host_rsa_key ]]; then
     ssh-keygen -t rsa -f /etc/oar/oar_ssh_host_rsa_key -N ''

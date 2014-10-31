@@ -15,9 +15,10 @@ RUN apt-get install -y --no-install-recommends postgresql
 ##  postgresql daemon.
 RUN mkdir -p /etc/service/postgresql/
 
-## Setup supervisor services.
-ADD supervisor/oar-server.conf /etc/supervisor/conf.d/oar-server.conf
-ADD supervisor/postgresql.conf /etc/supervisor/conf.d/postgresql.conf
+## Setup services.
+ADD circus/oar_server.ini /etc/circus.d/oar_server.ini
+ADD circus/postgresql.ini /etc/circus.d/postgresql.ini
+
 
 ADD sbin /usr/local/sbin
 RUN chmod +x /usr/local/sbin/*
@@ -39,5 +40,3 @@ RUN service postgresql start && \
 RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
 
 EXPOSE 22
-
-CMD ["/usr/local/sbin/my_init", "/usr/local/sbin/taillogs", "--enable-insecure-key"]
