@@ -24,8 +24,6 @@ RUN apt-get install -y php5 php5-fpm php5-pgsql php5-mcrypt php-apc
 RUN apt-get install -y phppgadmin
 
 ## Scripts
-ADD sbin/ /usr/local/sbin/
-RUN chmod +x /usr/local/sbin/*
 ADD bin/ /usr/local/bin/
 RUN chmod 755 /usr/local/bin/*
 
@@ -44,12 +42,12 @@ RUN cp /usr/share/doc/fcgiwrap/examples/nginx.conf /etc/nginx/fcgiwrap.conf
 
 ADD config/php-fpm.conf /etc/php5/fpm/php-fpm.conf
 
-## Configure services.
-ADD circus/oar_web.ini /etc/circus.d/oar_web.ini
-
-
 ## Cleanup
-RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
+RUN rm -rf /tmp/* /var/tmp/*
+
+## Configure log
+RUN echo "/var/log/nginx/oar_web_access.log" >> $CONTAINER_LIB_PATH/log2watch.txt ;\
+    echo "/var/log/nginx/oar_web_error.log" >> $CONTAINER_LIB_PATH/log2watch.txt
 
 EXPOSE 22
 EXPOSE 80

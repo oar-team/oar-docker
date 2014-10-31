@@ -26,7 +26,7 @@ RUN apt-get install -y \
     qemu-kvm linux-image-amd64 net-tools bridge-utils uml-utilities perl \
     perl-base build-essential taktuk libdbi-perl libsort-versions-perl \
     libdbd-pg-perl postgresql-client inetutils-ping rsyslog git \
-    tmux openssh-server netcat unionfs-fuse procps
+    tmux openssh-server netcat unionfs-fuse procps rsync
 
 ## frontend dependencies
 RUN apt-get install -y \
@@ -43,7 +43,26 @@ RUN apt-get install -y python-dev python-zmq python-pip python-tables  \
 RUN apt-get install -y postgresql python-psycopg2
 
 ## Python
-RUN pip install -I pip ipdb grin circus
+RUN pip install -I pip ipdb grin jedi
+
+## configure sshd daemon:
+RUN mkdir -p $CONTAINER_LIB_PATH
+RUN mv /etc/ssh/ $CONTAINER_LIB_PATH/ssh ;\
+    ln -sf $CONTAINER_LIB_PATH/ssh /etc/ssh ;\
+    mkdir -p /var/run/sshd
+ADD config/sshd_config /etc/ssh/sshd_config
+
+## add helpers scripts:
+ADD sbin/ /usr/local/sbin/
+RUN chmod +x /usr/local/sbin/*
+ADD bin/ /usr/local/bin/
+RUN chmod 755 /usr/local/bin/*
+
+## configure skel:
+COPY skel /etc/skel
+RUN chmod 700 /etc/skel/.ssh ;\
+    chmod 600 /etc/skel/.ssh/* ;\
+    rsync -ah /etc/skel/ /root/
 
 ## add user docker
 RUN useradd -m docker -s /bin/bash && \
@@ -54,75 +73,13 @@ RUN useradd -m docker -s /bin/bash && \
 RUN cp /etc/sudoers /etc/sudoers.orig && \
     sed -i.bkp -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' /etc/sudoers
 
-## Install init process.
-ADD sbin/my_init /usr/local/sbin/my_init
-RUN chmod +x /usr/local/sbin/my_init && \
-    mkdir -p $CONTAINER_LIB_PATH/my_init.d && \
-    mkdir -p $CONTAINER_LIB_PATH/container_environment && \
-    touch $CONTAINER_LIB_PATH/container_environment.sh && \
-    touch $CONTAINER_LIB_PATH/container_environment.json && \
-    chmod 700 $CONTAINER_LIB_PATH/container_environment && \
-    chmod 600 $CONTAINER_LIB_PATH/container_environment.sh && \
-    chmod 600 $CONTAINER_LIB_PATH/container_environment.json
-
-## Configure circusd
-ADD config/circusd.ini /etc/circusd.ini
-ADD circus/rc_local.ini /etc/circus.d/rc_local.ini
-
-## configure sshd daemon:
-ADD circus/sshd.ini /etc/circus.d/sshd.ini
-RUN mv /etc/ssh $CONTAINER_LIB_PATH/ssh && \
-    ln -sf $CONTAINER_LIB_PATH/ssh /etc/ssh
-ADD config/sshd_config /etc/ssh/sshd_config
-ADD sbin/sshd /usr/local/sbin/sshd
-RUN chmod +x /usr/local/sbin/sshd && \
-    mkdir -p /var/run/sshd
-
-## add helpers scripts:
-ADD sbin/ /usr/local/sbin/
-RUN chmod +x /usr/local/sbin/*
-ADD bin/ /usr/local/bin/
-RUN chmod 755 /usr/local/bin/*
-
-## configure insecure ssh keys:
-ADD config/insecure_key.pub $CONTAINER_LIB_PATH/insecure_key.pub
-ADD config/insecure_key $CONTAINER_LIB_PATH/insecure_key
-RUN chmod +x /usr/local/sbin/enable_insecure_key && \
-    mkdir -p /root/.ssh && \
-    chmod 700 /root/.ssh && \
-    chown root:root /root/.ssh && \
-    chmod 644 $CONTAINER_LIB_PATH/insecure_key* && \
-    chown root:root $CONTAINER_LIB_PATH/insecure_key*
-
 ## fix ssh forwarding agent with sudo:
 RUN echo "Defaults env_keep += \"SSH_AUTH_SOCK\"" > /etc/sudoers.d/root_ssh_agent && \
     chmod 0440 /etc/sudoers.d/root_ssh_agent
 
-## configure bash:
-ADD config/bashrc /home/docker/.bashrc
-ADD config/bashrc /root/.bashrc
+RUN rm -rf /tmp/* /var/tmp/*
 
-## configure vim:
-ADD config/vimrc /home/docker/.vimrc
-ADD config/vimrc /root/.vimrc
-RUN update-alternatives --set editor /usr/bin/vim.basic
+RUN echo "/var/log/auth.log" >> $CONTAINER_LIB_PATH/log2watch.txt ;\
+    echo "/var/log/my_init.d.log" >> $CONTAINER_LIB_PATH/log2watch.txt
 
-# Configure Tmux
-ADD config/tmux.conf /home/docker/.tmux.conf
-ADD config/tmux.conf /root/.tmux.conf
-
-# Configure ssh client
-ADD config/sshrc /home/docker/.ssh/rc
-ADD config/sshrc /root/.ssh/rc
-RUN chmod +x /home/docker/.ssh/rc /root/.ssh/rc
-
-# configure git:
-ADD config/gitconfig /home/docker/.gitconfig
-ADD config/gitconfig /root/.gitconfig
-
-## fix_permission:
-RUN chown -R docker:docker /home/docker
-
-RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
-
-CMD ["/usr/local/bin/circusd", "/etc/circusd.ini"]
+CMD ["/usr/local/sbin/oardocker_init"]

@@ -13,8 +13,7 @@ for name in $users; do
     if [ $HOSTNAME = "frontend" ]; then
         ## We also need to copy configuration files (vimrc, bashrc, tmux.conf..)
         echo "Creating /home/$name"
-        cp -rT /home/docker /home/$name
+        cp -rT /etc/skel /home/$name
         chown $name:$name -R /home/$name
     fi
-
 done

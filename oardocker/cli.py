@@ -31,8 +31,8 @@ class Context(object):
 
     def update(self):
         self.envdir = op.join(self.workdir, ".%s" % self.prefix)
-        self.ssh_key = op.join(self.envdir, "images", "base", "config",
-                               "insecure_key")
+        self.ssh_key = op.join(self.envdir, "images", "base", "skel", ".ssh",
+                               "id_rsa")
         self.ssh_config = op.join(self.envdir, "ssh_config")
         self.dnsfile = op.join(self.envdir, "dnsmasq.d", "hosts")
         self.postinstall_dir = op.join(self.envdir, "postinstall")
@@ -212,5 +212,5 @@ def main(*arg, **kwargs):
     try:
         cli(*arg, **kwargs)
     except Exception as e:
-        sys.stderr.write("\nError: %s\n" % e)
+        sys.stderr.write(u"\nError: %s\n" % e)
         sys.exit(1)

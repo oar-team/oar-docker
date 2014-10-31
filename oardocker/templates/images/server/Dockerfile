@@ -15,11 +15,6 @@ RUN apt-get install -y --no-install-recommends postgresql
 ##  postgresql daemon.
 RUN mkdir -p /etc/service/postgresql/
 
-## Setup services.
-ADD circus/oar_server.ini /etc/circus.d/oar_server.ini
-ADD circus/postgresql.ini /etc/circus.d/postgresql.ini
-
-
 ADD sbin /usr/local/sbin
 RUN chmod +x /usr/local/sbin/*
 
@@ -37,6 +32,9 @@ RUN service postgresql start && \
     sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
 
 ## Cleanup
-RUN rm -rf /tmp/* /var/tmp/* /etc/ssh/ssh_host_*
+RUN rm -rf /tmp/* /var/tmp/*
+
+## Configure log
+RUN echo "/var/log/oar.log" >> $CONTAINER_LIB_PATH/log2watch.txt
 
 EXPOSE 22

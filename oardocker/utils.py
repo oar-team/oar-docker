@@ -213,9 +213,6 @@ def copy_tree(src, dest):
         relative_path = path[len(src):].lstrip(os.sep)
         if not op.exists(op.join(dest, relative_path)):
             os.mkdir(op.join(dest, relative_path))
-        for i, subdir in enumerate(dirs):
-            if subdir.startswith('.'):
-                del dirs[i]
         for filename in files:
             src_file_path = op.join(path, filename)
             dest_file_path = op.join(dest, relative_path, filename)

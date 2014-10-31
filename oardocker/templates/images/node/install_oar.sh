@@ -51,7 +51,25 @@ make -C $SRCDIR PREFIX=/usr/local node-build
 make -C $SRCDIR PREFIX=/usr/local node-install
 make -C $SRCDIR PREFIX=/usr/local node-setup
 
-echo "Nothing to do to configure oar node !"
+# Copy initd scripts
+if [ -f /usr/local/share/oar/oar-node/init.d/oar-node ]; then
+    cat /usr/local/share/oar/oar-node/init.d/oar-node > /etc/init.d/oar-node
+    chmod +x  /etc/init.d/oar-node
+fi
+
+if [ -f /usr/local/share/doc/oar-node/examples/init.d/oar-node ]; then
+    cat /usr/local/share/oar/oar-node/init.d/oar-node > /etc/init.d/oar-node
+    chmod +x  /etc/init.d/oar-node
+fi
+
+
+if [ -f /usr/local/share/oar/oar-node/default/oar-node ]; then
+    cat /usr/local/share/oar/oar-node/default/oar-node > /etc/default/oar-node
+fi
+
+if [ -f /usr/local/share/doc/oar-node/examples/default/oar-node ]; then
+    cat /usr/local/share/doc/oar-node/examples/default/oar-node > /etc/default/oar-node
+fi
 
 echo "$VERSION" | tee /oar_version
 echo "$COMMENT"
