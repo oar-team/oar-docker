@@ -11,14 +11,13 @@ RUN echo "export COLOR=blue" > /etc/hostname.color
 RUN apt-get update
 RUN apt-get install -y \
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl \
-    libtie-ixhash-perl libwww-perl nginx libcgi-fast-perl ruby1.9 fcgiwrap \
-    nginx
+    libtie-ixhash-perl libwww-perl apache2 libcgi-fast-perl ruby1.9
 
 ## Install chandler requirements
 RUN gem install rest-client naturalsort rspec
 
 # Install php
-RUN apt-get install -y php5 php5-fpm php5-pgsql php5-mcrypt php-apc
+RUN apt-get install -y php5 php5-pgsql php5-mcrypt php-apc
 
 # Install phppgadmin
 RUN apt-get install -y phppgadmin
@@ -34,13 +33,6 @@ RUN echo "PrintMotd yes" >> /etc/ssh/sshd_config
 ## Add postinstall scripts
 ADD install_oar.sh /root/install_oar.sh
 RUN chmod +x /root/*.sh
-
-## Configure cgi + http
-ADD config/nginx.conf /etc/nginx/nginx.conf
-ADD config/nginx-default-site /etc/nginx/sites-enabled/default
-RUN cp /usr/share/doc/fcgiwrap/examples/nginx.conf /etc/nginx/fcgiwrap.conf
-
-ADD config/php-fpm.conf /etc/php5/fpm/php-fpm.conf
 
 ## Cleanup
 RUN rm -rf /tmp/* /var/tmp/*

@@ -31,9 +31,9 @@ RUN apt-get install -y \
 ## frontend dependencies
 RUN apt-get install -y \
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl \
-    libtie-ixhash-perl libwww-perl apache2-mpm-prefork \
+    libtie-ixhash-perl libwww-perl apache2 apache2-mpm-prefork \
     libcgi-fast-perl libapache2-mod-fastcgi php5 libapache2-mod-php5 \
-    php5-mcrypt php5-pgsql phppgadmin
+    php5-mcrypt php5-pgsql phppgadmin perl php5-cli
 
 ## colmet dependencies
 RUN apt-get install -y python-dev python-zmq python-pip python-tables  \
