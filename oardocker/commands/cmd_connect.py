@@ -22,6 +22,6 @@ def cli(ctx, state, hostname, user):
                                    " start` first")
     call_args = ["docker", "exec", "-it", containers[hostname].id,
                  "script", "-q", "/dev/null", "-c",
-                 "exec setuser %s /bin/bash -il" % user]
+                 "cat /etc/motd && exec setuser %s /bin/bash -il" % user]
     call(call_args)
 
