@@ -24,6 +24,7 @@ os.environ['USER'] = username
 os.environ['HOME'] = user.pw_dir
 os.environ['UID'] = str(user.pw_uid)
 try:
+    os.chdir(os.environ['HOME'])
     os.execvp(sys.argv[2], sys.argv[2:])
 except OSError as e:
     abort("cannot execute %s: %s" % (sys.argv[2], str(e)))
