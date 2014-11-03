@@ -98,7 +98,7 @@ def start_server_container(ctx, state, command, extra_binds, num_nodes):
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
                                  environment=env, ports=[22],
-                                 command=command)
+                                 command=command, tty=True)
     state["containers"].append(container.short_id)
     container.start(binds=binds, privileged=True,
                     volumes_from=None)
@@ -117,7 +117,7 @@ def start_frontend_container(ctx, state, command, extra_binds, num_nodes,
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
                                  environment=env, volumes=["/home"],
-                                 ports=[22, 80], command=command)
+                                 ports=[22, 80], command=command, tty=True)
     state["containers"].append(container.short_id)
     container.start(binds=binds, privileged=True,
                     port_bindings={80: ('127.0.0.1', http_port)},
@@ -136,7 +136,7 @@ def start_nodes_containers(ctx, state, command, extra_binds, num_nodes,
         binds.update(extra_binds)
         container = Container.create(ctx.docker, image=image,
                                      detach=True, hostname=hostname,
-                                     ports=[22], command=command)
+                                     ports=[22], command=command, tty=True)
         state["containers"].append(container.short_id)
         container.start(binds=binds, privileged=True,
                         volumes_from=frontend.id)
