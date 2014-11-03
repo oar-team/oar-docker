@@ -2,7 +2,7 @@ import os
 import os.path as op
 import click
 from oardocker.utils import check_tarball, check_git, check_url, \
-    download_file, git_pull_or_clone, append_file, empty_file
+    download_file, git_pull_or_clone, touch, append_file, empty_file
 from oardocker.container import Container
 
 
@@ -145,6 +145,7 @@ def start_nodes_containers(ctx, state, command, extra_binds, num_nodes,
 
 
 def deploy(ctx, state, num_nodes, volumes, http_port, needed_tag, parent_cmd):
+    generate_ssh_config(ctx, state)
     command = ["/usr/local/sbin/oardocker_init"]
     nodes = ("frontend", "server", "node")
     check_images_requirements(ctx, state, nodes, needed_tag, parent_cmd)
@@ -163,6 +164,36 @@ def deploy(ctx, state, num_nodes, volumes, http_port, needed_tag, parent_cmd):
                                         num_nodes, http_port)
     start_nodes_containers(ctx, state, command, extra_binds,
                            num_nodes, frontend)
+    generate_ssh_config(ctx, state)
+
+
+def generate_ssh_config(ctx, state):
+    touch(ctx.ssh_config)
+    entry = """
+Host {}
+  HostName {}
+"""
+    default = """Host *
+  User docker
+  IdentityFile {}
+  UserKnownHostsFile /dev/null
+  StrictHostKeyChecking no
+  PasswordAuthentication no
+  IdentitiesOnly yes
+  LogLevel FATAL
+  ForwardAgent yes
+  Compression yes
+  Protocol 2
+""".format(ctx.ssh_key)
+    key_sort = lambda c: c.dictionary["NetworkSettings"]["IPAddress"]
+    with open(ctx.ssh_config, "w") as ssh_config:
+        ssh_config.write(default)
+        for c in sorted(ctx.get_containers(state), key=key_sort):
+            ipaddress = c.dictionary["NetworkSettings"]["IPAddress"]
+            hostname = c.dictionary["Config"]["Hostname"]
+            if ipaddress:
+                ssh_config.write(entry.format(hostname, ipaddress))
+
 
 def generate_empty_etc_hosts(ctx, state):
     empty_file(ctx.dnsfile)

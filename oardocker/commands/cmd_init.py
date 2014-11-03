@@ -12,6 +12,7 @@ def cli(ctx, force):
     """Initialize a new environment."""
     ctx.copy_tree(ctx.templates_dir, ctx.envdir, force)
     touch(ctx.dnsfile)
+    touch(ctx.ssh_config)
     ctx.log('Initialized oardocker environment in %s',
             click.format_filename(ctx.envdir))
     if not op.exists(ctx.envid_file) or op.getsize(ctx.envid_file) == 0:
