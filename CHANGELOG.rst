@@ -1,6 +1,25 @@
 oar-docker CHANGELOG
 ====================
 
+version 0.2.0
+=============
+
+Release date to be announced
+
+**Features**:
+
+- Updated base images to debian jessie
+
+**Improvements**:
+
+- Removed supervisor and ake init process less complex by only using my_init.d statups scripts
+- Removed apache2 and replaced it by nginx
+
+**Bug fixes**:
+
+- Make sure that /etc/hosts file contain the localhost entry [Salem Harrache]
+
+
 version 0.1.4
 =============
 
@@ -17,7 +36,7 @@ Released on Oct 28th 2014
 version 0.1.3
 =============
 
-Released on Sep 10 2014
+Released on Sep 10th 2014
 
 - Added `oar reset` cmd to restart containers
 - Added a better comments about oardocker images with git information
