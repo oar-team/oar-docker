@@ -9,7 +9,6 @@ import re
 import signal
 import sys
 import subprocess
-import threading
 import stat
 
 
@@ -135,6 +134,3 @@ if __name__ == '__main__':
         p.join()
 
     touch("/var/lib/container/is_running")
-    # wait forever
-    dummy_event = threading.Event()
-    dummy_event.wait()

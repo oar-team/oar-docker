@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
-/usr/local/sbin/run_startup_scripts 2>&1 > /var/log/my_init.d.log
+python /usr/local/sbin/run_startup_scripts
+sleep infinity
