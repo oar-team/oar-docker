@@ -1,37 +1,47 @@
 server {
     listen 80 default_server;
 
-    access_log  /var/log/nginx/oar_web_access.log;
-    error_log   /var/log/nginx/oar_web_error.log;
+    root /var/www;
 
     location /drawgantt {
-        rewrite ^/drawgantt(.*)$ /drawgantt-svg$1;
-    }
-
-    location /drawgantt-svg {
-        root /usr/local/share/oar-web-status/;
         index index.php;
     }
 
-    location /monika {
-        include fastcgi_params;
-        fastcgi_param DOCUMENT_ROOT     /usr/local/lib/site_perl;
-        fastcgi_param SCRIPT_FILENAME   /usr/local/lib/cgi-bin/monika.cgi;
-        fastcgi_pass unix:/var/run/fcgiwrap.sock;
+    location /drawgantt-svg {
+        index index.php;
     }
+
+    # location /oarapi {
+    #     rewrite /oarapi/(.*)$ /oarapi.cgi? last;
+    # }
 
     location /oarapi {
+        rewrite ^/oarapi/(.*)$ /$1? break;
+        # rewrite ^/oarapi/(.*)$ /$1? last;
+        gzip off;
         include fastcgi_params;
+        fastcgi_param REMOTE_ADDR $http_x_real_ip;
         fastcgi_param DOCUMENT_ROOT     /usr/local/lib/site_perl;
         fastcgi_param SCRIPT_FILENAME   /usr/local/lib/cgi-bin/oarapi/oarapi.cgi;
-        fastcgi_pass unix:/var/run/fcgiwrap.sock;
+        fastcgi_pass unix:/var/run/fcgiwrap.socket;
     }
 
-    location /oarapi-priv {
+
+    location /monika {
+        index monika.cgi;
+    }
+
+    location /oarapi-debug {
+        index oarapi-debug.cgi;
+    }
+
+    location ~ .*.cgi$ {
+        gzip off;
         include fastcgi_params;
+        fastcgi_param REMOTE_ADDR $http_x_real_ip;
         fastcgi_param DOCUMENT_ROOT     /usr/local/lib/site_perl;
-        fastcgi_param SCRIPT_FILENAME   /usr/local/lib/cgi-bin/oarapi/oarapi.cgi;
-        fastcgi_pass unix:/var/run/fcgiwrap.sock;
+        fastcgi_param SCRIPT_FILENAME   $document_root$fastcgi_script_name;
+        fastcgi_pass unix:/var/run/fcgiwrap.socket;
     }
 
     location ~ .*.php$ {

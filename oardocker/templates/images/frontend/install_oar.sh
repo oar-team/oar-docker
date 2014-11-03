@@ -57,8 +57,12 @@ chmod 644 /etc/motd
 
 
 ## Configure HTTP
-chown www-data -R /usr/local/lib/site_perl
-chown www-data -R /usr/local/share/oar-web-status/
+ln -sf /usr/local/share/oar-web-status/drawgantt-svg /var/www/drawgantt-svg
+ln -sf /usr/local/share/oar-web-status/drawgantt-svg /var/www/drawgantt
+
+chown www-data:www-data -R /usr/local/lib/site_perl
+chown www-data:www-data -R /usr/local/share/oar-web-status/
+chown www-data:www-data -R /var/www/
 
 
 htpasswd -b -c /etc/oar/api-users docker docker
