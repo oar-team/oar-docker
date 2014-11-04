@@ -8,6 +8,7 @@ from functools import update_wrapper
 from oardocker.utils import copy_tree
 from oardocker.container import Container
 from sh import chmod
+from oardocker import VERSION
 
 
 HERE = op.dirname(__file__)
@@ -17,7 +18,7 @@ CONTEXT_SETTINGS = dict(auto_envvar_prefix='oardocker')
 class Context(object):
 
     def __init__(self):
-        self.version = '0.1'
+        self.version = VERSION
         self._docker_client = None
         self.prefix = "oardocker"
         self.current_dir = os.getcwd()
