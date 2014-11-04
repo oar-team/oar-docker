@@ -189,6 +189,28 @@ def invoke_before_clean(f):
     return update_wrapper(new_func, f)
 
 
+
+class deprecated_cmd(object):
+    """This is a decorator which can be used to mark cmd as deprecated. It will
+    result in a warning being emmitted when the command is invoked."""
+
+    def __init__(self, message=""):
+        if message:
+            self.message = "%s." % message
+        else:
+            self.message = message
+
+    def __call__(self, f):
+
+        @click.pass_context
+        def new_func(ctx, *args, **kwargs):
+            msg = click.style("warning: `%s` command is deprecated. %s" %
+                              (ctx.info_name, self.message), fg="yellow")
+            click.echo(msg)
+            return ctx.invoke(f, *args, **kwargs)
+
+        return update_wrapper(new_func, f)
+
 @click.command(cls=oardockerCLI, context_settings=CONTEXT_SETTINGS, chain=True)
 @click.option('--workdir', type=click.Path(exists=True, file_okay=False,
                                            resolve_path=True),

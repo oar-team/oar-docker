@@ -1,11 +1,12 @@
 import click
-from oardocker.cli import pass_context, pass_state
+from oardocker.cli import pass_context, pass_state, deprecated_cmd
 from oardocker.actions import generate_ssh_config
 
 
 @click.command('ssh-config')
 @pass_state
 @pass_context
+@deprecated_cmd()
 def cli(ctx, state):
     """Output OpenSSH valid configuration to connect to the machine."""
     generate_ssh_config(ctx, state)

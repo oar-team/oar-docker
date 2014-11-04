@@ -1,6 +1,6 @@
 import time
 import click
-from oardocker.cli import pass_context, pass_state
+from oardocker.cli import pass_context, pass_state, deprecated_cmd
 from oardocker.utils import touch, check_tcp_port_open
 from subprocess import call
 
@@ -10,6 +10,7 @@ from subprocess import call
 @click.option('-l', 'user', required=False)
 @pass_state
 @pass_context
+@deprecated_cmd("Use `connect` command instead")
 def cli(ctx, state, hostname, user):
     """Connect to machine via SSH."""
     touch(ctx.ssh_config)
