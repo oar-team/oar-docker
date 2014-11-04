@@ -1,6 +1,5 @@
 import click
 from oardocker.cli import pass_context, pass_state
-from subprocess import call
 
 
 @click.command('connect')
@@ -20,8 +19,6 @@ def cli(ctx, state, hostname, user):
         raise click.ClickException("The container must be started before "
                                    "running this command. Run  `oardocker"
                                    " start` first")
-    call_args = ["docker", "exec", "-it", containers[hostname].id,
-                 "script", "-q", "/dev/null", "-c",
-                 "cat /etc/motd && exec setuser %s /bin/bash -il" % user]
-    call(call_args)
-
+    ctx.docker_cli("exec", "-it", containers[hostname].id,
+                   "script", "-q", "/dev/null", "-c",
+                   "cat /etc/motd && exec setuser %s /bin/bash -il" % user)

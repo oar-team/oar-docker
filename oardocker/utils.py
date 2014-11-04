@@ -244,3 +244,19 @@ def human_filesize(bytes):
             return "%3.1f %s" % (bytes, x)
         bytes /= 1024.0
     return "%3.1f %s" % (bytes, 'TB')
+
+
+def find_executable(executable):
+    path = os.environ['PATH']
+    paths = path.split(os.pathsep)
+    base, ext = os.path.splitext(executable)
+
+    if not os.path.isfile(executable):
+        for p in paths:
+            f = os.path.join(p, executable)
+            if os.path.isfile(f):
+                # the file exists, we have a shot at spawn working
+                return f
+        return None
+    else:
+        return executable

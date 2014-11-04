@@ -5,9 +5,10 @@ import click
 import docker
 import json
 from functools import update_wrapper
-from oardocker.utils import copy_tree
+from oardocker.utils import copy_tree, find_executable
 from oardocker.container import Container
 from sh import chmod
+from subprocess import call
 from oardocker import VERSION
 
 
@@ -29,6 +30,15 @@ class Context(object):
         # oar archive url
         self.oar_website = "http://oar-ftp.imag.fr/oar/2.5/sources/stable"
         self.oar_tarball = "%s/oar-2.5.3.tar.gz" % self.oar_website
+        self.docker_exe = None
+
+    def docker_cli(self, *call_args):
+        if self.docker_exe is None:
+            raise click.ClickException("Cannot find docker executable in your"
+                                       " PATH")
+        args = list(call_args)
+        args.insert(0, self.docker_exe)
+        call(args)
 
     def update(self):
         self.envdir = op.join(self.workdir, ".%s" % self.prefix)
@@ -39,6 +49,7 @@ class Context(object):
         self.postinstall_dir = op.join(self.envdir, "postinstall")
         self.envid_file = op.join(self.envdir, "envid")
         self.state_file = op.join(self.envdir, "state.json")
+        self.docker_exe = find_executable(self.docker_binary)
 
     def assert_valid_env(self):
         if not os.path.isdir(self.envdir):
@@ -220,14 +231,17 @@ class deprecated_cmd(object):
               help="The docker socket [default: unix://var/run/docker.sock]")
 @click.option('--cgroup-path', default="/sys/fs/cgroup",
               help="The cgroup file system path [default: /sys/fs/cgroup]")
+@click.option('--docker-binary', default="docker",
+              help="The docker client binary [default: docker]")
 @click.version_option()
 @pass_context
-def cli(ctx, workdir, docker_host, cgroup_path):
+def cli(ctx, workdir, docker_host, cgroup_path, docker_binary):
     """Manage a small OAR developpement cluster with docker."""
     if workdir is not None:
         ctx.workdir = workdir
     ctx.docker_host = docker_host
     ctx.cgroup_path = cgroup_path
+    ctx.docker_binary = docker_binary
     ctx.update()
 
 
