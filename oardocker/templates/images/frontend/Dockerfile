@@ -38,8 +38,8 @@ RUN chmod +x /root/*.sh
 RUN rm -rf /tmp/* /var/tmp/*
 
 ## Configure log
-RUN echo "/var/log/nginx/oar_web_access.log" >> $CONTAINER_LIB_PATH/log2watch.txt ;\
-    echo "/var/log/nginx/oar_web_error.log" >> $CONTAINER_LIB_PATH/log2watch.txt
+RUN echo "/var/log/apache2/error.log" >> $CONTAINER_LIB_PATH/log2watch.txt ;\
+    echo "/var/log/apache2/access.log" >> $CONTAINER_LIB_PATH/log2watch.txt
 
 EXPOSE 22
 EXPOSE 80
