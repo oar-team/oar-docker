@@ -13,7 +13,8 @@ from oardocker import VERSION
 
 
 HERE = op.dirname(__file__)
-CONTEXT_SETTINGS = dict(auto_envvar_prefix='oardocker')
+CONTEXT_SETTINGS = dict(auto_envvar_prefix='oardocker',
+                        help_option_names=['-h', '--help'])
 
 
 class Context(object):
