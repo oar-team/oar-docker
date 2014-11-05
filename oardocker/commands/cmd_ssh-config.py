@@ -8,7 +8,7 @@ from oardocker.actions import generate_ssh_config
 @pass_context
 @deprecated_cmd()
 def cli(ctx, state):
-    """Output OpenSSH valid configuration to connect to the machine."""
+    """Output OpenSSH valid ssh config [deprecated]"""
     generate_ssh_config(ctx, state)
     with open(ctx.ssh_config, "r") as ssh_config:
         click.echo(ssh_config.read())

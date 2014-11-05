@@ -12,7 +12,7 @@ from subprocess import call
 @pass_context
 @deprecated_cmd("Use `connect` command instead")
 def cli(ctx, state, hostname, user):
-    """Connect to machine via SSH."""
+    """Connect to machine via SSH [deprecated]"""
     touch(ctx.ssh_config)
     node_name = ''.join([i for i in hostname if not i.isdigit()])
     nodes = ("frontend", "services", "node", "server")
