@@ -23,6 +23,10 @@ Various case scenarios may affect you:
 Installation
 ------------
 
+Requirements:
+  - python 2.7
+  - docker >= 1.3
+
 You can install, upgrade, uninstall oar-docker with these commands::
 
   $ pip install oar-docker
@@ -51,22 +55,101 @@ Usage
       Manage a small OAR developpement cluster with docker.
 
     Options:
-      --workdir DIRECTORY  Changes the folder to operate on.
-      --docker-host TEXT
-      --help               Show this message and exit.
+      --workdir DIRECTORY   Changes the folder to operate on.
+      --docker-host TEXT    The docker socket [default:unix://var/run/docker.sock]
+      --cgroup-path TEXT    The cgroup file system path [default: /sys/fs/cgroup]
+      --docker-binary TEXT  The docker client binary [default: docker]
+      --version             Show the version and exit.
+      -h, --help            Show this message and exit.
 
     Commands:
       build       Build base images
       clean       Remove all stopped containers and untagged...
+      connect     Connect to a node.
       destroy     Stop containers and remove all images
       init        Initialize a new environment.
       install     Install and configure OAR from src
       logs        Fetch the logs of all containers.
-      ssh         Connect to machine via SSH.
-      ssh-config  Output OpenSSH valid configuration to connect...
-      start       Start the cluster
+      ssh         Connect to machine via SSH [deprecated]
+      ssh-config  Output OpenSSH valid ssh config [deprecated]
+      start       Create and start the containers
       status      Output status of the cluster
-      stop        Stop the running cluster
+      stop        Stop and remove all containers
+
+
+Getting started
+---------------
+
+To get started with oar-docker, the first thing to do is to initialize a
+project::
+
+    $ oardocker init
+
+If you already have OAR sources, the best is to initialize directly the
+oardocker project in the OAR sources directory::
+
+    $ cd path/to/oar/src
+    $ oardocker init
+
+You have to do this only once. It allows you to import the Dockerfiles
+and other configuration files.
+
+We then launch the base image build::
+
+    $ oardocker build
+
+Now, we have to install OAR. To do this, several options are available.
+
+If you already have the OAR sources::
+
+    $ oardocker install .   ## ou . est le chemin vers les sources de OAR
+
+Or if you want to install from tarball::
+
+    $ oardocker install http://oar-ftp.imag.fr/oar/2.5/sources/testing/oar-2.5.4+rc4.tar.gz
+
+You can also launch the installation from a git repository::
+
+    $ oardocker install git+https://github.com/oar-team/oar.git
+
+
+We start a OAR cluster with 5 nodes::
+
+    $ oardocker start -n 5
+
+It is possible to share directories between host machines and
+all containers with the ``-v`` option::
+
+    $ oardocker start -v $PWD:/oar_src -v /my/custom/lib:/usr/local/ma_lib
+
+To manage the cluster::
+
+    $ oardocker connect frontend|server|nodeXX
+    $ oardocker logs [frontend|server|nodeXX]
+
+
+To clean::
+
+    $ oardocker stop  ## stops and removes all containers
+    $ oardocker clean  ## removes all stopped containers (failed) and the untagged images <none:none>
+    $ oardocker destroy  ## removes all images and containers
+
+
+With oar-docker, it is possible to chain all commands to go faster::
+
+    $ oardocker init -f build install oar-2.5.4+rc4.tar.gz start -n 4 connect -l root frontend
+
+For instance, to develop on OAR, we often need to install OAR,
+start the cluster and connect to it::
+
+
+    $ oardocker install $PWD start -n 10 -v $PWD:/home/docker/oar_src connect frontend
+
+
+One last thing to know. The ``stop`` command is automatically launched before
+every ``start``, ``install`` and ``build`` ... If we launch multiple times the
+last command, we will always obtain the same result. It can be useful to
+experiment and develop (even) faster.
 
 
 Security
