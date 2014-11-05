@@ -4,21 +4,23 @@ oar-docker CHANGELOG
 version 0.2.0
 =============
 
-Release date to be announced
+Released on Nov 5th 2014
 
 **Features**:
 
 - Updated base images to debian jessie
+- Added ``oardocker connect`` to connect to the nodes without ssh
+- The commands ``oardocker ssh`` and ``oardocker ssh-config`` are deprecated from now
 
 **Improvements**:
 
-- Removed supervisor and ake init process less complex by only using my_init.d statups scripts
-- Removed apache2 and replaced it by nginx
+- Removed supervisor and make init process less complex by only using my_init.d statup scripts
+- Customized help parameter to accept ``-h`` and ``--help``
+- Used docker client binary for some task instead of the API
 
 **Bug fixes**:
 
-- Make sure that /etc/hosts file contain the localhost entry [Salem Harrache]
-
+- Make sure that /etc/hosts file contain the localhost entry
 
 version 0.1.4
 =============
