@@ -1,0 +1,93 @@
+[alias]
+    tagcommit = !sh -c 'git rev-list $0 | head -n 1'
+    accept-ours = "!f() { files=\"$@\"; [ -z $files ] && files='.'; git checkout --ours -- $files; git add -u $files; }; f"
+    accept-theirs = "!f() { files=\"$@\"; [ -z $files ] && files='.'; git checkout --theirs -- $files; git add -u $files; }; f"
+    br = branch
+    ci = commit
+    co = checkout
+    com = checkout master
+    df = diff
+    fe = fetch origin
+    hr = reset origin/master --hard
+    lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+    ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+    ls = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
+    lc = !git meld ORIG_HEAD.. --stat --no-merges
+    me = config user.name
+    meld = !git-meld
+    next = "!sh -c 'git log --reverse --pretty=%H master | awk \"/$(git rev-parse HEAD)/{getline;print}\" | xargs git checkout'"
+    prev = checkout HEAD^1
+    st = status
+    today = !git log --since='12am' --committer=\"`git me`\"
+    today-all = !git log --since='12am'
+    amend = commit --amend
+    # undo local changes
+    undo = checkout --
+    undoreset = !git reset HEAD@{1}
+    # remove staged changes from the index: (1) provide file name/pattern (2) otherwise, removes all
+    unstage = reset HEAD --
+    # list untracked files
+    untracked = ls-files -o
+
+[color]
+    branch = auto
+    diff = auto
+    status = auto
+    ui = true
+    interactive = auto
+
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+
+[color "status"]
+    added = yellow
+    changed = green
+    untracked = cyan
+
+[merge]
+    stat = true
+    tool = meld
+    conflictStyle = diff3
+
+[mergetool]
+    keepBackup = false
+    keepTemporaries = false
+    prompt = false
+
+[push]
+    default = matching
+
+[branch]
+    autosetuprebase = always
+
+[help]
+    autocorrect = 1
+
+[diff]
+    mnemonicPrefix = true
+    wordRegex = .
+    tool = xxdiff
+
+[status]
+    submoduleSummary = true
+
+[grep]
+    extendedRegexp = true
+
+[log]
+    abbrevCommit = true
+
+[core]
+    editor = vim
+    whitespace = -trailing-space
+
+[credential]
+    helper = cache --timeout=3600

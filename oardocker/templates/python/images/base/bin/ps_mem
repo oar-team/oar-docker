@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+sudo /usr/local/sbin/ps_mem $@

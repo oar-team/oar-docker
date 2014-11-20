@@ -1,0 +1,134 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# vim: ai ts=4 sts=4 et sw=4 nu
+import argparse
+import multiprocessing
+import os
+import os.path
+import re
+import signal
+import sys
+import subprocess
+import stat
+
+
+KILL_PROCESS_TIMEOUT = 5
+KILL_ALL_PROCESSES_TIMEOUT = 5
+
+LOG_LEVEL_ERROR = 1
+LOG_LEVEL_WARN = 1
+LOG_LEVEL_INFO = 2
+LOG_LEVEL_DEBUG = 3
+
+log_level = None
+
+
+class AlarmException(Exception):
+    pass
+
+
+def error(message):
+    if log_level >= LOG_LEVEL_ERROR:
+        sys.stderr.write("*** %s\n" % message)
+
+
+def warn(message):
+    if log_level >= LOG_LEVEL_WARN:
+        print("*** %s" % message)
+
+
+def info(message):
+    if log_level >= LOG_LEVEL_INFO:
+        print("*** %s" % message)
+
+
+def debug(message):
+    if log_level >= LOG_LEVEL_DEBUG:
+        print("*** %s" % message)
+
+
+def touch(fname, times=None):
+    dirname = '/'.join(fname.split('/')[:-1])
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+    with file(fname, 'a'):
+        os.utime(fname, times)
+
+
+def ignore_signals_and_raise_keyboard_interrupt(signame):
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    raise KeyboardInterrupt(signame)
+
+
+def raise_alarm_exception():
+    raise AlarmException('Alarm')
+
+
+def listdir(path):
+    try:
+        result = os.stat(path)
+    except OSError:
+        return []
+    if stat.S_ISDIR(result.st_mode):
+        return sorted(os.listdir(path))
+    else:
+        return []
+
+
+def is_exe(path):
+    try:
+        return os.path.isfile(path) and os.access(path, os.X_OK)
+    except OSError:
+        return False
+
+
+_find_unsafe = re.compile(r'[^\w@%+=:,./-]').search
+
+
+def run_command(filename):
+    def call():
+        subprocess.call([filename])
+    process = multiprocessing.Process(target=call)
+    process.start()
+    return process
+
+
+
+def collect_startup_scripts(my_initd_path, level=0):
+    if level == 0:
+        if is_exe("/etc/rc.local"):
+            yield "/etc/rc.local"
+        if is_exe("/usr/local/sbin/enable_insecure_key"):
+            yield "/usr/local/sbin/enable_insecure_key"
+    for name in listdir(my_initd_path):
+        filename = os.path.join(my_initd_path, name)
+        if is_exe(filename):
+            yield filename
+        elif listdir(filename) and name in os.uname()[1] and level == 0:
+            for script in collect_startup_scripts(filename, level + 1):
+                yield script
+
+if __name__ == '__main__':
+    # Parse options.
+    parser = argparse.ArgumentParser(description='Initialize the system.')
+    parser.add_argument('--enable-insecure-key', dest='enable_insecure_key',
+                        action='store_const', const=True, default=False,
+                        help='Install the insecure SSH key')
+    parser.add_argument('--quiet', dest='log_level',
+                        action='store_const', const=LOG_LEVEL_WARN, default=LOG_LEVEL_INFO,
+                        help='Only print warnings and errors')
+    args = parser.parse_args()
+    log_level = args.log_level
+
+    # Run main function.
+    signal.signal(signal.SIGTERM, lambda signum, frame: ignore_signals_and_raise_keyboard_interrupt('SIGTERM'))
+    signal.signal(signal.SIGINT, lambda signum, frame: ignore_signals_and_raise_keyboard_interrupt('SIGINT'))
+    signal.signal(signal.SIGALRM, lambda signum, frame: raise_alarm_exception())
+
+    processes = []
+    for script in collect_startup_scripts("/var/lib/container/my_init.d"):
+        processes.append(run_command(script))
+
+    for p in processes:
+        p.join()

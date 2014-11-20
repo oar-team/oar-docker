@@ -1,0 +1,33 @@
+                                                       ##        .
+      ###      ##     ######                     ## ## ##       ==
+     ## ##     ##     ##   ##                 ## ## ## ##      ===
+    ##   ##   ####    ##   ##             /""""""""""""""""\___/ ===
+    ##   ##   ## #    ######         ~~~ {~~ ~~~~ ~~~ ~~~~ ~~ ~ /  ===- ~~~
+    ##   ##  ######   ## ##               \______ o          __/
+     ## ##   ##   #   ##  ##                \    \        __/
+      ###   ###   ##  ##   ##                \____\______/
+
+                    ###                         ##
+            ####     ##                         ##
+           ##  ##    ##                         ##
+          ##         ##     ##   ##   #####   ######    #####   ## ###
+          ##         ##     ##   ##  ##         ##     ##   ##  ###
+          ##         ##     ##   ##   ####      ##     #######  ##
+           ##  ##    ##     ##  ###      ##     ##     ##       ##
+            ####    ####     ### ##  #####       ###    #####   ##
+
+
+OAR version : __OAR_VERSION__
+password : docker
+
+You can, for example, directly:
+ $ oarsub -I
+
+Or check the API:
+ $ wget -O - http://localhost/oarapi/resources.yaml
+
+Check the API more deeply, submitting a job as the "docker" user:
+ $ curl -i -X POST http://docker:docker@localhost/oarapi-priv/jobs.json \
+     -H'Content-Type: application/json' \
+     -d '{"resource":"/nodes=1,walltime=00:10:00", "command":"sleep 600"}'
+
