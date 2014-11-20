@@ -55,4 +55,4 @@ def cli(ctx, state, no_cache, quiet, rm):
         image_id = get_image_id(all_events)
         state["images"].append(get_image_id(all_events))
         ctx.save_image(image_id, tag=tag,
-                       repository="%s/%s" % (ctx.prefix, name))
+                       repository=ctx.image_name(name))

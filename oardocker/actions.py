@@ -10,8 +10,7 @@ def check_images_requirements(ctx, state, nodes, needed_tag, parent_cmd):
     available_images = [', '.join(im["RepoTags"]) for im in
                         ctx.get_images(state)]
     no_missings_images = set()
-    needed_images = set(["%s/%s:%s" % (ctx.prefix, node, needed_tag)
-                        for node in nodes])
+    needed_images = set([ctx.image_name(node, needed_tag) for node in nodes])
     for image in needed_images:
         for available_image in available_images:
             if image in available_image:
@@ -67,7 +66,7 @@ def install(ctx, state, src, needed_tag, tag, parent_cmd):
     binds = {path: {'bind': src_cpath, 'ro': True}}
     command = ["/root/install_oar.sh", src_cpath]
     for node in nodes:
-        image = "%s/%s:%s" % (ctx.prefix, node, needed_tag)
+        image = ctx.image_name(node, needed_tag)
         container = Container.create(ctx.docker, image=image, command=command)
         state["containers"].append(container.short_id)
         exit_code = container.start_and_attach(binds=binds, privileged=True)
@@ -76,7 +75,7 @@ def install(ctx, state, src, needed_tag, tag, parent_cmd):
                                                           exit_code)
             raise click.ClickException(msg)
         oar_version = container.logs().strip().split('\n')[-1]
-        repository = "%s/%s" % (ctx.prefix, node)
+        repository = ctx.image_name(node)
         commit = container.commit(repository=repository, tag=tag,
                                   message=oar_version)
         ctx.save_image(commit['Id'], tag=tag, repository=repository)
@@ -90,7 +89,7 @@ def log_started(hostname):
 
 
 def start_server_container(ctx, state, command, extra_binds, num_nodes):
-    image = "%s/server:latest" % ctx.prefix
+    image = ctx.image_name("server", "latest")
     hostname = "server"
     binds = {}
     binds.update(extra_binds)
@@ -109,7 +108,7 @@ def start_server_container(ctx, state, command, extra_binds, num_nodes):
 
 def start_frontend_container(ctx, state, command, extra_binds, num_nodes,
                              http_port):
-    image = "%s/frontend:latest" % ctx.prefix
+    image = ctx.image_name("frontend", "latest")
     hostname = "frontend"
     binds = {}
     binds.update(extra_binds)
@@ -129,7 +128,7 @@ def start_frontend_container(ctx, state, command, extra_binds, num_nodes,
 
 def start_nodes_containers(ctx, state, command, extra_binds, num_nodes,
                            frontend):
-    image = "%s/node:latest" % ctx.prefix
+    image = ctx.image_name("node", "latest")
     for i in xrange(1, num_nodes + 1):
         hostname = "node%d" % i
         binds = {}

@@ -13,6 +13,8 @@ from oardocker import VERSION
 
 
 HERE = op.dirname(__file__)
+TEMPLATES_PATH = op.abspath(op.join(HERE, 'templates'))
+VARIANTS = os.listdir(TEMPLATES_PATH)
 CONTEXT_SETTINGS = dict(auto_envvar_prefix='oardocker',
                         help_option_names=['-h', '--help'])
 
@@ -22,16 +24,15 @@ class Context(object):
     def __init__(self):
         self.version = VERSION
         self._docker_client = None
-        self.prefix = "oardocker"
         self.current_dir = os.getcwd()
         self.workdir = self.current_dir
-        self.templates_dir = op.abspath(op.join(HERE, 'templates'))
         self.docker_host = None
         self.cgroup_path = None
         # oar archive url
         self.oar_website = "http://oar-ftp.imag.fr/oar/2.5/sources/stable"
         self.oar_tarball = "%s/oar-2.5.3.tar.gz" % self.oar_website
         self.docker_exe = None
+        self.prefix = "oardocker"
 
     def docker_cli(self, *call_args):
         if self.docker_exe is None:
@@ -41,6 +42,20 @@ class Context(object):
         args.insert(0, self.docker_exe)
         call(args)
 
+    @property
+    def env(self):
+        with open(self.env_file) as env_file:
+            return env_file.read().strip()
+
+    def image_name(self, node, tag=""):
+        if not tag == "":
+            tag = ":%s" % tag
+        if not self.env == "default":
+            return "%s/%s-%s%s" % (self.prefix, self.env, node, tag)
+        else:
+            return "%s/%s%s" % (self.prefix, node, tag)
+
+
     def update(self):
         self.envdir = op.join(self.workdir, ".%s" % self.prefix)
         self.ssh_key = op.join(self.envdir, "images", "base", "skel", ".ssh",
@@ -48,7 +63,7 @@ class Context(object):
         self.ssh_config = op.join(self.envdir, "ssh_config")
         self.dnsfile = op.join(self.envdir, "dnsmasq.d", "hosts")
         self.postinstall_dir = op.join(self.envdir, "postinstall")
-        self.envid_file = op.join(self.envdir, "envid")
+        self.env_file = op.join(self.envdir, "env")
         self.state_file = op.join(self.envdir, "state.json")
         self.docker_exe = find_executable(self.docker_binary)
 
