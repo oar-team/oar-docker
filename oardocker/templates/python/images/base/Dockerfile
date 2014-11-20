@@ -54,6 +54,12 @@ RUN apt-get install -y libpq-dev
 ADD dev-requirements.txt dev-requirements.txt
 RUN pip install -I -r dev-requirements.txt && rm dev-requirements.txt
 
+
+## Fix locales
+RUN test ! -f /etc/locale.gen || sed -i 's/^# fr_FR/fr_FR/' /etc/locale.gen
+RUN locale-gen fr_FR.utf8
+RUN update-locale LANG=fr_FR.utf8
+
 ## configure sshd daemon:
 RUN mkdir -p $CONTAINER_LIB_PATH
 RUN mv /etc/ssh/ $CONTAINER_LIB_PATH/ssh ;\

@@ -42,6 +42,11 @@ RUN apt-get install -y python-dev python-zmq python-pip python-tables  \
 ## server dependencies
 RUN apt-get install -y postgresql python-psycopg2
 
+## Fix locales
+RUN test ! -f /etc/locale.gen || sed -i 's/^# fr_FR/fr_FR/' /etc/locale.gen
+RUN locale-gen fr_FR.utf8
+RUN update-locale LANG=fr_FR.utf8
+
 ## Python
 RUN pip install -I pip ipdb grin jedi
 
