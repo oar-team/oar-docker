@@ -9,7 +9,7 @@ from oardocker.actions import generate_empty_etc_hosts
 @pass_state
 @pass_context
 def cli(ctx, state):
-    """Stop and remove all containers"""
+    """Stop and remove all nodes"""
     stopped = click.style("Stopped", fg="red")
     removed = click.style("Removed", fg="blue")
     for container in ctx.get_containers(state):

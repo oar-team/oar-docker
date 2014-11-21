@@ -135,7 +135,7 @@ class LogPrinter(object):
 @pass_state
 @pass_context
 def cli(ctx, state, hostname):
-    """Fetch the logs of all containers."""
+    """Fetch the logs of all nodes."""
     containers = list(ctx.get_containers(state))
     if hostname:
         node_name = ''.join([i for i in hostname if not i.isdigit()])
