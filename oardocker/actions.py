@@ -6,6 +6,24 @@ from oardocker.utils import check_tarball, check_git, check_url, \
 from oardocker.container import Container
 
 
+def execute(ctx, state, user, hostname, cmd):
+    node_name = ''.join([i for i in hostname if not i.isdigit()])
+    nodes = ("frontend", "services", "node", "server")
+    if not node_name in nodes:
+        raise click.ClickException("Cannot find the container with the name "
+                                   "'%s'" % hostname)
+    containers = dict((c.hostname, c) for c in ctx.get_containers(state))
+    if not hostname in containers.keys():
+        raise click.ClickException("The container must be started before "
+                                   "running this command. Run  `oardocker"
+                                   " start` first")
+    user_cmd = ' '.join(cmd)
+    return ctx.docker_cli("exec", "-it", containers[hostname].id,
+                          "script", "-q", "/dev/null", "-c",
+                          "exec setuser %s /bin/bash -ilc '%s'" %
+                          (user, user_cmd))
+
+
 def check_images_requirements(ctx, state, nodes, needed_tag, parent_cmd):
     available_images = [', '.join(im["RepoTags"]) for im in
                         ctx.get_images(state)]
