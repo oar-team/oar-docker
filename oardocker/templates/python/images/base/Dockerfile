@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:wheezy
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 ENV CONTAINER_LIB_PATH /var/lib/container
@@ -10,31 +10,31 @@ ENV DEBCONF_NOWARNINGS yes
 ENV COLOR green
 RUN echo "export COLOR=green" > /etc/hostname.color
 
-## enable jessie backports:
-RUN echo "deb http://http.debian.net/debian jessie main contrib non-free" > /etc/apt/sources.list && \
-    echo "deb http://http.debian.net/debian jessie-updates main contrib non-free" >> /etc/apt/sources.list && \
-    echo "deb http://security.debian.org jessie/updates main contrib non-free" >> /etc/apt/sources.list && \
-    echo "deb http://http.debian.net/debian jessie-backports main contrib non-free" >> /etc/apt/sources.list && \
+## enable wheezy backports:
+RUN echo "deb http://http.debian.net/debian wheezy main contrib non-free" > /etc/apt/sources.list && \
+    echo "deb http://http.debian.net/debian wheezy-updates main contrib non-free" >> /etc/apt/sources.list && \
+    echo "deb http://security.debian.org wheezy/updates main contrib non-free" >> /etc/apt/sources.list && \
+    echo "deb http://http.debian.net/debian wheezy-backports main contrib non-free" >> /etc/apt/sources.list && \
     apt-get update -q
-
 
 ## Prepare and install packages
 ## core packages
 RUN apt-get install -y \
     debian-keyring sudo less vim nano bash-completion apt-transport-https \
-    ca-certificates psmisc openssh-client curl wget \
-    iptables socat ifupdown locales isc-dhcp-client net-tools iproute2 \
+    ca-certificates psmisc openssh-client curl wget python supervisor \
+    iptables socat ifupdown locales isc-dhcp-client net-tools iproute \
     qemu-kvm linux-image-amd64 net-tools bridge-utils uml-utilities perl \
     perl-base build-essential taktuk libdbi-perl libsort-versions-perl \
     libdbd-pg-perl postgresql-client inetutils-ping rsyslog git \
-    tmux openssh-server netcat unionfs-fuse procps rsync
+    tmux/wheezy-backports openssh-server netcat unionfs-fuse
 
 ## frontend dependencies
 RUN apt-get install -y \
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl \
-    libtie-ixhash-perl libwww-perl apache2 apache2-mpm-prefork \
-    libcgi-fast-perl libapache2-mod-fastcgi php5 libapache2-mod-php5 \
-    php5-mcrypt php5-pgsql phppgadmin perl php5-cli
+    libtie-ixhash-perl libwww-perl libgd-ruby1.8 apache2-mpm-prefork \
+    libcgi-fast-perl libapache2-mod-fastcgi librestclient-ruby1.8 \
+    libdbd-pg-ruby1.8 ruby1.8 ruby1.8-dev rubygems1.8 ruby-switch \
+    php5 libapache2-mod-php5 php5-mcrypt php5-pgsql phppgadmin
 
 ## server dependencies
 RUN apt-get install -y postgresql
