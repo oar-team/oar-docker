@@ -1,4 +1,4 @@
-FROM debian:wheezy
+FROM ubuntu:precise
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 ENV CONTAINER_LIB_PATH /var/lib/container
@@ -10,30 +10,29 @@ ENV DEBCONF_NOWARNINGS yes
 ENV COLOR green
 RUN echo "export COLOR=green" > /etc/hostname.color
 
-## enable wheezy backports:
-RUN echo "deb http://http.debian.net/debian wheezy main contrib non-free" > /etc/apt/sources.list && \
-    echo "deb http://http.debian.net/debian wheezy-updates main contrib non-free" >> /etc/apt/sources.list && \
-    echo "deb http://security.debian.org wheezy/updates main contrib non-free" >> /etc/apt/sources.list && \
-    echo "deb http://http.debian.net/debian wheezy-backports main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get update -q
+## Enable Ubuntu Universe and Multiverse.
+RUN echo "deb http://archive.ubuntu.com/ubuntu/ precise main restricted universe multiverse" > /etc/apt/sources.list ;\
+    echo "deb http://archive.ubuntu.com/ubuntu/ precise-updates main restricted universe multiverse" >> /etc/apt/sources.list ;\
+    echo "deb http://archive.ubuntu.com/ubuntu/ precise-security main restricted universe multiverse" >> /etc/apt/sources.list ;\
+    apt-get update
 
 ## Prepare and install packages
 ## core packages
 RUN apt-get install -y \
-    debian-keyring sudo less vim nano bash-completion apt-transport-https \
+    sudo less vim nano bash-completion apt-transport-https \
     ca-certificates psmisc openssh-client curl wget python supervisor \
     iptables socat ifupdown locales isc-dhcp-client net-tools iproute \
-    qemu-kvm linux-image-amd64 net-tools bridge-utils uml-utilities perl \
+    qemu-kvm net-tools bridge-utils uml-utilities perl \
     perl-base build-essential taktuk libdbi-perl libsort-versions-perl \
     libdbd-pg-perl postgresql-client inetutils-ping rsyslog git \
-    tmux/wheezy-backports openssh-server netcat unionfs-fuse
+    tmux openssh-server netcat unionfs-fuse
 
 ## frontend dependencies
 RUN apt-get install -y \
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl \
     libtie-ixhash-perl libwww-perl libgd-ruby1.8 apache2-mpm-prefork \
     libcgi-fast-perl libapache2-mod-fastcgi librestclient-ruby1.8 \
-    libdbd-pg-ruby1.8 ruby1.8 ruby1.8-dev rubygems1.8 ruby-switch \
+    libdbd-pg-ruby1.8 ruby1.8 ruby1.8-dev rubygems1.8 \
     php5 libapache2-mod-php5 php5-mcrypt php5-pgsql phppgadmin
 
 ## server dependencies
@@ -41,14 +40,16 @@ RUN apt-get install -y postgresql
 
 
 ## Python install
-RUN apt-get install -y python-pip python-dev python3-dev
+RUN apt-get install -y python-pip python-dev libpq-dev
 RUN pip install -U virtualenv pip
+ADD dev-requirements.txt dev-requirements.txt
+RUN pip install -I -r dev-requirements.txt && rm dev-requirements.txt
 
 ## Old Python versions
-ADD add-apt-repository /tmp/add-apt-repository
-RUN bash /tmp/add-apt-repository ppa:fkrull/deadsnakes
+RUN apt-get install -y python-software-properties
+RUN add-apt-repository -y ppa:fkrull/deadsnakes
 RUN apt-get update -q
-RUN apt-get install -y python2.6-dev python3.2-dev python3.3-dev
+RUN apt-get install -y python2.6-dev python3.2-dev python3.3-dev python3.4-dev pypy-dev
 
 RUN apt-get install -y libpq-dev
 ADD dev-requirements.txt dev-requirements.txt

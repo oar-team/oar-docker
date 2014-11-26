@@ -13,9 +13,7 @@ RUN apt-get install -y \
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl \
     libtie-ixhash-perl libwww-perl libgd-ruby1.8 apache2-mpm-prefork \
     libcgi-fast-perl libapache2-mod-fastcgi librestclient-ruby1.8 \
-    libdbd-pg-ruby1.8 ruby1.8 rubygems1.8 ruby-switch
-
-RUN ruby-switch --set ruby1.8
+    libdbd-pg-ruby1.8 ruby1.8 rubygems1.8
 
 # Install php
 RUN apt-get install -y php5 libapache2-mod-php5 php5-mcrypt php5-pgsql
