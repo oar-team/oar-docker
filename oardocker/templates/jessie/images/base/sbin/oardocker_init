@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e
+
+python /usr/local/sbin/run_startup_scripts
+
+/usr/local/sbin/rtail $(echo $(cat /var/lib/container/log2watch.txt))

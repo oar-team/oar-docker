@@ -44,7 +44,7 @@ def check_images_requirements(ctx, state, nodes, needed_tag, parent_cmd):
 
 def install(ctx, state, src, needed_tag, tag, parent_cmd):
     nodes = ("frontend", "server", "node")
-    check_images_requirements(ctx, state, nodes, needed_tag, parent_cmd)
+    # check_images_requirements(ctx, state, nodes, needed_tag, parent_cmd)
     if not op.exists(ctx.postinstall_dir):
         os.makedirs(ctx.postinstall_dir)
     is_git = False

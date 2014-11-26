@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# From tmux, split the current pane and start a second ssh session if a
+# first was running.
+# To avoid having to login again, use the ControlMaster and ControlPath
+# options of ssh_config(5).
+
+# get the tty of the active pane
+CTTY=`tmux list-panes -F '#{pane_active} #{pane_tty}' \
+        | awk '/^1/ { print $2 }'`
+
+# look for processes attached to this tty, checking for the controlling
+# one, if it's named "ssh"; print the command as it was launched (same
+# arguments)
+COMMAND=`ps --no-headers -o pid,tpgid,args -t $CTTY | grep ssh | tail -n 1 | awk '{ $1=$2="" ; print }'`
+# echo $COMMAND
+# no matching process was found
+if [ -z "$COMMAND" ]; then
+case $1 in
+        h) tmux split-window -h
+                ;;
+        v) tmux split-window -v
+                ;;
+        *) tmux new-window
+esac
+else
+case $1 in
+        h) tmux split-window -h "exec $COMMAND"
+                ;;
+        v) tmux split-window -v "exec $COMMAND"
+                ;;
+        *) tmux new-window "exec $COMMAND"
+                ;;
+esac
+fi

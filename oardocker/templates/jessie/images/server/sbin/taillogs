@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+test ! -f /etc/hostname.color || source /etc/hostname.color
+
+touch /var/log/oar.log
+touch /var/log/auth.log
+
+usr/local/sbin/rtail /var/log/auth.log /var/log/oar.log
