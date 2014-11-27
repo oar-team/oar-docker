@@ -1,6 +1,19 @@
 oar-docker CHANGELOG
 ====================
 
+
+version 0.3.1
+=============
+
+Released on Nov 27th 2014
+
+**Bug fixes**:
+- Fixed the Dockerfiles "FROM" statement
+
+**Improvements**:
+- Removed implicit 'default' alias from available env
+
+
 version 0.3.0
 =============
 
