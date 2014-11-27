@@ -6,8 +6,8 @@ from oardocker.utils import touch
 
 @click.command('init')
 @click.option('-f', '--force', is_flag=True, help='Overwrite existing env')
-@click.option('-e', '--env', default="default",
-              help='Use variant X of the Dockerfiles [default: default]',
+@click.option('-e', '--env', default="wheezy",
+              help='Use variant X of the Dockerfiles [default: wheezy]',
               type=click.Choice(VARIANTS))
 @pass_context
 def cli(ctx, force, env):

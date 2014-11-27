@@ -1,4 +1,4 @@
-FROM oardocker/base:latest
+FROM oardocker/wheezy-base:latest
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 ENV OAR_VERSION 2.5

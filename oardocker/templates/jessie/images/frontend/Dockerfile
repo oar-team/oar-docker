@@ -1,4 +1,4 @@
-FROM oardocker/base:latest
+FROM oardocker/jessie-base:latest
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 ENV HOME /root
