@@ -1,6 +1,24 @@
 oar-docker CHANGELOG
 ====================
 
+version 0.3.0
+=============
+
+Released on Nov 27th 2014
+
+**Features**:
+
+- Added ``oardocker exec`` command
+- Manage multiple environment variants with ``oardocker init``: added wheezy|jessie|python bases images
+
+**Bug fixes**:
+- Revert default environment to Debian Wheezy due to breaking OAR API in Jessie
+- Fixed locales issue
+
+**Improvements**:
+- better synchronisation between oar-server and postgresql services
+
+
 version 0.2.0
 =============
 
