@@ -5,11 +5,12 @@ from oardocker.actions import execute
 
 @click.command('connect')
 @click.option('-l', '--user', default="docker")
+@click.option('-w', '--workdir', default="~")
 @click.option('-s', '--shell', default="bash")
 @click.argument('hostname', required=False, default="frontend")
 @pass_state
 @pass_context
-def cli(ctx, state, user, shell, hostname):
+def cli(ctx, state, user, workdir, shell, hostname):
     """Connect to a node."""
     cmd = ["cat /etc/motd", "&&", shell]
-    execute(ctx, state, user, hostname, cmd)
+    execute(ctx, state, user, hostname, cmd, workdir)

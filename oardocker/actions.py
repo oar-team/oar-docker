@@ -6,7 +6,7 @@ from oardocker.utils import check_tarball, check_git, check_url, \
 from oardocker.container import Container
 
 
-def execute(ctx, state, user, hostname, cmd):
+def execute(ctx, state, user, hostname, cmd, workdir):
     node_name = ''.join([i for i in hostname if not i.isdigit()])
     nodes = ("frontend", "services", "node", "server")
     if not node_name in nodes:
@@ -20,8 +20,8 @@ def execute(ctx, state, user, hostname, cmd):
     user_cmd = ' '.join(cmd)
     return ctx.docker_cli("exec", "-it", containers[hostname].id,
                           "script", "-q", "/dev/null", "-c",
-                          "exec setuser %s /bin/bash -ilc '%s'" %
-                          (user, user_cmd))
+                          "exec setuser %s /bin/bash -ilc 'cd %s && %s'" %
+                          (user, workdir, user_cmd))
 
 
 def check_images_requirements(ctx, state, nodes, needed_tag, parent_cmd):
