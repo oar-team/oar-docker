@@ -13,7 +13,7 @@ def cli(ctx, state):
     stopped = click.style("Stopped", fg="red")
     removed = click.style("Removed", fg="blue")
     for container in ctx.get_containers(state):
-        name = container.name
+        name = container.hostname
         image_name = container.dictionary['Config']['Image']
         container.kill()
         container.stop()
