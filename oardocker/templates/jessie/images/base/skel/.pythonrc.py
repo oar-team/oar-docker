@@ -339,7 +339,7 @@ if __name__ == '__main__':
     # Make sure modules in the current directory can't interfere
     import sys
     try:
-        from oar import *
+        import oar
     except:
         print('Cannot import oar-lib')
     try:
