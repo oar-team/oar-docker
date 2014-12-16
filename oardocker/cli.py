@@ -261,9 +261,9 @@ def cli(ctx, workdir, docker_host, cgroup_path, docker_binary):
     ctx.update()
 
 
-def main(*arg, **kwargs):
+def main(args=sys.argv[1:]):
     try:
-        cli(*arg, **kwargs)
+        cli(args)
     except Exception as e:
         sys.stderr.write(u"\nError: %s\n" % e)
         sys.exit(1)

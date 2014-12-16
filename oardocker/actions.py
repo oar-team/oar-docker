@@ -106,12 +106,13 @@ def log_started(hostname):
     click.echo("Container %s --> %s" % (hostname, started))
 
 
-def start_server_container(ctx, state, command, extra_binds, num_nodes):
+def start_server_container(ctx, state, command, extra_binds, num_nodes, env):
     image = ctx.image_name("server", "latest")
     hostname = "server"
     binds = {}
     binds.update(extra_binds)
-    env = {"NUM_NODES": num_nodes}
+    environment = dict(env)
+    environment["NUM_NODES"] = num_nodes
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
                                  environment=env, ports=[22],
@@ -125,15 +126,16 @@ def start_server_container(ctx, state, command, extra_binds, num_nodes):
 
 
 def start_frontend_container(ctx, state, command, extra_binds, num_nodes,
-                             http_port):
+                             http_port, env):
     image = ctx.image_name("frontend", "latest")
     hostname = "frontend"
     binds = {}
     binds.update(extra_binds)
-    env = {"NUM_NODES": num_nodes}
+    environment = dict(env)
+    environment["NUM_NODES"] = num_nodes
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
-                                 environment=env, volumes=["/home"],
+                                 environment=environment, volumes=["/home"],
                                  ports=[22, 80], command=command, tty=True)
     state["containers"].append(container.short_id)
     container.start(binds=binds, privileged=True,
@@ -145,7 +147,7 @@ def start_frontend_container(ctx, state, command, extra_binds, num_nodes,
 
 
 def start_nodes_containers(ctx, state, command, extra_binds, num_nodes,
-                           frontend):
+                           frontend, env):
     image = ctx.image_name("node", "latest")
     for i in xrange(1, num_nodes + 1):
         hostname = "node%d" % i
@@ -153,7 +155,8 @@ def start_nodes_containers(ctx, state, command, extra_binds, num_nodes,
         binds.update(extra_binds)
         container = Container.create(ctx.docker, image=image,
                                      detach=True, hostname=hostname,
-                                     ports=[22], command=command, tty=True)
+                                     ports=[22], command=command, tty=True,
+                                     environment=env)
         state["containers"].append(container.short_id)
         container.start(binds=binds, privileged=True,
                         volumes_from=frontend.id)
@@ -161,7 +164,8 @@ def start_nodes_containers(ctx, state, command, extra_binds, num_nodes,
         update_etc_hosts(ctx, container)
 
 
-def deploy(ctx, state, num_nodes, volumes, http_port, needed_tag, parent_cmd):
+def deploy(ctx, state, num_nodes, volumes, http_port, needed_tag, parent_cmd,
+           env={}):
     generate_ssh_config(ctx, state)
     command = ["/usr/local/sbin/oardocker_init"]
     nodes = ("frontend", "server", "node")
@@ -176,11 +180,11 @@ def deploy(ctx, state, num_nodes, volumes, http_port, needed_tag, parent_cmd):
     for volume in volumes:
         host_path, container_path = volume.split(":")
         extra_binds[host_path] = {'bind': container_path, "ro": False}
-    start_server_container(ctx, state, command, extra_binds, num_nodes)
+    start_server_container(ctx, state, command, extra_binds, num_nodes, env)
     frontend = start_frontend_container(ctx, state, command, extra_binds,
-                                        num_nodes, http_port)
+                                        num_nodes, http_port, env)
     start_nodes_containers(ctx, state, command, extra_binds,
-                           num_nodes, frontend)
+                           num_nodes, frontend, env)
     generate_ssh_config(ctx, state)
 
 
