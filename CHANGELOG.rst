@@ -1,6 +1,15 @@
 oar-docker CHANGELOG
 ====================
 
+version 0.3.2
+=============
+
+Released on Dec 16th 2014
+
+- Added ``--enable-x11`` option to allow containers to display x11 applications
+- Auto-loaded OAR module on python startup
+- Added ``--env`` option to ``oardocker start`` to set custom environment variables
+- Added ``--workdir`` option to ``oardocker exec``
 
 version 0.3.1
 =============
