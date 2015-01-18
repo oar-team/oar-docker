@@ -171,10 +171,10 @@ class Container(object):
         return self.docker.api.attach_socket(self.id, **kwargs)
 
     def execute(self, cmd, user, workdir):
-        return self.docker.cli("exec", "-it", self.id,
-                               "script", "-q", "/dev/null", "-c",
-                               "exec setuser %s /bin/bash -ilc 'cd %s && %s'" %
-                               (user, workdir, cmd))
+        return self.docker.cli(["exec", "-it", self.id,
+                                "script", "-q", "/dev/null", "-c",
+                                "exec setuser %s /bin/bash -ilc 'cd %s && %s'"
+                                % (user, workdir, cmd)])
 
     def __repr__(self):
         return '<Container: %s>' % self.name
