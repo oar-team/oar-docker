@@ -13,6 +13,16 @@ class Container(object):
         return cls(docker, docker.api.inspect_container(cid), True)
 
     @classmethod
+    def from_name(cls, docker, name):
+        containers = docker.api.containers(quiet=False, all=True,
+                                           trunc=False, latest=False)
+        for container in containers:
+            cid = container["Id"]
+            cname = ''.join(container["Names"][:12]).lstrip("/")
+            if not cname == name:
+                continue
+            return cls(docker, docker.api.inspect_container(cid), True)
+        raise Exception("Cannot find a container with name '%s'" % name)
 
     @classmethod
     def create(cls, docker, **options):
