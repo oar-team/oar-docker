@@ -128,7 +128,28 @@ class Container(object):
         return self.docker.api.wait(self.id)
 
     def logs(self, *args, **kwargs):
-        return self.client.logs(self.id, *args, **kwargs)
+        follow = kwargs.get("follow", False)
+        tail = kwargs.get("tail", -1)
+        _iter = kwargs.get("_iter", False)
+        if _iter:
+            call_args = ["logs"]
+            if tail > 0:
+                call_args.extend(["--tail", "%s" % tail])
+            if follow:
+                call_args.append("--follow")
+            call_args.append(self.id)
+            return self.docker.cli(call_args, _iter=_iter)
+        else:
+            return self.docker.api.logs(self.id, *args, **kwargs)
+
+    def get_log_prefix(self, prefix_width):
+        """
+        Generate the prefix for a log line without colour
+        """
+        color = self.environment.get("COLOR", "white")
+        name = click.style(self.hostname, fg=color)
+        padding = ' ' * (prefix_width - len(self.hostname))
+        return ''.join([name, padding, ' | '])
 
     def inspect(self):
         self.dictionary = self.docker.api.inspect_container(self.id)
