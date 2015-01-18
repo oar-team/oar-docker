@@ -9,7 +9,7 @@ from ..context import pass_context, on_started, on_finished
 @on_finished(lambda ctx: ctx.state.dump())
 @on_started("stop")
 @on_started(lambda ctx: ctx.assert_valid_env())
-def cli(ctx, state):
+def cli(ctx):
     """Stop containers and remove all images"""
-    for image in ctx.get_images(state):
-        ctx.remove_image(image)
+    for image in ctx.docker.get_images():
+        ctx.docker.remove_image(image)
