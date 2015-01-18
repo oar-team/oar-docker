@@ -250,14 +250,17 @@ class deprecated_cmd(object):
 @click.option('--docker-binary', default="docker",
               help="The docker client binary [default: docker]")
 @click.version_option()
+              help="Verbose mode.")
+@click.version_option(version=VERSION)
 @pass_context
-def cli(ctx, workdir, docker_host, cgroup_path, docker_binary):
+def cli(ctx, workdir, docker_host, cgroup_path, docker_binary, verbose):
     """Manage a small OAR developpement cluster with docker."""
     if workdir is not None:
         ctx.workdir = workdir
     ctx.docker_host = docker_host
     ctx.cgroup_path = cgroup_path
     ctx.docker_binary = docker_binary
+    ctx.verbose = verbose
     ctx.update()
 
 
