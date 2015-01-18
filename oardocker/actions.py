@@ -126,7 +126,7 @@ def start_server_container(ctx, command, extra_binds, num_nodes, env):
     environment["NUM_NODES"] = num_nodes
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
-                                 environment=env, ports=[22],
+                                 environment=environment, ports=[22],
                                  command=command, tty=True)
     ctx.state["containers"].append(container.short_id)
     container.start(binds=binds, privileged=True,
@@ -160,6 +160,8 @@ def start_frontend_container(ctx, command, extra_binds, num_nodes,
 def start_nodes_containers(ctx, command, extra_binds, num_nodes,
                            frontend, env):
     image = ctx.image_name("node", "latest")
+    environment = dict(env)
+    environment["NUM_NODES"] = num_nodes
     for i in xrange(1, num_nodes + 1):
         hostname = "node%d" % i
         binds = {}
@@ -167,7 +169,7 @@ def start_nodes_containers(ctx, command, extra_binds, num_nodes,
         container = Container.create(ctx.docker, image=image,
                                      detach=True, hostname=hostname,
                                      ports=[22], command=command, tty=True,
-                                     environment=env)
+                                     environment=environment)
         ctx.state["containers"].append(container.short_id)
         container.start(binds=binds, privileged=True,
                         volumes_from=frontend.id)
