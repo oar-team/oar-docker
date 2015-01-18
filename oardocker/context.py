@@ -8,6 +8,7 @@ from functools import update_wrapper
 
 from .state import State
 from .client import Docker
+from .compat import basestring
 
 
 CONTEXT_SETTINGS = dict(auto_envvar_prefix='oardocker',
@@ -96,3 +97,34 @@ class deprecated_cmd(object):
             return ctx.invoke(f, *args, **kwargs)
 
         return update_wrapper(new_func, f)
+
+
+class on_started(object):
+    def __init__(self, callback):
+        self.callback = callback
+        self.exec_before = True
+
+    def invoke_callback(self, ctx):
+        if isinstance(self.callback, basestring):
+            cmd = ctx.parent.command.get_command(ctx, self.callback)
+            ctx.invoke(cmd)
+        else:
+            self.callback(ctx.obj)
+
+    def __call__(self, f):
+        @click.pass_context
+        def new_func(ctx, *args, **kwargs):
+            try:
+                if self.exec_before:
+                    self.invoke_callback(ctx)
+                return ctx.invoke(f, *args, **kwargs)
+            finally:
+                if not self.exec_before:
+                    self.invoke_callback(ctx)
+        return update_wrapper(new_func, f)
+
+
+class on_finished(on_started):
+    def __init__(self, callback):
+        super(on_finished, self).__init__(callback)
+        self.exec_before = False
