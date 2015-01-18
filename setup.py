@@ -23,7 +23,6 @@ setup(
         'sh',
         'tabulate',
         'arrow',
-        'dockerpty',
     ],
     packages=find_packages(),
     include_package_data=True,
