@@ -1,7 +1,13 @@
 import os
+import os.path as op
 import click
-from oardocker.cli import pass_context, VARIANTS, TEMPLATES_PATH
-from oardocker.utils import touch
+
+from ..utils import copy_tree
+from ..context import pass_context, on_finished
+
+
+TEMPLATES_PATH = op.abspath(op.join(op.dirname(__file__), '..', 'templates'))
+VARIANTS = os.listdir(TEMPLATES_PATH)
 
 
 @click.command('init')
@@ -10,12 +16,11 @@ from oardocker.utils import touch
               help='Use variant X of the Dockerfiles [default: wheezy]',
               type=click.Choice(VARIANTS))
 @pass_context
+@on_finished(lambda ctx: ctx.state.dump())
 def cli(ctx, force, env):
     """Initialize a new environment."""
     templates_dir = os.path.join(TEMPLATES_PATH, env)
-    ctx.copy_tree(templates_dir, ctx.envdir, force)
-    touch(ctx.dnsfile)
-    touch(ctx.ssh_config)
+    copy_tree(templates_dir, ctx.envdir, force)
     ctx.log('Initialized oardocker environment in %s',
             click.format_filename(ctx.envdir))
     with open(ctx.env_file, "w+") as fd:

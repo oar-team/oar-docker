@@ -116,7 +116,9 @@ def stream_output(output, stream):
         all_events.append(event)
 
         if 'progress' in event or 'progressDetail' in event:
-            image_id = event['id']
+            image_id = event.get('id')
+            if not image_id:
+                continue
 
             if image_id in lines:
                 diff = len(lines) - lines[image_id]
@@ -199,10 +201,12 @@ def copy_file(srcname, dstname, preserve_symlinks=True):
         shutil.copy2(srcname, dstname)
 
 
-def copy_tree(src, dest):
+def copy_tree(src, dest, overwrite=False):
     """
     Copy all files in the source path to the destination path.
     """
+    if os.path.exists(dest) and not overwrite:
+        raise click.ClickException("File exists : '%s'" % dest)
     create = click.style('   create', fg="green")
     chmod = click.style('    chmod', fg="cyan")
     overwrite = click.style('overwrite', fg="yellow")

@@ -1,18 +1,16 @@
 import click
-from oardocker.cli import pass_context, pass_state
-
-from oardocker.utils import empty_file
-from oardocker.actions import generate_empty_etc_hosts
+from ..context import pass_context, on_started, on_finished
 
 
 @click.command('stop')
-@pass_state
 @pass_context
-def cli(ctx, state):
+@on_finished(lambda ctx: ctx.state.dump())
+@on_started(lambda ctx: ctx.assert_valid_env())
+def cli(ctx):
     """Stop and remove all nodes"""
     stopped = click.style("Stopped", fg="red")
     removed = click.style("Removed", fg="blue")
-    for container in ctx.get_containers(state):
+    for container in ctx.docker.get_containers():
         name = container.hostname
         image_name = container.dictionary['Config']['Image']
         container.kill()
@@ -23,5 +21,4 @@ def cli(ctx, state):
         # remove untagged image
         if not image_name.startswith(ctx.prefix):
             ctx.docker.remove_image(image_name, force=True)
-    empty_file(ctx.ssh_config)
-    generate_empty_etc_hosts(ctx, state)
+    ctx.state.empty_etc_hosts()

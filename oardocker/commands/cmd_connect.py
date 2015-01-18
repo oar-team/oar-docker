@@ -1,6 +1,6 @@
 import click
-from oardocker.cli import pass_context, pass_state
-from oardocker.actions import execute
+from ..context import pass_context, on_started, on_finished
+from ..actions import execute
 
 
 @click.command('connect')
@@ -8,9 +8,10 @@ from oardocker.actions import execute
 @click.option('-w', '--workdir', default="~")
 @click.option('-s', '--shell', default="bash")
 @click.argument('hostname', required=False, default="frontend")
-@pass_state
 @pass_context
-def cli(ctx, state, user, workdir, shell, hostname):
+@on_finished(lambda ctx: ctx.state.dump())
+@on_started(lambda ctx: ctx.assert_valid_env())
+def cli(ctx, user, workdir, shell, hostname):
     """Connect to a node."""
     cmd = ["cat /etc/motd", "&&", shell]
-    execute(ctx, state, user, hostname, cmd, workdir)
+    execute(ctx, user, hostname, cmd, workdir)

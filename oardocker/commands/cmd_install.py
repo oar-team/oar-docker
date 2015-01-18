@@ -1,18 +1,18 @@
 import click
-from oardocker.cli import pass_context, pass_state, invoke_after_stop, \
-    invoke_before_clean
-from oardocker.actions import install
+from ..actions import install
+from ..context import pass_context, on_started, on_finished
 
 
 @click.command('install')
 @click.argument('src')
-@pass_state
 @pass_context
-@invoke_after_stop
-@invoke_before_clean
-def cli(ctx, state, src):
+@on_finished(lambda ctx: ctx.state.dump())
+@on_finished("clean")
+@on_started("stop")
+@on_started(lambda ctx: ctx.assert_valid_env())
+def cli(ctx, src):
     """Install and configure OAR from src"""
-    install(ctx, state, src,
+    install(ctx, src,
             needed_tag="base",
             tag="latest",
             parent_cmd="build")

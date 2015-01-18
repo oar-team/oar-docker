@@ -1,22 +1,23 @@
 from __future__ import unicode_literals
-from __future__ import absolute_import
-from dockerpty.pty import PseudoTerminal
+import click
 
 
 class Container(object):
-    def __init__(self, client, dictionary, has_been_inspected=False):
-        self.client = client
+    def __init__(self, docker, dictionary, has_been_inspected=False):
+        self.docker = docker
         self.dictionary = dictionary
         self.has_been_inspected = has_been_inspected
 
     @classmethod
-    def from_id(cls, client, id):
-        return cls(client, client.inspect_container(id), True)
+    def from_id(cls, docker, cid):
+        return cls(docker, docker.api.inspect_container(cid), True)
 
     @classmethod
-    def create(cls, client, **options):
-        response = client.create_container(**options)
-        return cls.from_id(client, response['Id'])
+
+    @classmethod
+    def create(cls, docker, **options):
+        response = docker.api.create_container(**options)
+        return cls.from_id(docker, response['Id'])
 
     @property
     def id(self):
@@ -94,45 +95,38 @@ class Container(object):
         self.inspect_if_not_inspected()
         return self.dictionary['State']['Running']
 
-    def start_and_attach(self, **kwargs):
-        """
-        Present the PTY of the container inside the current process.
-        """
-        PseudoTerminal(self.client, self.id).start(**kwargs)
-        return self.wait()
-
     def start(self, **options):
-        return self.client.start(self.id, **options)
+        return self.docker.api.start(self.id, **options)
 
     def stop(self, **options):
-        return self.client.stop(self.id, **options)
+        return self.docker.api.stop(self.id, **options)
 
     def kill(self):
-        return self.client.kill(self.id)
+        return self.docker.api.kill(self.id)
 
     def commit(self, **options):
-        return self.client.commit(self.id, **options)
+        return self.docker.api.commit(self.id, **options)
 
     def remove(self, **options):
-        return self.client.remove_container(self.id, **options)
+        return self.docker.api.remove_container(self.id, **options)
 
     def inspect_if_not_inspected(self):
         if not self.has_been_inspected:
             self.inspect()
 
     def wait(self):
-        return self.client.wait(self.id)
+        return self.docker.api.wait(self.id)
 
     def logs(self, *args, **kwargs):
         return self.client.logs(self.id, *args, **kwargs)
 
     def inspect(self):
-        self.dictionary = self.client.inspect_container(self.id)
+        self.dictionary = self.docker.api.inspect_container(self.id)
         return self.dictionary
 
     def links(self):
         links = []
-        for container in self.client.containers():
+        for container in self.docker.api.containers():
             for name in container['Names']:
                 bits = name.split('/')
                 if len(bits) > 2 and bits[1] == self.name:
@@ -140,10 +134,10 @@ class Container(object):
         return links
 
     def attach(self, *args, **kwargs):
-        return self.client.attach(self.id, *args, **kwargs)
+        return self.docker.api.attach(self.id, *args, **kwargs)
 
     def attach_socket(self, **kwargs):
-        return self.client.attach_socket(self.id, **kwargs)
+        return self.docker.api.attach_socket(self.id, **kwargs)
 
     def __repr__(self):
         return '<Container: %s>' % self.name

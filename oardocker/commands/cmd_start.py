@@ -1,7 +1,8 @@
 import os
 import click
-from oardocker.cli import pass_context, pass_state, invoke_after_stop
-from oardocker.actions import deploy
+
+from ..actions import deploy
+from ..context import pass_context, on_started, on_finished
 
 
 @click.command('start')
@@ -13,10 +14,11 @@ from oardocker.actions import deploy
 @click.option('--x11', '--enable-x11', is_flag=True, default=False,
               help="Allowed containers to display x11 applications")
 @click.option('--http-port', type=int, help="Server http port", default=48080)
-@pass_state
 @pass_context
-@invoke_after_stop
-def cli(ctx, state, nodes, volumes, envs, enable_x11, http_port):
+@on_finished(lambda ctx: ctx.state.dump())
+@on_started("stop")
+@on_started(lambda ctx: ctx.assert_valid_env())
+def cli(ctx, nodes, volumes, envs, enable_x11, http_port):
     """Create and start the nodes"""
     env = {}
     volumes = list(volumes)
@@ -26,7 +28,7 @@ def cli(ctx, state, nodes, volumes, envs, enable_x11, http_port):
     if enable_x11:
         env["DISPLAY"] = os.environ["DISPLAY"]
         volumes.append("/tmp/.X11-unix:/tmp/.X11-unix")
-    deploy(ctx, state, nodes, volumes, http_port, "latest", "setup", env)
+    deploy(ctx, nodes, volumes, http_port, "latest", "setup", env)
     ctx.log("\n%s\n" % ("*" * 72))
     ctx.log("API        : http://localhost:%s/oarapi/" % http_port)
     ctx.log("Monika     : http://localhost:%s/monika/" % http_port)

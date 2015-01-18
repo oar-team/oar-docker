@@ -1,12 +1,12 @@
 import click
 import arrow
-from oardocker.cli import pass_context, pass_state
+from ..context import pass_context, on_started, on_finished
 from tabulate import tabulate
-from oardocker.utils import human_filesize
+from ..utils import human_filesize
 
 
-def get_containers_table(ctx, state):
-    containers = ctx.get_containers(state)
+def get_containers_table(ctx):
+    containers = ctx.docker.get_containers()
     rows = []
     for c in containers:
         image_name = c.dictionary['Config']['Image']
@@ -23,12 +23,12 @@ def get_containers_table(ctx, state):
                   "Created"]
 
 
-def get_images_table(ctx, state):
-    images = ctx.get_images(state)
+def get_images_table(ctx):
+    images = ctx.docker.get_images()
     rows = []
     for im in images:
         name = im["RepoTags"][0]
-        comment = ctx.docker.inspect_image(im["Id"])["Comment"]
+        comment = ctx.docker.api.inspect_image(im["Id"])["Comment"]
         imgid = im["Id"][:12]
         created = arrow.get(im['Created']).humanize()
         virtsize = im["VirtualSize"]
@@ -39,12 +39,13 @@ def get_images_table(ctx, state):
 
 
 @click.command('status')
-@pass_state
 @pass_context
-def cli(ctx, state):
+@on_finished(lambda ctx: ctx.state.dump())
+@on_started(lambda ctx: ctx.assert_valid_env())
+def cli(ctx):
     """Output status of the cluster"""
-    images_table, images_headers = get_images_table(ctx, state)
+    images_table, images_headers = get_images_table(ctx)
     click.echo(tabulate(images_table, headers=images_headers))
     click.echo("")
-    c_table, c_headers = get_containers_table(ctx, state)
+    c_table, c_headers = get_containers_table(ctx)
     click.echo(tabulate(c_table, headers=c_headers))
