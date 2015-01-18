@@ -1,142 +1,86 @@
 from __future__ import unicode_literals
 
-from Queue import Queue, Empty
-from threading import Thread
+import sys
+from multiprocessing import Process, Queue
+from Queue import Empty
 
-import time
 import click
-from oardocker.cli import pass_context, pass_state
 
-
-def split_buffer(reader, separator):
-    """
-    Given a generator which yields strings and a separator string,
-    joins all input, splits on the separator and yields each chunk.
-
-    Unlike string.split(), each chunk includes the trailing
-    separator, except for the last one if none was found on the end
-    of the input.
-    """
-    buffered = str('')
-    separator = str(separator)
-
-    for data in reader:
-        buffered += data
-        while True:
-            index = buffered.find(separator)
-            if index == -1:
-                break
-            yield buffered[:index + 1]
-            buffered = buffered[index + 1:]
-
-    if len(buffered) > 0:
-        yield buffered
-
-# Yield STOP from an input generator to stop the
-# top-level loop without processing any more input.
-STOP = object()
-
-
-class Multiplexer(object):
-    def __init__(self, generators):
-        self.generators = generators
-        self.queue = Queue()
-
-    def loop(self, callback):
-        def loop_target(callback):
-            while True:
-                try:
-                    item = self.queue.get(timeout=0.1)
-                    if item is STOP:
-                        break
-                    else:
-                        callback(item)
-                except Empty:
-                    pass
-
-        def _enqueue_output(generator):
-            for item in generator:
-                self.queue.put(item)
-
-        loop_thread = Thread(target=loop_target, args=(callback,))
-        loop_thread.daemon = True
-        loop_thread.start()
-        for generator in self.generators:
-            t = Thread(target=_enqueue_output, args=(generator,))
-            t.daemon = True
-            t.start()
-            time.sleep(0.1)
-        while loop_thread.is_alive():
-            loop_thread.join(1)
-
+from ..context import pass_context, on_started, on_finished
 
 class LogPrinter(object):
-    def __init__(self, containers):
+
+    def __init__(self, containers, tail, follow):
         self.containers = containers
-        self.prefix_width = self._calculate_prefix_width(containers)
-        self.generators = self._make_log_generators()
+        self.follow = follow
+        self.tail = tail
+        self.prefix_width = self.compute_prefix_width(containers)
+        self.queue = Queue()
+        self.processes = []
 
-    def run(self):
-        mux = Multiplexer(self.generators)
-        mux.loop(callback=lambda x: click.echo(x, nl=False))
-
-    def _calculate_prefix_width(self, containers):
-        """
-        Calculate the maximum width of container names so we can make the log
-        prefixes line up like so:
-
-        db_1  | Listening
-        web_1 | Listening
-        """
+    def compute_prefix_width(self, containers):
         prefix_width = 0
         for container in containers:
             prefix_width = max(prefix_width, len(container.hostname))
         return prefix_width
 
-    def _make_log_generators(self):
-        generators = []
+    def feed_queue(self, container):
+        try:
+            prefix = container.get_log_prefix(self.prefix_width).encode('utf-8')
+            for line in container.logs(_iter=True,
+                                       follow=self.follow,
+                                       tail=self.tail):
+                self.queue.put(prefix + line)
+        except KeyboardInterrupt:
+            sys.exit(0)
 
+    def run(self):
         for container in self.containers:
-            generators.append(self._make_log_generator(container))
+            p = Process(target=self.feed_queue, args=(container,))
+            p.start()
+            self.processes.append(p)
 
-        return generators
+        def join_processes(terminate=False):
+            alive_processes = []
+            for process in self.processes:
+                if not terminate:
+                    if not process.is_alive():
+                        process.join()
+                    else:
+                        alive_processes.append(process)
+                    self.processes = alive_processes[:]
+                else:
+                    if process.is_alive():
+                        process.terminate()
+                    process.join()
 
-    def _make_log_generator(self, container):
-        prefix = self._generate_prefix(container).encode('utf-8')
-        # Attach to container before log printer starts running
-        line_generator = split_buffer(self._attach(container), '\n')
-        for line in line_generator:
-            yield prefix + line
-        exit_code = container.wait()
-        yield "%s exited with code %s\n" % (container.name, exit_code)
-        yield STOP
-
-    def _generate_prefix(self, container):
-        """
-        Generate the prefix for a log line without colour
-        """
-        color = container.environment.get("COLOR", "white")
-        name = click.style(container.hostname, fg=color)
-        padding = ' ' * (self.prefix_width - len(container.hostname))
-        return ''.join([name, padding, ' | '])
-
-    def _attach(self, container):
-        params = {
-            'stdout': True,
-            'stderr': True,
-            'stream': True,
-            'logs': True,
-        }
-        return container.attach(**params)
+        try:
+            while True:
+                try:
+                    line = self.queue.get(timeout=0.2)
+                    click.echo(line, nl=False)
+                except Empty:
+                    if len(self.processes) == 0:
+                        break
+                    join_processes()
+                except KeyboardInterrupt:
+                    sys.exit(0)
+        finally:
+            join_processes(terminate=True)
 
 
 @click.command('logs')
 @click.argument('hostname', required=False, default="")
-@pass_state
+@click.option('-t', '--tail', default=-1,
+              help="Output the specified number of lines at the end of logs")
+@click.option('-f', '--follow', is_flag=True, default=False, 
+              help="Follow log output")
 @pass_context
-def cli(ctx, state, hostname):
-    """Fetch the logs of all nodes."""
-    containers = list(ctx.get_containers(state))
+@on_finished(lambda ctx: ctx.state.dump())
+@on_started(lambda ctx: ctx.assert_valid_env())
+def cli(ctx, hostname, tail, follow):
+    """Fetch the logs of all nodes or only one."""
+    containers = list(ctx.docker.get_containers())
     if hostname:
         node_name = ''.join([i for i in hostname if not i.isdigit()])
         nodes = ("frontend", "services", "node", "server")
@@ -150,4 +94,4 @@ def cli(ctx, state, hostname):
                                    "running this command. Run  `oardocker"
                                    " start` first" % print_msg)
     else:
-        LogPrinter(containers).run()
+        LogPrinter(containers, tail, follow).run()
