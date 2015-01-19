@@ -2,6 +2,7 @@
 set -e
 
 echo "Starting rsyslog..."
-/etc/init.d/rsyslog start
+/etc/init.d/rsyslog restart
+
 echo "Starting sshd..."
-/etc/init.d/ssh start
+/etc/init.d/ssh restart

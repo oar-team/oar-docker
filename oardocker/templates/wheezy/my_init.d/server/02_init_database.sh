@@ -1,1 +1,0 @@
-../available/init_database.sh

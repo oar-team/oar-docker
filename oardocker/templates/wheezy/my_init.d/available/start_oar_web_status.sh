@@ -2,4 +2,4 @@
 set -e
 
 echo "Starting apache..."
-/etc/init.d/apache2 start
+/etc/init.d/apache2 restart

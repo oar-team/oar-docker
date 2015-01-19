@@ -1,15 +1,17 @@
 #!/bin/sh
 set -e
 
-file="/var/lib/container/database_ready"
-while [ ! -f "$file" ]
-do
-    sleep 0.1
-done
+STAMP="/var/lib/container/stamps_oar_database_created"
+## Clean
+rm -f $STAMP
 
-/usr/local/sbin/oar-database --create --db-admin-user postgres --db-admin-pass postgres --db-host server
+echo "Waiting postgresql to be available..."
+wait_pgsql --host server
 
-echo "Waiting OAR database to be available..."
-wait_pgsql --host server --user oar --password oar
+if setuser postgres psql -lqt | cut -d \| -f 1 | grep -w oar >/dev/null; then
+    echo "OAR database already exists"
+else
+    /usr/local/sbin/oar-database --create --db-admin-user postgres --db-admin-pass postgres --db-host server
+fi
 
-touch /var/lib/container/oar_database_ready
+touch "$STAMP"
