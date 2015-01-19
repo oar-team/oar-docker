@@ -19,4 +19,5 @@ def cli(ctx, hostnames, time):
         hostname = container.hostname
         args = cmd + [container.id]
         ctx.docker.cli(args)
+        ctx.state.update_etc_hosts(container)
         ctx.log("Container %s --> %s" % (hostname, restarted))
