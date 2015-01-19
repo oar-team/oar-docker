@@ -17,17 +17,16 @@ class Container(object):
         containers = docker.api.containers(quiet=False, all=True,
                                            trunc=False, latest=False)
         for container in containers:
-            cid = container["Id"]
-            cname = ''.join(container["Names"][:12]).lstrip("/")
+            cname = ''.join(container["Names"]).lstrip("/")
             if not cname == name:
                 continue
-            return cls(docker, docker.api.inspect_container(cid), True)
+            return cls(docker, container)
         raise Exception("Cannot find a container with name '%s'" % name)
 
     @classmethod
     def create(cls, docker, **options):
         response = docker.api.create_container(**options)
-        return cls.from_id(docker, response['Id'])
+        return cls(docker, response)
 
     @property
     def id(self):
@@ -43,7 +42,7 @@ class Container(object):
 
     @property
     def name(self):
-        return self.dictionary['Name'][1:]
+        return ''.join(self.dictionary["Names"]).lstrip("/")
 
     @property
     def image_name(self):
@@ -124,6 +123,7 @@ class Container(object):
     def inspect_if_not_inspected(self):
         if not self.has_been_inspected:
             self.inspect()
+            self.has_been_inspected = True
 
     def wait(self):
         return self.docker.api.wait(self.id)
@@ -155,21 +155,6 @@ class Container(object):
     def inspect(self):
         self.dictionary = self.docker.api.inspect_container(self.id)
         return self.dictionary
-
-    def links(self):
-        links = []
-        for container in self.docker.api.containers():
-            for name in container['Names']:
-                bits = name.split('/')
-                if len(bits) > 2 and bits[1] == self.name:
-                    links.append(bits[2])
-        return links
-
-    def attach(self, *args, **kwargs):
-        return self.docker.api.attach(self.id, *args, **kwargs)
-
-    def attach_socket(self, **kwargs):
-        return self.docker.api.attach_socket(self.id, **kwargs)
 
     def execute(self, cmd, user, workdir):
         return self.docker.cli(["exec", "-it", self.id,

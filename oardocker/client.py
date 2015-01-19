@@ -63,7 +63,7 @@ class Docker(object):
             cname = ''.join(container["Names"][:12]).lstrip("/")
             if not cid in state_containers and not cname in state_containers:
                 continue
-            yield Container.from_id(self, container["Id"])
+            yield Container(self, container)
 
     def get_images(self):
         state_images = [i[:12] for i in self.ctx.state["images"]]
