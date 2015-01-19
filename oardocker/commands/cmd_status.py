@@ -9,14 +9,13 @@ def get_containers_table(ctx):
     containers = ctx.docker.get_containers()
     rows = []
     for c in containers:
-        image_name = c.dictionary['Config']['Image']
         created = arrow.get(c.dictionary['Created']).humanize()
         if c.is_running:
             status = click.style(c.human_readable_state, fg="green")
         else:
             status = click.style(c.human_readable_state, fg="red")
         rows.append([c.hostname, c.ip, status, c.human_readable_ports,
-                    c.short_id, image_name, created])
+                    c.short_id, c.image_name, created])
     if not rows:
         rows.append(["", "", "", "", "", "", ""])
     return rows, ["Containers", "IP", "Status", "Ports", "ID", "Image",

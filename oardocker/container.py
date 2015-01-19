@@ -46,8 +46,9 @@ class Container(object):
         return self.dictionary['Name'][1:]
 
     @property
-    def name_without_project(self):
-        return '_'.join(self.dictionary['Name'].split('_')[1:])
+    def image_name(self):
+        self.inspect_if_not_inspected()
+        return self.dictionary['Config']['Image']
 
     @property
     def human_readable_ports(self):
