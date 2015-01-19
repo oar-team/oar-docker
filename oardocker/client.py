@@ -7,7 +7,6 @@ import docker
 
 from sh import bash
 from subprocess import call
-from subprocess import Popen, PIPE
 
 from oardocker.utils import find_executable
 from oardocker.container import Container
@@ -33,13 +32,6 @@ class Docker(object):
             return bash("-c", shell_args, _iter=True)
         else:
             return call(args)
-
-    def cli_popen(self, *call_args):
-        args = list(call_args)
-        args.extend(['|', 'head'])
-        args.insert(0, self.docker_exe)
-        shell_args = ["/bin/bash", "-c", ' '.join(args)]
-        return Popen(shell_args, stdout=PIPE, shell=False, bufsize=1)
 
     def remove_image(self, image, force=True):
         image_name = ', '.join(image["RepoTags"])
