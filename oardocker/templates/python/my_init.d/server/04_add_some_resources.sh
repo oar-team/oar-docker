@@ -1,1 +1,0 @@
-../available/add_some_resources.sh
