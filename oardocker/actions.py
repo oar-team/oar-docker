@@ -1,10 +1,14 @@
+# -*- coding: utf-8 -*-
+from __future__ import with_statement, absolute_import, unicode_literals
+
 import os
 import os.path as op
+import sys
 import click
 
-from .compat import iteritems
-from .utils import check_tarball, check_git, check_url, download_file, \
-    git_pull_or_clone
+from .compat import iteritems, reraise
+from .utils import (check_tarball, check_git, check_url, download_file,
+                    git_pull_or_clone)
 from .container import Container
 
 
@@ -90,18 +94,28 @@ def install(ctx, src, needed_tag, tag, parent_cmd):
             mount_option = "rw"
         volumes.append("-v")
         volumes.append("%s:%s:%s" % (path, bind["bind"], mount_option))
+    max_prefix_width = max([len(n) for n in nodes])
     for node in nodes:
         container_name = ctx.docker.generate_container_name()
         image = ctx.image_name(node, needed_tag)
-        cli_options = ["run", "-it", "--privileged", "--name", container_name]
+        cli_options = ["run", "-a", "STDOUT", "-a", "STDERR",
+                       "--privileged", "--name", container_name]
         cli_options.extend(volumes)
         cli_options.extend([image] + command)
         ctx.state["containers"].append(container_name)
-        exit_code = ctx.docker.cli(cli_options)
-        if exit_code:
-            msg = "Container %s exited with code %s\n" % (container_name,
-                                                          exit_code)
-            raise click.ClickException(msg)
+
+        padding = ' ' * (max_prefix_width - len(node))
+        prefix = click.style(''.join([padding, node, ' | ']), fg="green")
+
+        try:
+            for line in ctx.docker.cli(cli_options, _iter=True):
+                ctx.log(prefix + line, nl=False)
+        except:
+            container = Container.from_name(ctx.docker, container_name)
+            container.remove(v=False, link=False, force=True)
+            exc_type, exc_value, tb = sys.exc_info()
+            reraise(exc_type, exc_value, tb.tb_next)
+
         container = Container.from_name(ctx.docker, container_name)
         oar_version = container.logs().strip().split('\n')[-1]
         repository = ctx.image_name(node)

@@ -62,11 +62,12 @@ class Context(object):
                                        " Run `oardocker init` to create"
                                        " a new oardocker environment")
 
-    def log(self, msg, *args):
+    def log(self, msg, *args, **kwargs):
         """Logs a message to stderr."""
         if args:
             msg %= args
-        click.echo(msg, file=sys.stderr)
+        kwargs.setdefault("file", sys.stderr)
+        click.echo(msg, **kwargs)
 
     def vlog(self, msg, *args):
         """Logs a message to stderr only if verbose is enabled."""

@@ -1,12 +1,10 @@
 import glob
 import os.path as op
-import sys
 import re
 
 import click
 
 from ..context import pass_context, on_finished, on_started
-from ..utils import stream_output
 
 
 def get_image_id(events):
@@ -42,22 +40,29 @@ def get_image_id(events):
 def cli(ctx, force_rm, no_cache, pull, quiet, rm):
     """Build base images"""
     ctx.log('Starting oardocker build')
-    dockerfiles = glob.glob(op.join(ctx.envdir, "images", "*",
-                            "Dockerfile"))
+    dockerfiles = glob.glob(op.join(ctx.envdir, "images", "*", "Dockerfile"))
     dockerfiles.sort()
+    def get_prefix_width():
+        for dockerfile in dockerfiles:
+            yield len(op.basename(op.dirname(dockerfile)))
+    max_prefix_width = max(get_prefix_width())
     for dockerfile in dockerfiles:
         dirname = op.dirname(dockerfile)
         name = op.basename(dirname)
         if name in ("frontend", "node", "server"):
-            tag = "base"
+            tag = "%s:base" % ctx.image_name(name)
         else:
-            tag = "latest"
-        ## Docker build
-        build_output = ctx.docker.api.build(path=dirname, rm=rm,
-                                            quiet=quiet, stream=True,
-                                            nocache=no_cache)
-        all_events = stream_output(build_output, sys.stdout)
-        image_id = get_image_id(all_events)
-        ctx.state["images"].append(get_image_id(all_events))
-        ctx.docker.save_image(image_id, tag=tag,
-                              repository=ctx.image_name(name))
+            tag = "%s:latest" % ctx.image_name(name)
+        padding = ' ' * (max_prefix_width - len(name))
+        prefix = click.style(''.join([padding, name, ' | ']), fg="green")
+        args = ["build"]
+        if force_rm: args.append("--force-rm")
+        if no_cache: args.append("--no-cache")
+        if pull: args.append("--pull")
+        if quiet: args.append("--quiet")
+        if rm: args.append("--rm")
+        args.extend(["--tag", tag])
+        args.append(dirname)
+        for line in ctx.docker.cli(args, _iter=True):
+            ctx.log(prefix + line, nl=False)
+        ctx.state["images"].append(tag)
