@@ -52,9 +52,8 @@ def cli(ctx, workdir, docker_host, cgroup_path, docker_binary, verbose):
 
 
 def main(args=sys.argv[1:]):
-    cli(args)
     try:
-        pass
+        cli(args)
     except Exception as e:
         sys.stderr.write(u"\nError: %s\n" % e)
         sys.exit(1)
