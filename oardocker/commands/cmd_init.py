@@ -7,7 +7,7 @@ from ..context import pass_context, on_finished
 
 
 TEMPLATES_PATH = op.abspath(op.join(op.dirname(__file__), '..', 'templates'))
-VARIANTS = os.listdir(TEMPLATES_PATH)
+VARIANTS = set(os.listdir(TEMPLATES_PATH)) - set(["common"])
 
 
 @click.command('init')
@@ -20,6 +20,8 @@ VARIANTS = os.listdir(TEMPLATES_PATH)
 def cli(ctx, force, env):
     """Initialize a new environment."""
     templates_dir = os.path.join(TEMPLATES_PATH, env)
+    common_templates_dir = os.path.join(TEMPLATES_PATH, "common")
+    copy_tree(common_templates_dir, ctx.envdir, force)
     copy_tree(templates_dir, ctx.envdir, force)
     ctx.log('Initialized oardocker environment in %s',
             click.format_filename(ctx.envdir))
