@@ -201,7 +201,7 @@ def copy_file(srcname, dstname, preserve_symlinks=True):
         shutil.copy2(srcname, dstname)
 
 
-def copy_tree(src, dest, overwrite=False):
+def copy_tree(src, dest, overwrite=False, ignore_if_exists=[]):
     """
     Copy all files in the source path to the destination path.
     """
@@ -211,6 +211,7 @@ def copy_tree(src, dest, overwrite=False):
     chmod = click.style('    chmod', fg="cyan")
     overwrite = click.style('overwrite', fg="yellow")
     identical = click.style('identical', fg="blue")
+    ignore = click.style('   ignore', fg="magenta")
     cwd = os.getcwd() + "/"
     initd_path = op.join(src, "my_init.d")
     for path, dirs, files in os.walk(src):
@@ -225,7 +226,9 @@ def copy_tree(src, dest, overwrite=False):
             else:
                 fancy_relative_path = dest_file_path
             if op.exists(dest_file_path):
-                if filecmp.cmp(src_file_path, dest_file_path):
+                if filename in ignore_if_exists:
+                    click.echo("   " + ignore + "  " + fancy_relative_path)
+                elif filecmp.cmp(src_file_path, dest_file_path):
                     click.echo("   " + identical + "  " + fancy_relative_path)
                 else:
                     click.echo("   " + overwrite + "  " + fancy_relative_path)
