@@ -15,8 +15,11 @@ def cli(ctx):
             container.remove(v=False, link=False, force=True)
             ctx.log("Container %s --> %s" % (container.name, removed))
 
+    already_printed = False
     for image in ctx.docker.get_images():
         image_name = ', '.join(image["RepoTags"])
-        # remove untagged image
         if image_name == "<none>:<none>":
+            if not already_printed:
+                ctx.log("Removing untagged images")
+                already_printed = True
             ctx.docker.remove_image(image, force=True)

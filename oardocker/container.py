@@ -150,7 +150,7 @@ class Container(object):
         color = self.environment.get("COLOR", "white")
         name = click.style(self.hostname, fg=color)
         padding = ' ' * (prefix_width - len(self.hostname))
-        return ''.join([name, padding, ' | '])
+        return ''.join([padding, name, ' | '])
 
     def inspect(self):
         self.dictionary = self.docker.api.inspect_container(self.id)

@@ -38,16 +38,16 @@ class Docker(object):
         image_id = image["Id"]
         self.api.remove_image(image_id, force=force)
         removed = click.style("Removed", fg="blue")
-        self.ctx.log("Image %s (%s) --> %s" % (image_id, image_name, removed))
+        self.ctx.log("Image %s (%s) --> %s" % (image_name, image_id, removed))
 
     def save_image(self, image_id, repository, tag):
         saved = click.style("Saved", fg="green")
         image_name = "%s:%s" % (repository, tag)
         self.api.tag(image_id, repository=repository, tag=tag, force=True)
-        self.ctx.log("Image %s (%s) --> %s" % (image_id, image_name, saved))
+        self.ctx.log("Image %s (%s) --> %s" % (image_name, image_id, saved))
 
     def get_containers(self):
-        state_containers = self.ctx.state["containers"]
+        state_containers_ids = [i[:12] for i in self.ctx.state["containers"]]
         containers = self.api.containers(quiet=False, all=True,
                                          trunc=False, latest=False)
         for container in containers:
