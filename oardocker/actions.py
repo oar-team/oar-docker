@@ -201,13 +201,13 @@ def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
     extra_binds = {
         my_initd: {'bind': "/var/lib/container/my_init.d/", 'ro': True},
         ctx.dns_file: {'bind': "/etc/hosts", 'ro': True},
-        ctx.cgroup_path: {'bind': "/sys/fs/cgroup", 'ro': True}
+        ctx.cgroup_path: {'bind': "/sys/fs/cgroup", 'ro': True},
+        ctx.nodes_file: {'bind': "/var/lib/container/nodes", 'ro': True}
     }
     for volume in volumes:
         host_path, container_path = volume.split(":")
         extra_binds[host_path] = {'bind': container_path, "ro": False}
-    start_server_container(ctx, command, extra_binds, num_nodes, env)
     frontend = start_frontend_container(ctx, command, extra_binds,
                                         num_nodes, http_port, env)
-    start_nodes_containers(ctx, command, extra_binds,
-                           num_nodes, frontend, env)
+    start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend, env)
+    start_server_container(ctx, command, extra_binds, num_nodes, env)

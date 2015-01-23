@@ -28,6 +28,9 @@ def cli(ctx, nodes, volumes, envs, enable_x11, http_port):
     if enable_x11:
         env["DISPLAY"] = os.environ["DISPLAY"]
         volumes.append("/tmp/.X11-unix:/tmp/.X11-unix")
+    with open(ctx.nodes_file, "w") as fd:
+        fd.write('\n'.join(("node%d" % i for i in xrange(1, nodes + 1))))
+        fd.write('\n')
     deploy(ctx, nodes, volumes, http_port, "latest", "setup", env)
     ctx.log("\n%s\n" % ("*" * 72))
     ctx.log("API        : http://localhost:%s/oarapi/" % http_port)

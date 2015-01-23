@@ -53,7 +53,8 @@ class Context(object):
         self.postinstall_dir = op.join(self.envdir, "postinstall")
         self.env_file = op.join(self.envdir, "env")
         self.state_file = op.join(self.envdir, "state.json")
-        self.dns_file = op.join(self.envdir, "dnsmasq.d", "hosts")
+        self.dns_file = op.join(self.envdir, "hosts")
+        self.nodes_file = op.join(self.envdir, "nodes")
         self.docker = Docker(self, self.docker_host, self.docker_binary)
 
     def assert_valid_env(self):
