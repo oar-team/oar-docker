@@ -11,6 +11,9 @@ import tarfile
 
 import click
 import requests
+
+from io import open
+
 from sh import git, ErrorReturnCode
 
 
@@ -28,7 +31,7 @@ def touch(fname, times=None):
     dirname = '/'.join(fname.split('/')[:-1])
     if not os.path.exists(dirname):
         os.makedirs(dirname)
-    with file(fname, 'a'):
+    with open(fname, 'a'):
         os.utime(fname, times)
 
 

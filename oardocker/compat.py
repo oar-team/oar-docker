@@ -13,6 +13,7 @@ if PY3:
     basestring = str
     from collections import Callable
     callable = lambda c: isinstance(c, Callable)
+    import queue
 
     iterkeys = lambda d: iter(d.keys())
     itervalues = lambda d: iter(d.values())
@@ -31,7 +32,8 @@ else:
     integer_types = (int, long)
     basestring = basestring
     callable = callable
-    
+    import Queue as queue
+
     iterkeys = lambda d: d.iterkeys()
     itervalues = lambda d: d.itervalues()
     iteritems = lambda d: d.iteritems()

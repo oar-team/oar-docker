@@ -2,11 +2,12 @@ from __future__ import unicode_literals
 
 import sys
 from multiprocessing import Process, Queue
-from Queue import Empty
 
 import click
 
 from ..context import pass_context, on_started, on_finished
+from ..compat import queue
+
 
 class LogPrinter(object):
 
@@ -59,7 +60,7 @@ class LogPrinter(object):
                 try:
                     line = self.queue.get(timeout=0.2)
                     click.echo(line, nl=False)
-                except Empty:
+                except queue.Empty:
                     if len(self.processes) == 0:
                         break
                     join_processes()
@@ -73,7 +74,7 @@ class LogPrinter(object):
 @click.argument('hostname', required=False, default="")
 @click.option('-t', '--tail', default=-1,
               help="Output the specified number of lines at the end of logs")
-@click.option('-f', '--follow', is_flag=True, default=False, 
+@click.option('-f', '--follow', is_flag=True, default=False,
               help="Follow log output")
 @pass_context
 @on_finished(lambda ctx: ctx.state.dump())
