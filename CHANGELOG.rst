@@ -1,6 +1,23 @@
 oar-docker CHANGELOG
 ====================
 
+
+version 0.4.0
+=============
+
+Released on Jan 24th 2015
+
+- Prefixed all container output with the container name (like oardocker logs subcommand)
+- Added ``--force-rm`` and ``--pull`` options to oardocker build subcommand
+- Allow user to customize images with custom_setup.sh script
+- Updated my.initd script to shutdown container properly
+- Added a proper way to shutdown container
+- Updated /etc/hosts when reset containers
+- Removed dockerpty package from dependencies
+- Removed oardocker ssh/ssh-config subcommand
+- Added ``--verbose`` option
+- Fixed oardocker logs subcommand
+
 version 0.3.2
 =============
 
