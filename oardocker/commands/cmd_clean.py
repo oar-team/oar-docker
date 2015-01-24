@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import with_statement, absolute_import, unicode_literals
+
 import click
 from ..context import pass_context, on_started, on_finished
 
@@ -11,9 +14,9 @@ def cli(ctx):
     removed = click.style("removed", fg="blue")
     for container in ctx.docker.get_containers():
         if not container.is_running:
-            image_name = container.dictionary['Config']['Image']
+            image_name = container.name
             container.remove(v=False, link=False, force=True)
-            ctx.log("Container %s --> %s" % (container.name, removed))
+            ctx.log("Container %s --> %s" % (image_name, removed))
 
     already_printed = False
     for image in ctx.docker.get_images():

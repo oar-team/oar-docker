@@ -176,7 +176,7 @@ def start_nodes_containers(ctx, command, extra_binds, num_nodes,
     image = ctx.image_name("node", "latest")
     environment = dict(env)
     environment["NUM_NODES"] = num_nodes
-    for i in xrange(1, num_nodes + 1):
+    for i in range(1, num_nodes + 1):
         hostname = "node%d" % i
         binds = {}
         binds.update(extra_binds)

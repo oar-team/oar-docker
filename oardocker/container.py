@@ -1,5 +1,8 @@
-from __future__ import unicode_literals
+# -*- coding: utf-8 -*-
+from __future__ import with_statement, absolute_import, unicode_literals
+
 import click
+from .compat import to_unicode
 
 
 class Container(object):
@@ -42,7 +45,7 @@ class Container(object):
 
     @property
     def name(self):
-        return ''.join(self.dictionary["Names"]).lstrip("/")
+        return ''.join(self.dictionary["Name"]).lstrip("/")
 
     @property
     def image_name(self):
@@ -141,7 +144,7 @@ class Container(object):
             call_args.append(self.id)
             return self.docker.cli(call_args, _iter=_iter)
         else:
-            return self.docker.api.logs(self.id, *args, **kwargs)
+            return to_unicode(self.docker.api.logs(self.id, *args, **kwargs))
 
     def get_log_prefix(self, prefix_width):
         """

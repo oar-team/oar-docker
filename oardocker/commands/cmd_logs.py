@@ -1,4 +1,5 @@
-from __future__ import unicode_literals
+# -*- coding: utf-8 -*-
+from __future__ import with_statement, absolute_import, unicode_literals
 
 import sys
 from multiprocessing import Process, Queue
@@ -6,7 +7,7 @@ from multiprocessing import Process, Queue
 import click
 
 from ..context import pass_context, on_started, on_finished
-from ..compat import queue
+from ..compat import Empty, to_unicode
 
 
 class LogPrinter(object):
@@ -27,11 +28,11 @@ class LogPrinter(object):
 
     def feed_queue(self, container):
         try:
-            prefix = container.get_log_prefix(self.prefix_width).encode('utf-8')
+            prefix = container.get_log_prefix(self.prefix_width)
             for line in container.logs(_iter=True,
                                        follow=self.follow,
                                        tail=self.tail):
-                self.queue.put(prefix + line)
+                self.queue.put(prefix + to_unicode(line))
         except KeyboardInterrupt:
             sys.exit(0)
 
@@ -60,7 +61,7 @@ class LogPrinter(object):
                 try:
                     line = self.queue.get(timeout=0.2)
                     click.echo(line, nl=False)
-                except queue.Empty:
+                except Empty:
                     if len(self.processes) == 0:
                         break
                     join_processes()
@@ -88,7 +89,7 @@ def cli(ctx, hostname, tail, follow):
         if not node_name in nodes:
             raise click.ClickException("Cannot find the container with the "
                                        "name '%s'" % hostname)
-        containers = [c for c in containers if c.hostname == hostname]
+        containers = [c for c in containers if hostname in c.hostname]
     if not containers:
         print_msg = "container" if hostname else "containers"
         raise click.ClickException("The %s must be started before "

@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import with_statement, absolute_import, unicode_literals
+
 import click
 from ..context import pass_context, on_started, on_finished
 from ..actions import execute

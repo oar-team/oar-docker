@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import with_statement, absolute_import, unicode_literals
+
 import filecmp
 import hashlib
 import os
@@ -59,10 +62,8 @@ def check_tarball(path):
 
 def check_git(path):
     try:
-        with open(os.devnull, 'w') as devnull:
-            git("--git-dir", op.join(path, ".git"), "--work-tree", path,
-                "status", _out=devnull, _err=devnull)
-            return True
+        git("--git-dir", op.join(path, ".git"), "--work-tree", path, "status")
+        return True
     except ErrorReturnCode:
         return False
 
