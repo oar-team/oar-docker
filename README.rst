@@ -24,7 +24,7 @@ Installation
 ------------
 
 Requirements:
-  - python 2.7
+  - python >= 2.7
   - docker >= 1.3
 
 You can install, upgrade, uninstall oar-docker with these commands::
@@ -56,25 +56,27 @@ Usage
 
     Options:
       --workdir DIRECTORY   Changes the folder to operate on.
-      --docker-host TEXT    The docker socket [default:unix://var/run/docker.sock]
-      --cgroup-path TEXT    The cgroup file system path [default: /sys/fs/cgroup]
-      --docker-binary TEXT  The docker client binary [default: docker]
+      --docker-host TEXT    The docker socket [default:
+                            unix://var/run/docker.sock].
+      --cgroup-path TEXT    The cgroup file system path [default: /sys/fs/cgroup].
+      --docker-binary TEXT  The docker client binary [default: docker].
+      --verbose             Verbose mode.
       --version             Show the version and exit.
       -h, --help            Show this message and exit.
 
     Commands:
-      build       Build base images
-      clean       Remove all stopped containers and untagged...
-      connect     Connect to a node.
-      destroy     Stop containers and remove all images
-      init        Initialize a new environment.
-      install     Install and configure OAR from src
-      logs        Fetch the logs of all containers.
-      ssh         Connect to machine via SSH [deprecated]
-      ssh-config  Output OpenSSH valid ssh config [deprecated]
-      start       Create and start the containers
-      status      Output status of the cluster
-      stop        Stop and remove all containers
+      build    Build base images
+      clean    Remove all stopped containers and untagged...
+      connect  Connect to a node.
+      destroy  Stop containers and remove all images
+      exec     Run a command in an existing node.
+      init     Initialize a new environment.
+      install  Install and configure OAR from src
+      logs     Fetch the logs of all nodes or only one.
+      reset    Restart the containers
+      start    Create and start the nodes
+      status   Output status of the cluster
+      stop     Stop and remove all nodes
 
 
 Getting started
@@ -102,7 +104,7 @@ Now, we have to install OAR. To do this, several options are available.
 
 If you already have the OAR sources::
 
-    $ oardocker install .   ## ou . est le chemin vers les sources de OAR
+    $ oardocker install /path/to/oar_src
 
 Or if you want to install from tarball::
 
