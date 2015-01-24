@@ -7,16 +7,17 @@ version 0.4.0
 
 Released on Jan 24th 2015
 
-- Prefixed all container output with the container name (like oardocker logs subcommand)
+- Python3 support
+- Prefixed all container outputs with the container hostname  (like oardocker logs subcommand)
 - Added ``--force-rm`` and ``--pull`` options to oardocker build subcommand
-- Allow user to customize images with custom_setup.sh script
-- Updated my.initd script to shutdown container properly
+- Allowed user to build custom images with custom_setup.sh script located in ``.oardocker/images/<image_name>/``
 - Added a proper way to shutdown container
-- Updated /etc/hosts when reset containers
+- Updated /etc/hosts when reseting containers
 - Removed dockerpty package from dependencies
 - Removed oardocker ssh/ssh-config subcommand
 - Added ``--verbose`` option
 - Fixed oardocker logs subcommand
+
 
 version 0.3.2
 =============
