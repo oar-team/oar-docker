@@ -2,6 +2,14 @@ oar-docker CHANGELOG
 ====================
 
 
+version 0.4.1
+=============
+
+Released on Jan 28th 2015
+
+- Cleaned up unversionned OAR files (git clean) from sources before installing OAR (Fixed #20)
+
+
 version 0.4.0
 =============
 
