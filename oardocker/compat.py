@@ -30,9 +30,6 @@ if PY3:
     from collections import Callable
     callable = lambda obj: isinstance(obj, Callable)
 
-    # Simple container
-    from types import SimpleNamespace
-
 else:
     builtin_str = str
     bytes = str
@@ -53,14 +50,6 @@ else:
         return isinstance(x, (buffer, bytearray))
 
     callable = callable
-
-    class SimpleNamespace(object):
-        """
-        A generic container for when multiple values need to be returned
-        """
-        def __init__(self, **kwargs):
-            self.__dict__.update(kwargs)
-
 
 def with_metaclass(meta, base=object):
     return meta("NewBase", (base,), {})
