@@ -24,6 +24,7 @@ if [ -d "$1"  ]; then
     mkdir -p $RWSRCDIR
     unionfs-fuse -o cow -o allow_other,use_ino,suid,dev,nonempty $RWSRCDIR=RW:$GIT_SRC=RO $SRCDIR
     pushd $SRCDIR
+    git clean -Xfd
     BRANCH="$(git rev-parse --abbrev-ref HEAD)"
     test -n "$(git status --porcelain)" && DIRTY_GIT="*" || DIRTY_GIT=""
     VERSION="$(git describe)${DIRTY_GIT}"
