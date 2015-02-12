@@ -87,4 +87,7 @@ RUN rm -rf /tmp/* /var/tmp/*
 RUN echo "/var/log/auth.log" >> $CONTAINER_LIB_PATH/log2watch.txt ;\
     echo "/var/log/my_init.d.log" >> $CONTAINER_LIB_PATH/log2watch.txt
 
+ADD custom_setup.sh /tmp/custom_setup.sh
+RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh
+
 CMD ["/usr/local/sbin/oardocker_init"]

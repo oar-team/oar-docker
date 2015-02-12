@@ -37,4 +37,7 @@ RUN rm -rf /tmp/* /var/tmp/*
 ## Configure log
 RUN echo "/var/log/oar.log" >> $CONTAINER_LIB_PATH/log2watch.txt
 
+ADD custom_setup.sh /tmp/custom_setup.sh
+RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh
+
 EXPOSE 22
