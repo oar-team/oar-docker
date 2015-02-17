@@ -7,7 +7,7 @@ RUN echo "export COLOR=yellow" > /etc/hostname.color
 ADD install_oar.sh /root/install_oar.sh
 RUN chmod +x /root/*.sh
 
-ADD custom_setup.sh /tmp/custom_setup.sh
+ADD . /tmp
 RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh
 
 ## Cleanup

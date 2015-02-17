@@ -100,5 +100,5 @@ RUN echo "/var/log/auth.log" >> $CONTAINER_LIB_PATH/log2watch.txt ;\
 
 CMD ["/usr/local/sbin/oardocker_init"]
 
-ADD custom_setup.sh /tmp/custom_setup.sh
+ADD . /tmp
 RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh

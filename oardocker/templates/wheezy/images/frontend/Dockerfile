@@ -45,7 +45,7 @@ RUN rm -rf /tmp/* /var/tmp/*
 RUN echo "/var/log/apache2/error.log" >> $CONTAINER_LIB_PATH/log2watch.txt ;\
     echo "/var/log/apache2/access.log" >> $CONTAINER_LIB_PATH/log2watch.txt
 
-ADD custom_setup.sh /tmp/custom_setup.sh
+ADD . /tmp
 RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh
 
 EXPOSE 22
