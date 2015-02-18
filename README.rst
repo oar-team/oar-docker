@@ -29,8 +29,8 @@ Requirements:
 
 You can install, upgrade, uninstall oar-docker with these commands::
 
-  $ pip install oar-docker
-  $ pip install --upgrade oar-docker
+  $ pip install [--user] oar-docker
+  $ pip install [--user] --upgrade oar-docker
   $ pip uninstall oar-docker
 
 Or from git (last development version)::
