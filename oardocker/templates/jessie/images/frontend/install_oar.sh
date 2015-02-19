@@ -142,7 +142,6 @@ Alias /drawgantt /usr/local/share/oar-web-status/drawgantt-svg
 <Directory /usr/local/share/oar-web-status>
         Options Indexes FollowSymlinks
         Require all granted
-        # Require all granted  # <- seems to be needed for apache >= 2.3
 </Directory>
 EOF
 
@@ -175,8 +174,38 @@ sed -e 's/^\(DB_BASE_PASSWD_RO\)=.*/\1="oar_ro"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DB_BASE_LOGIN_RO\)=.*/\1="oar_ro"/' -i /etc/oar/oar.conf
 
 # Configure phppgadmin
-[ ! -f /etc/apache2/conf.d/phppgadmin ] || ln -sf /etc/apache2/conf.d/phppgadmin /etc/apache2/conf-enabled/phppgadmin.conf
-sed -i "s/# allow from all/allow from all/g" /etc/apache2/conf-enabled/phppgadmin.conf
+if [ -f /etc/apache2/conf.d/phppgadmin ]; then
+  # work around current bug in the package (see: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=669837)
+  cat <<EOF > /etc/apache2/conf-available/phppgadmin.conf
+Alias /phppgadmin /usr/share/phppgadmin
+
+<Directory /usr/share/phppgadmin>
+
+DirectoryIndex index.php
+AllowOverride None
+Require all granted
+<IfModule mod_php5.c>
+  php_flag magic_quotes_gpc Off
+  php_flag track_vars On
+  #php_value include_path .
+</IfModule>
+<IfModule !mod_php5.c>
+  <IfModule mod_actions.c>
+    <IfModule mod_cgi.c>
+      AddType application/x-httpd-php .php
+      Action application/x-httpd-php /cgi-bin/php
+    </IfModule>
+    <IfModule mod_cgid.c>
+      AddType application/x-httpd-php .php
+      Action application/x-httpd-php /cgi-bin/php
+    </IfModule>
+  </IfModule>
+</IfModule>
+
+</Directory>
+EOF
+  ln -sf /etc/apache2/conf-available/phppgadmin.conf /etc/apache2/conf-enabled/phppgadmin.conf
+fi
 sed -i "s/\$conf\['extra_login_security'\] = true;/\$conf\['extra_login_security'\] = false;/g" /etc/phppgadmin/config.inc.php
 sed -i "s/\$conf\['servers'\]\[0\]\['host'\] = 'localhost';/\$conf\['servers'\]\[0\]\['host'\] = 'server';/g" /etc/phppgadmin/config.inc.php
 
