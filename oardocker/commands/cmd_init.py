@@ -25,8 +25,8 @@ def cli(ctx, force, env):
     templates_dir = os.path.join(TEMPLATES_PATH, env)
     common_templates_dir = os.path.join(TEMPLATES_PATH, "common")
     ignore = ["custom_setup.sh"]
-    copy_tree(common_templates_dir, ctx.envdir, force, ignore_if_exists=ignore)
-    copy_tree(templates_dir, ctx.envdir, force=True, ignore_if_exists=ignore)
+    copy_tree(common_templates_dir, ctx.envdir, overwrite=force, ignore_if_exists=ignore)
+    copy_tree(templates_dir, ctx.envdir, overwrite=True, ignore_if_exists=ignore)
     ctx.log('Initialized oardocker environment in %s',
             click.format_filename(ctx.envdir))
     with open(ctx.env_file, "w+") as fd:
