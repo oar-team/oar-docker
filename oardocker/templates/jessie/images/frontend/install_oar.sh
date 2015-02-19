@@ -141,6 +141,7 @@ Alias /drawgantt-svg /usr/local/share/oar-web-status/drawgantt-svg
 Alias /drawgantt /usr/local/share/oar-web-status/drawgantt-svg
 <Directory /usr/local/share/oar-web-status>
         Options Indexes FollowSymlinks
+        Require all granted
         # Require all granted  # <- seems to be needed for apache >= 2.3
 </Directory>
 EOF
