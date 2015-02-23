@@ -1,7 +1,7 @@
 oar-docker CHANGELOG
 ====================
 
-version 0.4.2
+version 0.4.3
 =============
 
 Released on Feb 23rd 2015
@@ -15,7 +15,7 @@ Released on Feb 23rd 2015
 - Updated Dockerfiles to execute custom_setup.sh script
 
 
-version 0.4.1
+version 0.4.2
 =============
 
 Released on Jan 28th 2015
