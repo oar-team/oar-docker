@@ -41,9 +41,11 @@ class oardockerCLI(click.MultiCommand):
               help="The docker client binary [default: docker].")
 @click.option('--verbose', is_flag=True, default=False,
               help="Verbose mode.")
+@click.option('--debug', is_flag=True, default=False,
+              help="Enable debugging")
 @click.version_option(version=VERSION)
 @pass_context
-def cli(ctx, workdir, docker_host, cgroup_path, docker_binary, verbose):
+def cli(ctx, workdir, docker_host, cgroup_path, docker_binary, verbose, debug):
     """Manage a small OAR developpement cluster with docker."""
     if workdir is not None:
         ctx.workdir = workdir
@@ -51,12 +53,9 @@ def cli(ctx, workdir, docker_host, cgroup_path, docker_binary, verbose):
     ctx.cgroup_path = cgroup_path
     ctx.docker_binary = docker_binary
     ctx.verbose = verbose
+    ctx.debug = debug
     ctx.update()
 
 
 def main(args=sys.argv[1:]):
-    try:
-        cli(args)
-    except Exception as e:
-        sys.stderr.write(u"\nError: %s\n" % e)
-        sys.exit(1)
+    cli(args)

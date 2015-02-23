@@ -11,7 +11,7 @@ from functools import update_wrapper
 
 from .state import State
 from .client import Docker
-from .compat import basestring
+from .compat import basestring, reraise
 
 
 CONTEXT_SETTINGS = dict(auto_envvar_prefix='oardocker',
@@ -29,6 +29,7 @@ class Context(object):
         self.oar_website = "http://oar-ftp.imag.fr/oar/2.5/sources/stable"
         self.oar_tarball = "%s/oar-2.5.3.tar.gz" % self.oar_website
         self.prefix = "oardocker"
+        self.debug = False
 
     @property
     def env(self):
@@ -78,8 +79,33 @@ class Context(object):
         if self.verbose:
             self.log(msg, *args)
 
+    def handle_error(self):
+        exc_type, exc_value, tb = sys.exc_info()
+        if not self.debug:
+            sys.stderr.write(u"\nError: %s\n" % exc_value)
+            sys.exit(1)
+        else:
+            reraise(exc_type, exc_value, tb.tb_next)
 
-pass_context = click.make_pass_decorator(Context, ensure=True)
+
+def make_pass_decorator(ensure=False):
+    def decorator(f):
+        @click.pass_context
+        def new_func(*args, **kwargs):
+            ctx = args[0]
+            if ensure:
+                obj = ctx.ensure_object(Context)
+            else:
+                obj = ctx.find_object(Context)
+            try:
+                return ctx.invoke(f, obj, *args[1:], **kwargs)
+            except:
+                obj.handle_error()
+        return update_wrapper(new_func, f)
+    return decorator
+
+
+pass_context = make_pass_decorator(ensure=True)
 
 
 class deprecated_cmd(object):
