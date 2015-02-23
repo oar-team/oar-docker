@@ -1,6 +1,19 @@
 oar-docker CHANGELOG
 ====================
 
+version 0.4.2
+=============
+
+Released on Feb 23rd 2015
+
+- Added --debug option
+- Set default docker API to 1.15 (#25)
+- Workaround phpphadmin apache install
+- Removed drawgantt-svg permissions errors (#23) [Salem Harrache]
+- Fixed ``oardocker init`` subcommand (#22)
+- Upload workdir to containers during the build
+- Updated Dockerfiles to execute custom_setup.sh script
+
 
 version 0.4.1
 =============
