@@ -41,4 +41,4 @@ RUN echo "/var/log/oar.log" >> $CONTAINER_LIB_PATH/log2watch.txt
 EXPOSE 22
 
 ADD . /tmp
-RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh
+RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh && rm -rf /tmp/*

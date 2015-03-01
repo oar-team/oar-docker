@@ -32,13 +32,10 @@ RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/9.1/main/pg_hba.conf
 RUN service postgresql start && \
     sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
 
-## Cleanup
-RUN rm -rf /tmp/* /var/tmp/*
-
 ## Configure log
 RUN echo "/var/log/oar.log" >> $CONTAINER_LIB_PATH/log2watch.txt
 
 ADD . /tmp
-RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh
+RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh  && rm -rf /tmp/*
 
 EXPOSE 22

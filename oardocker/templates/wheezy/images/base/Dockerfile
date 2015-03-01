@@ -1,4 +1,4 @@
-FROM oardocker/debian7:1.0
+FROM oardocker/debian7:1.0.0
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 ENV CONTAINER_LIB_PATH /var/lib/container
@@ -26,12 +26,10 @@ RUN chmod +x /usr/local/sbin/*
 ADD bin/ /usr/local/bin/
 RUN chmod 755 /usr/local/bin/*
 
-RUN rm -rf /tmp/* /var/tmp/*
-
 RUN echo "/var/log/auth.log" >> $CONTAINER_LIB_PATH/log2watch.txt ;\
     echo "/var/log/my_init.d.log" >> $CONTAINER_LIB_PATH/log2watch.txt
 
 ADD . /tmp
-RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh
+RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh && rm -rf /tmp/*
 
 CMD ["/usr/local/sbin/oardocker_init"]
