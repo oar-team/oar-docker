@@ -11,6 +11,7 @@ RUN echo "export COLOR=red" > /etc/hostname.color
 ## Prepare packages
 RUN apt-get update -q
 RUN apt-get install -y --no-install-recommends postgresql
+RUN apt-get install -y --no-install-recommends libdatetime-perl
 
 ##  postgresql daemon.
 RUN mkdir -p /etc/service/postgresql/
