@@ -11,10 +11,7 @@ RUN echo "export COLOR=blue" > /etc/hostname.color
 RUN apt-get update
 RUN apt-get install -y \
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl \
-    libtie-ixhash-perl libwww-perl apache2 libcgi-fast-perl ruby1.9
-
-## Install chandler requirements
-RUN gem install rest-client naturalsort rspec
+    libtie-ixhash-perl libwww-perl apache2 libcgi-fast-perl
 
 # Install php
 RUN apt-get install -y php5 php5-pgsql php5-mcrypt php-apc

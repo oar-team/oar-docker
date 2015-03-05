@@ -30,10 +30,9 @@ RUN apt-get install -y \
 ## frontend dependencies
 RUN apt-get install -y \
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl \
-    libtie-ixhash-perl libwww-perl libgd-ruby1.8 apache2-mpm-prefork \
-    libcgi-fast-perl libapache2-mod-fastcgi librestclient-ruby1.8 \
-    libdbd-pg-ruby1.8 ruby1.8 ruby1.8-dev rubygems1.8 \
-    php5 libapache2-mod-php5 php5-mcrypt php5-pgsql phppgadmin
+    libtie-ixhash-perl libwww-perl apache2-mpm-prefork libcgi-fast-perl \
+    libapache2-mod-fastcgi php5 libapache2-mod-php5 php5-mcrypt php5-pgsql \
+    phppgadmin
 
 ## server dependencies
 RUN apt-get install -y postgresql
