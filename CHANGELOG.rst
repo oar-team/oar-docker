@@ -1,6 +1,15 @@
 oar-docker CHANGELOG
 ====================
 
+version 0.4.4
+=============
+
+Released on Mar 6th 2015
+
+- Added python/python3 dev tools on debian jessie
+- Removed chandler and ruby from images
+- Installed libdatatime-perl on server
+
 version 0.4.3
 =============
 
@@ -9,7 +18,7 @@ Released on Feb 23rd 2015
 - Added --debug option
 - Set default docker API to 1.15 (#25)
 - Workaround phpphadmin apache install
-- Removed drawgantt-svg permissions errors (#23) [Salem Harrache]
+- Removed drawgantt-svg permissions errors (#23)
 - Fixed ``oardocker init`` subcommand (#22)
 - Upload workdir to containers during the build
 - Updated Dockerfiles to execute custom_setup.sh script
