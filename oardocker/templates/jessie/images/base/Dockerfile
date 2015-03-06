@@ -35,12 +35,12 @@ RUN apt-get install -y \
     libcgi-fast-perl libapache2-mod-fastcgi php5 libapache2-mod-php5 \
     php5-mcrypt php5-pgsql phppgadmin perl php5-cli
 
-## colmet dependencies
-RUN apt-get install -y python-dev python-zmq python-pip python-tables  \
-    python-h5py python-pyinotify inotify-tools
-
 ## server dependencies
-RUN apt-get install -y postgresql python-psycopg2
+RUN apt-get install -y postgresql
+
+## python dev tools
+RUN apt-get install -y \
+    python-dev python3-dev python-pip python3-pip python-tox python-psycopg2
 
 ## Fix locales
 RUN test ! -f /etc/locale.gen || sed -i 's/^# fr_FR/fr_FR/' /etc/locale.gen
