@@ -1,0 +1,2 @@
+- install_extlinux:
+  - exec_in: echo "Cannot install bootloader inside docker container"
