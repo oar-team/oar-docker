@@ -26,11 +26,11 @@
 - import_to_docker:
   - check_cmd_out: docker
   - exec_out: echo "Importing $$docker_image to docker..."
-  - exec_out: tar -C $$rootfs -c . | docker import - $$docker_image:base
+  - exec_out: tar -C $$rootfs -cf - . | docker import - $$docker_image:base
 
 - create_ssh_config:
   - write_out:
-    - $$ssh_config_file
+    - $${ssh_config_file}_initial
     - |
       Host $$kameleon_recipe_name
       HostName 127.0.0.1

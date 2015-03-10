@@ -1,0 +1,82 @@
+## Customize oarcluster image
+
+- skel_directory: $$kameleon_data_dir/skel
+
+- copy_default_skel:
+    - exec_in: rm -rf /etc/skel
+    - exec_in: mkdir -p /etc/skel
+    - pipe:
+      - exec_local: tar -cf - -C $$skel_directory .
+      - exec_in: tar xfp - -C /etc/skel
+
+- configure_root:
+  - exec_in: chmod 700 /etc/skel/.ssh
+  - exec_in: chmod 600 /etc/skel/.ssh/*
+  - exec_in: rsync -avh /etc/skel/ /root
+
+## User
+- create_group:
+  - exec_in: groupadd $$user_name
+- add_user:
+  # use the create_passwd.py script to generate the crypted password
+  - exec_in: useradd -m -g $$user_name -s /bin/bash $$user_name
+  - exec_in: adduser $$user_name sudo
+  - exec_in: echo -n '$$user_name:$$user_name' | chpasswd
+
+- enable_passwordless_sudo:
+  - exec_in: cp /etc/sudoers /etc/sudoers.orig
+  - exec_in: sed -i.bkp -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' /etc/sudoers
+
+- fix_permission:
+  - on_export_init:
+    - exec_in: chown -R $$user_name:$$user_name /home/$$user_name
+
+- python_dev_packages: >
+    ipdb ipython grin termcolor tox pytest virtualenv requests flask
+    sqlalchemy click
+
+
+- install_python_dev_tools:
+  - exec_in: pip install -U $$python_dev_packages
+
+- python3_build_deps: >
+    build-essential libncurses5-dev libncursesw5-dev libreadline6-dev
+    libdb5.1-dev libgdbm-dev libsqlite3-dev libssl-dev libbz2-dev
+    libexpat1-dev liblzma-dev zlib1g-dev
+
+- install_python3_build_deps:
+  - exec_in: |
+      dpkg --get-selections | awk '{print $1}' > /tmp/list_packages
+      apt-get -y --force-yes install $$python3_build_deps
+      dpkg --get-selections | awk '{print $1}' > /tmp/list_packages_after
+  - download_file_in:
+    - "https://bootstrap.pypa.io/get-pip.py"
+    - /tmp/get-pip.py
+
+- install_python33_from_sources:
+  - download_file_in:
+    - "https://www.python.org/ftp/python/3.3.6/Python-3.3.6.tgz"
+    - /tmp/Python-3.3.6.tgz
+  - exec_in: tar xf /tmp/Python-3.3.6.tgz -C /tmp/
+  - exec_in: cd /tmp/Python-3.3.6 && ./configure --prefix=/opt/python33
+  - exec_in: cd /tmp/Python-3.3.6 && make
+  - exec_in: cd /tmp/Python-3.3.6 && make install
+  - exec_in: /opt/python33/bin/python3.3 /tmp/get-pip.py
+  - exec_in: rm -rf /tmp/Python-3.3.6*
+
+- install_python34_from_sources:
+  - download_file_in:
+    - "https://www.python.org/ftp/python/3.4.3/Python-3.4.3.tgz"
+    - /tmp/Python-3.4.3.tgz
+  - exec_in: tar xf /tmp/Python-3.4.3.tgz -C /tmp/
+  - exec_in: cd /tmp/Python-3.4.3 && ./configure --prefix=/opt/python34
+  - exec_in: cd /tmp/Python-3.4.3 && make
+  - exec_in: cd /tmp/Python-3.4.3 && make install
+  - exec_in: /opt/python34/bin/python3.4 /tmp/get-pip.py
+  - exec_in: rm -rf /tmp/Python-3.4.3*
+
+- clean_build_deps:
+  - exec_in: apt-get -y --force-yes autoremove `comm -23 <(sort /tmp/list_packages_after) <(sort /tmp/list_packages)`
+  - exec_in: rm /tmp/list_packages_after
+  - exec_in: rm /tmp/list_packages
+  - exec_in: rm /tmp/get-pip.py
