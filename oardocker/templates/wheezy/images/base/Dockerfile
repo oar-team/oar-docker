@@ -1,4 +1,4 @@
-FROM debian:wheezy
+FROM oardocker/debian7:1.0
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 ENV CONTAINER_LIB_PATH /var/lib/container
