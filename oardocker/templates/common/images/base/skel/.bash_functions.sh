@@ -1,16 +1,24 @@
 #!/bin/bash
 
-include() {
-    [[ -f "$1" ]] && source "$1" > /dev/null || true
+export _SYSTEMCTL_BIN_PATH="$(which systemctl)"
+
+function include () {
+    [[ -f "$1" ]] && source "$1" > /dev/null
 }
 
-cdtemp() {
+function cdtemp {
     local tmpdir=${1:-$(date +%Y-%m-%d-%H-%M-%S)}
     cd `mktemp -d --tmpdir ${tmpdir}_XXXXXXXX`
 }
 
+function listcontains() {
+  for word in $1; do
+    [[ $word = $2 ]] && return 0
+  done
+  return 1
+}
 
-killbill() {
+function killbill {
     BAK=$IFS
     IFS=$'\n'
     for id in $(ps aux | grep -P -i $1 | grep -v "grep" | awk '{printf $2" "; for (i=11; i<NF; i++) printf $i" "; print $NF}'); do

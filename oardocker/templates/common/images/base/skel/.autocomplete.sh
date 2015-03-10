@@ -155,7 +155,6 @@ _vagrant() {
     fi
 
 }
-
 complete -F _vagrant vagrant
 
 function _ssh_completion() {
