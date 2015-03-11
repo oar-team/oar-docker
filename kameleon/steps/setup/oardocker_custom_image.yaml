@@ -13,6 +13,7 @@
   - exec_in: chmod 700 /etc/skel/.ssh
   - exec_in: chmod 600 /etc/skel/.ssh/*
   - exec_in: rsync -avh /etc/skel/ /root
+  - exec_in: chown -R root:root /root
 
 ## User
 - create_group:
@@ -54,6 +55,8 @@
     - /tmp/get-pip.py
 
 - install_python33_from_sources:
+  - exec_in: mkdir -p /opt
+  - exec_in: chmod 755 /opt
   - download_file_in:
     - "https://www.python.org/ftp/python/3.3.6/Python-3.3.6.tgz"
     - /tmp/Python-3.3.6.tgz
