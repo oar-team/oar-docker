@@ -1,0 +1,81 @@
+#==============================================================================
+# vim: softtabstop=2 shiftwidth=2 expandtab fenc=utf-8 cc=81 tw=80
+#==============================================================================
+#
+# DESCRIPTION: Debian jessie image for docker built with docker.
+#
+#==============================================================================
+---
+extend: debian7.yaml
+
+global:
+  # Distribution
+  release: jessie
+
+  bootstrap_packages: >
+    bsdutils ca-certificates locales man-db less libui-dialog-perl dialog
+    isc-dhcp-client ifupdown iptables iputils-ping iproute2 netbase net-tools
+    psmisc openssh-server acpid acpi-support-base sysvinit systemd systemd-sysv
+    pciutils
+
+  core_packages: > 
+    debian-keyring sudo less vim nano bash-completion apt-transport-https
+    ca-certificates psmisc openssh-client curl wget iptables socat ifupdown
+    locales isc-dhcp-client net-tools iproute2 qemu-kvm linux-image-amd64 
+    net-tools bridge-utils uml-utilities perl perl-base build-essential
+    taktuk libdbi-perl libsort-versions-perl libdbd-pg-perl postgresql-client
+    inetutils-ping rsyslog git tmux openssh-server netcat unionfs-fuse
+    procps python-pip rsync libdatetime-perl
+
+  frontend_dependencie: >
+    libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl
+    libtie-ixhash-perl libwww-perl apache2 apache2-mpm-prefork
+    libcgi-fast-perl libapache2-mod-fastcgi php5 libapache2-mod-php5
+    php5-mcrypt php5-pgsql phppgadmin perl php5-cli
+
+  server_packages: > 
+    postgresql python-psycopg2
+
+  python3_build_deps: >
+    build-essential libncurses5-dev libncursesw5-dev libreadline6-dev
+    libdb5.3-dev libgdbm-dev libsqlite3-dev libssl-dev libbz2-dev
+    libexpat1-dev liblzma-dev zlib1g-dev
+
+# Bootstrap the new system and create the 'in_context'
+bootstrap:
+  - debootstrap:
+    - include_pkg: apt-utils $$bootstrap_packages
+    - release: $$release
+    - arch: $$arch
+    - repository: http://ftp.debian.org/debian/
+    - variant: default  # default|minbase|buildd|fakechroot|scratchbox
+  - prepare_docker
+  - start_docker
+
+
+setup:
+  - configure_apt:
+    - repository: $$apt_repository
+    - enable_contrib_repo: $$apt_enable_contrib
+    - enable_nonfree_repo: $$apt_enable_nonfree
+  - upgrade_system:
+    - dist_upgrade: true
+  # Packages installation
+  - install_software:
+    - packages: $$core_packages
+  - install_software:
+    - packages: $$frontend_dependencie
+  - install_software:
+    - packages: $$server_packages
+  # Configuration
+  - configure_system:
+    - locales: fr_FR en_US
+    - lang: fr_FR.UTF-8
+    - timezone: Europe/Paris
+  - oardocker_custom_image
+
+#== Export the generated appliance in the format of your choice
+export:
+  - save_docker_appliance:
+    - commit:
+      - exec_out: docker export $(cat MAIN_CONTAINER_ID) | docker import - $$docker_image:$$version
