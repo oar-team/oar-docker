@@ -70,7 +70,7 @@ global:
     python locales net-tools iproute perl perl-base build-essential
     taktuk libdbi-perl libsort-versions-perl libdbd-pg-perl
     postgresql-client inetutils-ping rsyslog git tmux/wheezy-backports
-    openssh-server netcat unionfs-fuse procps python-pip rsync
+    openssh-server netcat unionfs-fuse procps python-pip rsync libdatetime-perl
 
   frontend_dependencie: >
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl
@@ -80,6 +80,11 @@ global:
 
   server_packages: > 
     postgresql python-psycopg2
+
+  python3_build_deps: >
+    build-essential libncurses5-dev libncursesw5-dev libreadline6-dev
+    libdb5.1-dev libgdbm-dev libsqlite3-dev libssl-dev libbz2-dev
+    libexpat1-dev liblzma-dev zlib1g-dev
 
 # Bootstrap the new system and create the 'in_context'
 bootstrap:

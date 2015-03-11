@@ -39,11 +39,6 @@
 - install_python_dev_tools:
   - exec_in: pip install -U $$python_dev_packages
 
-- python3_build_deps: >
-    build-essential libncurses5-dev libncursesw5-dev libreadline6-dev
-    libdb5.1-dev libgdbm-dev libsqlite3-dev libssl-dev libbz2-dev
-    libexpat1-dev liblzma-dev zlib1g-dev
-
 - install_python3_build_deps:
   - exec_in: |
       dpkg --get-selections | awk '{print $1}' > /tmp/list_packages
