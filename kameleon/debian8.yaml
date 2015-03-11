@@ -20,12 +20,11 @@ global:
 
   core_packages: > 
     debian-keyring sudo less vim nano bash-completion apt-transport-https
-    ca-certificates psmisc openssh-client curl wget iptables socat ifupdown
-    locales isc-dhcp-client net-tools iproute2 qemu-kvm linux-image-amd64 
-    net-tools bridge-utils uml-utilities perl perl-base build-essential
+    ca-certificates psmisc openssh-client curl wget iptables socat
+    locales net-tools iproute2 net-tools perl perl-base build-essential
     taktuk libdbi-perl libsort-versions-perl libdbd-pg-perl postgresql-client
-    inetutils-ping rsyslog git tmux openssh-server netcat unionfs-fuse
-    procps python-pip rsync libdatetime-perl
+    inetutils-ping git tmux openssh-server netcat unionfs-fuse procps 
+    python-pip rsync libdatetime-perl
 
   frontend_dependencie: >
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl
