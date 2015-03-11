@@ -4,11 +4,12 @@ oar-docker CHANGELOG
 version 0.4.4
 =============
 
-Released on Mar 6th 2015
+Released on Mar 11th 2015
 
-- Added python/python3 dev tools on debian jessie
 - Removed chandler and ruby from images
 - Installed libdatatime-perl on server
+- Dropped python environment
+- Based on oardocker/debian7 and oardocker/debian8 images built wit kameleon
 
 version 0.4.3
 =============
