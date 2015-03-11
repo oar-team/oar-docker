@@ -34,8 +34,7 @@
 
 - python_dev_packages: >
     ipdb ipython grin termcolor tox pytest virtualenv requests flask
-    sqlalchemy click
-
+    sqlalchemy click jedi httpie
 
 - install_python_dev_tools:
   - exec_in: pip install -U $$python_dev_packages
