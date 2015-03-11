@@ -19,10 +19,6 @@ RUN apt-get install -y php5 php5-pgsql php5-mcrypt php-apc
 # Install phppgadmin
 RUN apt-get install -y phppgadmin
 
-## Scripts
-ADD bin/ /usr/local/bin/
-RUN chmod 755 /usr/local/bin/*
-
 ADD motd /etc/motd
 
 RUN echo "PrintMotd yes" >> /etc/ssh/sshd_config
