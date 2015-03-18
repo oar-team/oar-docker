@@ -1,15 +1,17 @@
 oar-docker CHANGELOG
 ====================
 
-version 0.4.4
+version 0.5.0
 =============
 
-Released on Mar 11th 2015
+Release date to be announced
 
 - Removed chandler and ruby from images
 - Installed libdatatime-perl on server
 - Dropped python environment
 - Based on oardocker/debian7 and oardocker/debian8 images built wit kameleon
+- Added new environment for colmet based on jessie one
+
 
 version 0.4.3
 =============
