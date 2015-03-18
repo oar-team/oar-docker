@@ -162,7 +162,7 @@ class Container(object):
     def execute(self, cmd, user, workdir):
         return self.docker.cli(["exec", "-it", self.id,
                                 "script", "-q", "/dev/null", "-c",
-                                "exec setuser %s /bin/bash -ilc 'cd %s && %s'"
+                                "exec setuser %s /bin/bash -ilc 'exec_in_container %s %s'"
                                 % (user, workdir, cmd)])
 
     def __repr__(self):

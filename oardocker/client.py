@@ -30,9 +30,9 @@ class Docker(object):
                                        " PATH")
         args = call_args[:]
         args.insert(0, self.docker_exe)
+        shell_args = ' '.join(args)
+        self.ctx.vlog("Running : %s" % shell_args)
         if _iter:
-            shell_args = ' '.join(args)
-            self.ctx.vlog("Running '%s'" % shell_args)
             return bash("-c", shell_args, _iter=True)
         else:
             return call(args)
