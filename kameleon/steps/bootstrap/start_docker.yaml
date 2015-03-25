@@ -1,5 +1,4 @@
 
-- boot_timeout: 10
 - cmd: "mkdir -p /var/run/sshd ; /usr/sbin/sshd -D"
 
 - start_sshd:
