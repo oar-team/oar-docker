@@ -33,8 +33,8 @@
     - exec_in: chown -R $$user_name:$$user_name /home/$$user_name
 
 - python_dev_packages: >
-    ipdb ipython grin termcolor tox pytest virtualenv requests flask
-    sqlalchemy click jedi httpie
+    ipdb ipython grin termcolor tox pytest virtualenv flask
+    sqlalchemy click jedi httpie pip
 
 - install_python_dev_tools:
   - exec_in: pip install -U $$python_dev_packages
@@ -60,6 +60,10 @@
   - exec_in: cd /tmp/Python-3.3.6 && make install
   - exec_in: /opt/python33/bin/python3.3 /tmp/get-pip.py
   - exec_in: rm -rf /tmp/Python-3.3.6*
+  - exec_in: rm -f /opt/python33/bin/pip
+  - exec_in: rm -f /opt/python33/bin/pip3
+  - exec_in: rm -f /opt/python33/bin/python
+  - exec_in: rm -f /opt/python33/bin/python3
 
 - install_python34_from_sources:
   - download_file_in:
@@ -71,6 +75,8 @@
   - exec_in: cd /tmp/Python-3.4.3 && make install
   - exec_in: /opt/python34/bin/python3.4 /tmp/get-pip.py
   - exec_in: rm -rf /tmp/Python-3.4.3*
+  - exec_in: rm -f /opt/python33/bin/pip
+  - exec_in: rm -f /opt/python33/bin/python
 
 - clean_build_deps:
   - exec_in: apt-get -y --force-yes autoremove `comm -23 <(sort /tmp/list_packages_after) <(sort /tmp/list_packages)`
