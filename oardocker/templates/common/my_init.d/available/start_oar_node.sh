@@ -2,5 +2,6 @@
 set -e
 
 echo "Starting oar-node..."
-sleep 1
-/etc/init.d/oar-node restart
+mkdir -p /var/run/sshd
+chmod 0755 /var/run/sshd
+/usr/sbin/sshd -f /etc/oar/sshd_config -D

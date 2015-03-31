@@ -12,7 +12,7 @@ create_users() {
         echo -n "$name:$name" | chpasswd
         usermod --append --groups sudo $name
 
-        if [ $HOSTNAME = "frontend" ]; then
+        if [ "$HOSTNAME" = "frontend" ]; then
             ## We also need to copy configuration files (vimrc, bashrc, tmux.conf..)
             echo "Creating /home/$name"
             cp -rT /etc/skel /home/$name

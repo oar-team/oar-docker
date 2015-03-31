@@ -1,1 +1,0 @@
-../available/stop_minimal_system.sh
