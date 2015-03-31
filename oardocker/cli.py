@@ -9,10 +9,10 @@ from . import VERSION
 from .context import pass_context, CONTEXT_SETTINGS
 
 
-class oardockerCLI(click.MultiCommand):
+class OardockerCLI(click.MultiCommand):
 
     def list_commands(self, ctx):
-        cmd_folder = op.abspath(op.join( op.dirname(__file__), 'commands'))
+        cmd_folder = op.abspath(op.join(op.dirname(__file__), 'commands'))
         commands = []
         for filename in os.listdir(cmd_folder):
             if filename.endswith('.py') and filename.startswith('cmd_'):
@@ -29,7 +29,7 @@ class oardockerCLI(click.MultiCommand):
             return mod.cli
 
 
-@click.command(cls=oardockerCLI, context_settings=CONTEXT_SETTINGS, chain=True)
+@click.command(cls=OardockerCLI, context_settings=CONTEXT_SETTINGS, chain=True)
 @click.option('--workdir', type=click.Path(exists=True, file_okay=False,
                                            resolve_path=True),
               help='Changes the folder to operate on.')

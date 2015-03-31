@@ -55,7 +55,7 @@ def sha1_checksum(string):
 def check_tarball(path):
     try:
         with tarfile.open(path):
-                return True
+            return True
     except:
         return False
 
@@ -159,7 +159,8 @@ def copy_tree(src, dest, overwrite=False, ignore_if_exists=[]):
             else:
                 click.echo("   " + create + "  " + fancy_relative_path)
                 copy_file(src_file_path, dest_file_path)
-            if src_file_path.startswith(initd_path) or "bin/" in dest_file_path:
+            if (src_file_path.startswith(initd_path)
+                    or "bin/" in dest_file_path):
                 if not os.path.islink(dest_file_path):
                     if not os.access(dest_file_path, os.X_OK):
                         os.system("chmod +x %s" % dest_file_path)

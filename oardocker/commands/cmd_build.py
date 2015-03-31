@@ -45,6 +45,7 @@ def cli(ctx, force_rm, no_cache, pull, quiet, rm):
     ctx.log('Starting oardocker build')
     dockerfiles = glob.glob(op.join(ctx.envdir, "images", "*", "Dockerfile"))
     dockerfiles.sort()
+
     def get_prefix_width():
         for dockerfile in dockerfiles:
             yield len(op.basename(op.dirname(dockerfile)))
@@ -59,11 +60,16 @@ def cli(ctx, force_rm, no_cache, pull, quiet, rm):
         padding = ' ' * (max_prefix_width - len(name))
         prefix = click.style(''.join([padding, name, ' | ']), fg="green")
         args = ["build"]
-        if force_rm: args.append("--force-rm")
-        if no_cache: args.append("--no-cache")
-        if pull: args.append("--pull")
-        if quiet: args.append("--quiet")
-        if rm: args.append("--rm")
+        if force_rm:
+            args.append("--force-rm")
+        if no_cache:
+            args.append("--no-cache")
+        if pull:
+            args.append("--pull")
+        if quiet:
+            args.append("--quiet")
+        if rm:
+            args.append("--rm")
         args.extend(["--tag", tag])
         args.append(dirname)
         for line in ctx.docker.cli(args, _iter=True):

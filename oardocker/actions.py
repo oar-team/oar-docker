@@ -15,11 +15,11 @@ from .container import Container
 def execute(ctx, user, hostname, cmd, workdir):
     node_name = ''.join([i for i in hostname if not i.isdigit()])
     nodes = ("frontend", "services", "node", "server")
-    if not node_name in nodes:
+    if node_name not in nodes:
         raise click.ClickException("Cannot find the container with the name "
                                    "'%s'" % hostname)
     containers = dict((c.hostname, c) for c in ctx.docker.get_containers())
-    if not hostname in containers.keys():
+    if hostname not in containers.keys():
         raise click.ClickException("The container must be started before "
                                    "running this command. Run  `oardocker"
                                    " start` first")

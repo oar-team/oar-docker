@@ -86,7 +86,7 @@ def cli(ctx, hostname, tail, follow):
     if hostname:
         node_name = ''.join([i for i in hostname if not i.isdigit()])
         nodes = ("frontend", "services", "node", "server")
-        if not node_name in nodes:
+        if node_name not in nodes:
             raise click.ClickException("Cannot find the container with the "
                                        "name '%s'" % hostname)
         containers = [c for c in containers if hostname in c.hostname]

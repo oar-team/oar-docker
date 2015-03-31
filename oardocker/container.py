@@ -6,6 +6,7 @@ from .compat import to_unicode
 
 
 class Container(object):
+
     def __init__(self, docker, dictionary, has_been_inspected=False):
         self.docker = docker
         self.dictionary = dictionary
@@ -58,7 +59,8 @@ class Container(object):
         if not self.dictionary['NetworkSettings']['Ports']:
             return ''
         ports = []
-        for private, public in list(self.dictionary['NetworkSettings']['Ports'].items()):
+        items = self.dictionary['NetworkSettings']['Ports'].items()
+        for private, public in list(items):
             if public:
                 ports.append('%s->%s' % (public[0]['HostPort'], private))
             else:
@@ -162,7 +164,8 @@ class Container(object):
     def execute(self, cmd, user, workdir):
         return self.docker.cli(["exec", "-it", self.id,
                                 "script", "-q", "/dev/null", "-c",
-                                "exec setuser %s /bin/bash -ilc 'exec_in_container %s %s'"
+                                "exec setuser %s /bin/bash -ilc "
+                                "'exec_in_container %s %s'"
                                 % (user, workdir, cmd)])
 
     def __repr__(self):

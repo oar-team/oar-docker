@@ -108,7 +108,7 @@ def make_pass_decorator(ensure=False):
 pass_context = make_pass_decorator(ensure=True)
 
 
-class deprecated_cmd(object):
+class DeprecatedCmdDecorator(object):
     """This is a decorator which can be used to mark cmd as deprecated. It will
     result in a warning being emmitted when the command is invoked."""
 
@@ -130,7 +130,7 @@ class deprecated_cmd(object):
         return update_wrapper(new_func, f)
 
 
-class on_started(object):
+class OnStartedDecorator(object):
     def __init__(self, callback):
         self.callback = callback
         self.exec_before = True
@@ -155,7 +155,12 @@ class on_started(object):
         return update_wrapper(new_func, f)
 
 
-class on_finished(on_started):
+class OnFinishedDecorator(OnStartedDecorator):
     def __init__(self, callback):
         super(on_finished, self).__init__(callback)
         self.exec_before = False
+
+
+deprecated_cmd = DeprecatedCmdDecorator
+on_started = OnStartedDecorator
+on_finished = OnFinishedDecorator

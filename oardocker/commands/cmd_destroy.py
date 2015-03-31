@@ -7,7 +7,8 @@ from ..context import pass_context, on_started, on_finished
 
 @click.command('destroy')
 @click.confirmation_option('-f', '--force',
-                           prompt="Are you sure you want to destroy all images?")
+                           prompt="Are you sure you want to destroy "
+                                  "all images?")
 @pass_context
 @on_finished(lambda ctx: ctx.state.dump())
 @on_started("stop")

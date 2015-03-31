@@ -15,9 +15,14 @@ if PY3:
     from io import StringIO
     from queue import Empty
 
-    iterkeys = lambda d: iter(d.keys())
-    itervalues = lambda d: iter(d.values())
-    iteritems = lambda d: iter(d.items())
+    def iterkeys(d):
+        return iter(d.keys())
+
+    def itervalues(d):
+        return iter(d.values())
+
+    def iteritems(d):
+        return iter(d.items())
 
     def reraise(tp, value, tb=None):
         if value.__traceback__ is not tb:
@@ -33,23 +38,29 @@ if PY3:
 else:
     builtin_str = str
     bytes = str
-    str = unicode
+    str = unicode  # noqa
     basestring = basestring
-    numeric_types = (int, long, float)
+    numeric_types = (int, long, float)  # noqa
 
-    from cStringIO import StringIO
-    from Queue import Empty
+    from cStringIO import StringIO  # noqa
+    from Queue import Empty  # noqa
 
-    iterkeys = lambda d: d.iterkeys()
-    itervalues = lambda d: d.itervalues()
-    iteritems = lambda d: d.iteritems()
+    def iterkeys(d):
+        return d.iterkeys()
+
+    def itervalues(d):
+        return d.itervalues()
+
+    def iteritems(d):
+        return d.iteritems()
 
     exec('def reraise(tp, value, tb=None):\n raise tp, value, tb')
 
     def is_bytes(x):
-        return isinstance(x, (buffer, bytearray))
+        return isinstance(x, (buffer, bytearray))  # noqa
 
     callable = callable
+
 
 def with_metaclass(meta, base=object):
     return meta("NewBase", (base,), {})

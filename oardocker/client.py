@@ -12,7 +12,7 @@ from oardocker.utils import find_executable
 from oardocker.container import Container
 
 
-DEFAULT_DOCKER_API_VERSION="1.15"
+DEFAULT_DOCKER_API_VERSION = "1.15"
 
 
 class Docker(object):
@@ -57,8 +57,8 @@ class Docker(object):
         for container in containers:
             cid = container["Id"][:12]
             cname = ''.join(container["Names"]).lstrip("/")
-            if (not cid in state_containers_ids
-                and not cname in self.ctx.state["containers"]):
+            if (cid not in state_containers_ids
+                    and cname not in self.ctx.state["containers"]):
                 continue
             yield Container(self, container)
 
@@ -69,8 +69,9 @@ class Docker(object):
         for image in images:
             image_id = image["Id"][:12]
             image_name = image["RepoTags"][0]
-            if (not image_id in state_images_ids
-                and not image_name in self.ctx.state["images"]):
+            if (image_id not in state_images_ids
+                    and image_name not
+                    in self.ctx.state["images"]):
                 continue
             yield image
 
