@@ -13,26 +13,26 @@ global:
   release: jessie
 
   bootstrap_packages: >
-    bsdutils ca-certificates locales man-db less libui-dialog-perl dialog
-    isc-dhcp-client ifupdown iptables iputils-ping iproute2 netbase net-tools
-    psmisc openssh-server acpid acpi-support-base sysvinit systemd systemd-sysv
-    pciutils
+    bsdutils ca-certificates perl perl-modules locales man-db less
+    libui-dialog-perl dialog isc-dhcp-client ifupdown iptables iputils-ping
+    iproute2 netbase net-tools psmisc openssh-server acpid acpi-support-base
+    sysvinit systemd systemd-sysv pciutils
 
-  core_packages: > 
+  core_packages: >
     debian-keyring sudo less vim nano bash-completion apt-transport-https
     ca-certificates psmisc openssh-client curl wget iptables socat
     locales net-tools iproute2 net-tools perl perl-base build-essential
     taktuk libdbi-perl libsort-versions-perl libdbd-pg-perl postgresql-client
-    inetutils-ping git tmux openssh-server netcat unionfs-fuse procps 
-    python-pip rsync libdatetime-perl
+    inetutils-ping git tmux openssh-server netcat unionfs-fuse procps
+    python-pip rsync libdatetime-perl libterm-ui-perl
 
   frontend_dependencie: >
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl
     libtie-ixhash-perl libwww-perl apache2 apache2-mpm-prefork
     libcgi-fast-perl libapache2-mod-fastcgi php5 libapache2-mod-php5
-    php5-mcrypt php5-pgsql phppgadmin perl php5-cli
+    php5-mcrypt php5-pgsql phppgadmin libjs-jquery
 
-  server_packages: > 
+  server_packages: >
     postgresql python-psycopg2
 
   python3_build_deps: >

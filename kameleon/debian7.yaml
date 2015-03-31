@@ -60,11 +60,11 @@ global:
     proxy_cache: 172.17.42.1
 
   bootstrap_packages: >
-    bsdutils ca-certificates locales man-db less libui-dialog-perl dialog
-    isc-dhcp-client ifupdown iptables iputils-ping iproute netbase net-tools
-    psmisc openssh-server
+    bsdutils ca-certificates perl perl-modules locales man-db less
+    libui-dialog-perl dialog isc-dhcp-client ifupdown iptables iputils-ping
+    iproute netbase net-tools psmisc openssh-server
 
-  core_packages: > 
+  core_packages: >
     debian-keyring sudo less vim nano bash-completion bzip2 dialog
     apt-transport-https ca-certificates psmisc openssh-client curl wget
     python locales net-tools iproute perl perl-base build-essential
@@ -74,11 +74,11 @@ global:
 
   frontend_dependencie: >
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl
-    libtie-ixhash-perl libwww-perl apache2-mpm-prefork libcgi-fast-perl
-    libapache2-mod-fastcgi php5 libapache2-mod-php5 php5-mcrypt php5-pgsql
-    phppgadmin
+    libtie-ixhash-perl libwww-perl apache2 apache2-mpm-prefork
+    libcgi-fast-perl libapache2-mod-fastcgi php5 libapache2-mod-php5
+    php5-mcrypt php5-pgsql phppgadmin libjs-jquery
 
-  server_packages: > 
+  server_packages: >
     postgresql python-psycopg2
 
   python3_build_deps: >
