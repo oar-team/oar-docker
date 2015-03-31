@@ -61,6 +61,7 @@ Usage
       --cgroup-path TEXT    The cgroup file system path [default: /sys/fs/cgroup].
       --docker-binary TEXT  The docker client binary [default: docker].
       --verbose             Verbose mode.
+      --debug               Enable debugging
       --version             Show the version and exit.
       -h, --help            Show this message and exit.
 
@@ -85,13 +86,13 @@ Getting started
 To get started with oar-docker, the first thing to do is to initialize a
 project::
 
-    $ oardocker init
+    $ oardocker init -e wheezy
 
 If you already have OAR sources, the best is to initialize directly the
 oardocker project in the OAR sources directory::
 
     $ cd path/to/oar/src
-    $ oardocker init
+    $ oardocker init -e wheezy
 
 You have to do this only once. It allows you to import the Dockerfiles
 and other configuration files.
