@@ -133,9 +133,9 @@ To manage the cluster::
 
 To clean::
 
-    $ oardocker stop  ## stops and removes all containers
-    $ oardocker clean  ## removes all stopped containers (failed) and the untagged images <none:none>
-    $ oardocker destroy  ## removes all images and containers
+    $ oardocker stop  # stops and removes all containers
+    $ oardocker clean  # removes all stopped containers (failed) and the untagged images <none:none>
+    $ oardocker destroy  # removes all images and containers
 
 
 With oar-docker, it is possible to chain all commands to go faster::
