@@ -13,10 +13,12 @@ help:
 	@echo "  lint       to check style with flake8"
 	@echo "  sdist      to package"
 	@echo "  release    to package and upload a release"
+	@echo "  bumpversion to bump the release version number"
+	@echo "  newversion  to set the new development version"
 
 init:
 	pip install -e .
-	pip install -U setuptools pip tox ipdb jedi pytest pytest-cov flake8
+	pip install -U setuptools pip tox ipdb jedi pytest pytest-cov flake8 wheel
 
 clean:
 	rm -fr build/
@@ -37,3 +39,13 @@ sdist: clean
 release: clean
 	python setup.py register
 	python setup.py sdist upload
+	python setup.py bdist_wheel upload
+
+bumpversion:
+	python scripts/bump-release-version.py
+
+newversion:
+	@python scripts/bump-dev-version.py $(filter-out $@,$(MAKECMDGOALS))
+
+%:
+	@:

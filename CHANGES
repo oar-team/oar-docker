@@ -1,7 +1,7 @@
 oar-docker CHANGELOG
 ====================
 
-version 0.5.0
+Version 0.5.0
 =============
 
 Released on Apr 2nd 2015
@@ -12,7 +12,7 @@ Released on Apr 2nd 2015
 - Added new environment for colmet based on jessie one
 - Based on oardocker/debian7 and oardocker/debian8 images built wit kameleon
 
-version 0.4.3
+Version 0.4.3
 =============
 
 Released on Feb 23rd 2015
@@ -26,7 +26,7 @@ Released on Feb 23rd 2015
 - Updated Dockerfiles to execute custom_setup.sh script
 
 
-version 0.4.2
+Version 0.4.2
 =============
 
 Released on Jan 28th 2015
@@ -34,7 +34,7 @@ Released on Jan 28th 2015
 - Cleaned up unversionned OAR files (git clean) from sources before installing OAR (Fixed #20)
 
 
-version 0.4.0
+Version 0.4.0
 =============
 
 Released on Jan 24th 2015
@@ -51,7 +51,7 @@ Released on Jan 24th 2015
 - Fixed oardocker logs subcommand
 
 
-version 0.3.2
+Version 0.3.2
 =============
 
 Released on Dec 16th 2014
@@ -61,7 +61,7 @@ Released on Dec 16th 2014
 - Added ``--env`` option to ``oardocker start`` to set custom environment variables
 - Added ``--workdir`` option to ``oardocker exec``
 
-version 0.3.1
+Version 0.3.1
 =============
 
 Released on Nov 27th 2014
@@ -73,7 +73,7 @@ Released on Nov 27th 2014
 - Removed implicit 'default' alias from available env
 
 
-version 0.3.0
+Version 0.3.0
 =============
 
 Released on Nov 27th 2014
@@ -91,7 +91,7 @@ Released on Nov 27th 2014
 - better synchronisation between oar-server and postgresql services
 
 
-version 0.2.0
+Version 0.2.0
 =============
 
 Released on Nov 5th 2014
@@ -112,7 +112,7 @@ Released on Nov 5th 2014
 
 - Make sure that /etc/hosts file contain the localhost entry
 
-version 0.1.4
+Version 0.1.4
 =============
 
 Released on Oct 28th 2014
@@ -125,7 +125,7 @@ Released on Oct 28th 2014
 - Fixed cpu/core/thread affinity
 
 
-version 0.1.3
+Version 0.1.3
 =============
 
 Released on Sep 10th 2014
@@ -138,7 +138,7 @@ Released on Sep 10th 2014
 - Remove dnsmasq and mount a custom /etc/hosts for the nodes (need docker >= 1.2.0)
 
 
-version 0.1.2
+Version 0.1.2
 =============
 
 Released on Sep 16th 2014
@@ -150,14 +150,14 @@ Released on Sep 16th 2014
 - Added option to print version
 - Allow ssh connection with different user
 
-version 0.1.1
+Version 0.1.1
 =============
 
 Released on Sep 11th 2014
 
  - Minor bug fixes
 
-version 0.1
+Version 0.1
 ===========
 
 Released on Sep 11th 2014
