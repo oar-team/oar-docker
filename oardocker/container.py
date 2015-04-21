@@ -21,7 +21,7 @@ class Container(object):
         containers = docker.api.containers(quiet=False, all=True,
                                            trunc=False, latest=False)
         for container in containers:
-            cname = ''.join(container["Names"]).lstrip("/")
+            cname = ''.join(container["Names"] or []).lstrip("/")
             if not cname == name:
                 continue
             return cls(docker, container)

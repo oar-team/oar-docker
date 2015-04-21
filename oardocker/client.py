@@ -56,7 +56,7 @@ class Docker(object):
                                          trunc=False, latest=False)
         for container in containers:
             cid = container["Id"][:12]
-            cname = ''.join(container["Names"]).lstrip("/")
+            cname = ''.join(container["Names"] or []).lstrip("/")
             if (cid not in state_containers_ids
                     and cname not in self.ctx.state["containers"]):
                 continue
