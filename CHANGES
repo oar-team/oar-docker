@@ -1,10 +1,13 @@
 oar-docker CHANGELOG
 ====================
 
-Version 0.5.1.dev0
-==================
+Version 0.5.1
+=============
 
-**unreleased**
+Released on April 21st 2015
+
+- Fixed compatibility with docker-py==1.1.0
+
 
 Version 0.5.0
 =============
