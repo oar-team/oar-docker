@@ -8,6 +8,7 @@
 
 iptables -t nat -A POSTROUTING -s 172.18.0.0/24 -o eth0 -j MASQUERADE
 socat TCP-LISTEN:6667,fork,reuseaddr TCP:172.18.0.2:6667 &
+socat TCP-LISTEN:22,fork,reuseaddr TCP:172.18.0.2:6667 &
 
 ## Custom init script
 INIT_CMD="$@"

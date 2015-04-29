@@ -2,4 +2,5 @@
 WORKDIR=$1
 CMD="${@:2}"
 
-cd $WORKDIR && ssh localhost -t "cd $WORKDIR && $CMD"
+wait_ssh -h 172.18.0.2 -p 22
+cd $WORKDIR && ssh 172.18.0.2 -t "cd $WORKDIR && $CMD"
