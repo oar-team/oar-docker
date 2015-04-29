@@ -1,0 +1,50 @@
+#!/bin/bash
+set -o errexit
+
+PORT=22
+HOST=
+
+print_help() {
+    echo "usage: $0 -p <port> -h <host>"
+}
+
+args=$(getopt -l "port,host,help:" -o "p:h:" -- "$@")
+
+eval set -- "$args"
+
+while [ $# -ge 1 ]; do
+    case "$1" in
+    --)
+        # No more options left.
+        shift
+        break
+       ;;
+    --help)
+        print_help
+        exit 0
+      ;;
+    -p|--port)
+        PORT=$2
+        shift
+      ;;
+    -h|--host)
+        HOST=$2
+      ;;
+    esac
+    shift
+done
+
+if [[ -z "$HOST" ]]; then
+    print_help
+    echo "You must indicate host" 1>&2
+    exit 1
+fi
+
+
+echo -n "Waiting for SSH to become available for $HOST on port $PORT"
+until ssh-keyscan -p ${PORT} ${HOST} 2>&1 | grep -e ssh-rsa -e ssh-dsa &> /dev/null
+do
+  sleep 1
+  echo -n "."
+done
+echo " ~> OK"

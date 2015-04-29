@@ -10,6 +10,7 @@ done
 if [ -f "$STAMP" ]; then
     echo "OAR resources already initialized"
 else
+    cat /var/lib/container/nodes | xargs -I {} wait_ssh -h {}
     oar_resources_init /var/lib/container/nodes \
       -o /tmp/oar_resources_init.cmd \
       <<< "$(echo -e 'yes\nyes\n')"
