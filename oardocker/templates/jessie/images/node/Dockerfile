@@ -3,6 +3,9 @@ MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 ENV COLOR yellow
 RUN echo "export COLOR=yellow" > /etc/hostname.color
 
+# ssh port forward
+RUN apt-get update ; apt-get install -y socat
+
 ## Add postinstall scripts
 ADD install_oar.sh /root/install_oar.sh
 RUN chmod +x /root/*.sh
