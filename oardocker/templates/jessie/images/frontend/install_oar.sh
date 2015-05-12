@@ -173,6 +173,8 @@ sed -e 's/^\(DB_BASE_LOGIN\)=.*/\1="oar"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DB_BASE_PASSWD_RO\)=.*/\1="oar_ro"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DB_BASE_LOGIN_RO\)=.*/\1="oar_ro"/' -i /etc/oar/oar.conf
 
+sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
+
 # Configure phppgadmin
 if [ -f /etc/apache2/conf.d/phppgadmin ]; then
   # work around current bug in the package (see: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=669837)

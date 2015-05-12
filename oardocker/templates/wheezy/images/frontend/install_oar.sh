@@ -52,6 +52,8 @@ make -C $SRCDIR PREFIX=/usr/local user-build tools-build
 make -C $SRCDIR PREFIX=/usr/local user-install drawgantt-svg-install monika-install www-conf-install api-install tools-install
 make -C $SRCDIR PREFIX=/usr/local user-setup drawgantt-svg-setup monika-setup www-conf-setup api-setup tools-setup
 
+sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
+
 # Configure MOTD
 sed -i s/__OAR_VERSION__/${VERSION}/ /etc/motd
 chmod 644 /etc/motd

@@ -72,5 +72,7 @@ if [ -f /usr/local/share/doc/oar-node/examples/default/oar-node ]; then
     cat /usr/local/share/doc/oar-node/examples/default/oar-node > /etc/default/oar-node
 fi
 
+sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
+
 echo "$VERSION" | tee /oar_version
 echo "$COMMENT"
