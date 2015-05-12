@@ -10,12 +10,18 @@ from .utils import touch
 from .compat import iteritems
 
 
-LOCAL_HOSTS = """fe00::0 ip6-localnet
+LOCAL_HOSTS = """
+#############################
+# Custom oardocker hosts file
+#############################
+fe00::0 ip6-localnet
 ff00::0 ip6-mcastprefix
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 127.0.0.1 localhost
 ::1 localhost ip6-localhost ip6-loopback
+
+# Containers
 """
 
 
@@ -67,7 +73,7 @@ class State(dict):
         hosts = ("%s %s" % (ip, name) for name, ip in iteritems(self["dns"]))
         touch(self.dns_file)
         with open(self.dns_file, "w") as fd:
-            fd.write(LOCAL_HOSTS + '\n'.join(hosts))
+            fd.write(LOCAL_HOSTS + '\n'.join(hosts) + '\n')
 
     def empty_etc_hosts(self):
         self["dns"] = {}
