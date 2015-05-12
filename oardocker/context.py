@@ -24,7 +24,6 @@ class Context(object):
         self.current_dir = os.getcwd()
         self.verbose = False
         self.workdir = self.current_dir
-        self.cgroup_path = None
         # oar archive url
         self.oar_website = "http://oar-ftp.imag.fr/oar/2.5/sources/stable"
         self.oar_tarball = "%s/oar-2.5.3.tar.gz" % self.oar_website

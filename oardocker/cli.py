@@ -35,8 +35,6 @@ class OardockerCLI(click.MultiCommand):
               help='Changes the folder to operate on.')
 @click.option('--docker-host', default="unix://var/run/docker.sock",
               help="The docker socket [default: unix://var/run/docker.sock].")
-@click.option('--cgroup-path', default="/sys/fs/cgroup",
-              help="The cgroup file system path [default: /sys/fs/cgroup].")
 @click.option('--docker-binary', default="docker",
               help="The docker client binary [default: docker].")
 @click.option('--verbose', is_flag=True, default=False,
@@ -45,12 +43,11 @@ class OardockerCLI(click.MultiCommand):
               help="Enable debugging")
 @click.version_option(version=VERSION)
 @pass_context
-def cli(ctx, workdir, docker_host, cgroup_path, docker_binary, verbose, debug):
+def cli(ctx, workdir, docker_host, docker_binary, verbose, debug):
     """Manage a small OAR developpement cluster with docker."""
     if workdir is not None:
         ctx.workdir = workdir
     ctx.docker_host = docker_host
-    ctx.cgroup_path = cgroup_path
     ctx.docker_binary = docker_binary
     ctx.verbose = verbose
     ctx.debug = debug
