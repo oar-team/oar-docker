@@ -16,8 +16,8 @@ def cli(ctx):
     for container in ctx.docker.get_containers():
         name = container.hostname
         image_name = container.dictionary['Config']['Image']
-        container.kill()
-        container.stop()
+        container.kill("SIGINT")
+        container.wait()
         ctx.log("Container %s --> %s" % (name, stopped))
         container.remove(v=False, link=False, force=True)
         ctx.log("Container %s --> %s" % (name, removed))

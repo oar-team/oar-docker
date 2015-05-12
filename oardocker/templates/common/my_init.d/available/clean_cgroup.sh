@@ -10,7 +10,15 @@ if [ "$HOSTNAME" = "node1" ]; then
       exit 0;
     fi
 
-    find $CGROOT -name tasks -exec grep -H -o "[[:digit:]]\+" {} \;
-    find $CGROOT -name tasks -exec cat {} \; | xargs -n 1 kill -9
+    echo "kill all cgroup tasks"
+    while read task; do
+        echo "kill -9 $task"
+        kill -9 $task
+    done < <(find $CGROOT -name tasks -exec cat {} \;)
+
+    wait
+    echo "Wipe all cgroup content"
     find $CGROOT -depth -type d -exec rmdir {} \;
+
+    echo "Cgroup is cleanded!"
 fi

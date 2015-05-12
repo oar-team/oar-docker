@@ -116,8 +116,8 @@ class Container(object):
     def stop(self, **options):
         return self.docker.api.stop(self.id, **options)
 
-    def kill(self):
-        return self.docker.api.kill(self.id)
+    def kill(self, signal="SIGKILL"):
+        return self.docker.api.kill(self.id, signal)
 
     def commit(self, **options):
         return self.docker.api.commit(self.id, **options)
