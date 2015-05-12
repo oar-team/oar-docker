@@ -201,6 +201,7 @@ def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
     extra_binds = {
         my_initd: {'bind': "/var/lib/container/my_init.d/", 'ro': True},
         ctx.dns_file: {'bind': "/etc/hosts", 'ro': True},
+        ctx.cgroup_path: {'bind': "/sys/fs/cgroup", 'ro': True},
         ctx.nodes_file: {'bind': "/var/lib/container/nodes", 'ro': True}
     }
     for volume in volumes:
