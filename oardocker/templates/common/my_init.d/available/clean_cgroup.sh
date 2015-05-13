@@ -1,6 +1,7 @@
 #!/bin/bash
 # This script clean OAR cgroup directory
 
+set -x
 
 if [ "$HOSTNAME" = "node1" ]; then
     CGROOT="/sys/fs/cgroup/cpuset/oardocker/"
@@ -22,3 +23,5 @@ if [ "$HOSTNAME" = "node1" ]; then
 
     echo "Cgroup is cleanded!"
 fi
+
+exit 0

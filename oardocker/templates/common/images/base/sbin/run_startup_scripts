@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
+import psutil
 import sys
 import signal
 import multiprocessing
@@ -76,6 +77,14 @@ def collect_startup_scripts(my_initd_path):
         yield script
 
 
+def kill_proc_tree(pid, including_parent=True):
+    parent = psutil.Process(pid)
+    for child in parent.get_children(recursive=True):
+        child.kill()
+    if including_parent:
+        parent.kill()
+
+
 def collect_shudown_scripts(my_initd_path):
     for script in collect_scripts(my_initd_path, prefixes=["stop"]):
         yield script
@@ -94,12 +103,8 @@ def terminate_processes(processes, wait=False, timeout=10):
         if process.is_alive():
             process.terminate()
 
-if __name__ == '__main__':
-    print("Initializing the container...")
-    startup_processes = []
 
-    for script in collect_startup_scripts("/var/lib/container/my_init.d"):
-        startup_processes.append(run_command(script))
+if __name__ == '__main__':
 
     def shutdwon_container_properly(*args, **kwargs):
         terminate_processes(startup_processes)
@@ -113,15 +118,19 @@ if __name__ == '__main__':
 
     def clean_container(*args, **kwargs):
         print("Cleaning the container...")
-        clean_processes = []
         for script in collect_clean_scripts("/var/lib/container/my_init.d"):
-            print "%s" % script
-            clean_processes.append(run_command(script))
-        terminate_processes(clean_processes, wait=True)
+            process = run_command(script)
+            process.join()
+        kill_proc_tree(os.getpid())
         sys.exit(0)
 
     signal.signal(signal.SIGTERM, shutdwon_container_properly)
     signal.signal(signal.SIGINT, clean_container)
+
+    print("Initializing the container...")
+    startup_processes = []
+    for script in collect_startup_scripts("/var/lib/container/my_init.d"):
+        startup_processes.append(run_command(script))
 
     if len(sys.argv) > 1:
         subprocess.call(sys.argv[1:])
