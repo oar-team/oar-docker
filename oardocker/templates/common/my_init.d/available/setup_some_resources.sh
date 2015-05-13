@@ -10,10 +10,16 @@ done
 if [ -f "$STAMP" ]; then
     echo "OAR resources already initialized"
 else
-    cat /var/lib/container/nodes | xargs -I {} wait_ssh -h {}
-    oar_resources_init /var/lib/container/nodes \
-      -o /tmp/oar_resources_init.cmd \
-      <<< "$(echo -e 'yes\nyes\n')"
-    source /tmp/oar_resources_init.cmd
+    DIR=`TMPDIR=/tmp mktemp -d --tmpdir ${tmpdir}_XXX`
+    NODE_NAME_FILE="$DIR/current_node"
+    NODE_CMD_FILE="$DIR/oar_resources_init.cmd"
+
+    while read node; do
+        wait_ssh -h $node -p 22
+        echo "$node" > "$NODE_FILE"
+        oar_resources_init "$NODE_FILE" -o "$NODE_CMD_FILE" <<< "$(echo -e 'yes\nyes\n')"
+        source "$NODE_CMD_FILE"
+    done </var/lib/container/nodes
+
     touch $STAMP
 fi
