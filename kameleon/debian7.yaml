@@ -71,6 +71,7 @@ global:
     taktuk libdbi-perl libsort-versions-perl libdbd-pg-perl
     postgresql-client inetutils-ping rsyslog git tmux/wheezy-backports
     openssh-server netcat unionfs-fuse procps python-pip rsync libdatetime-perl
+    socat python-psutil
 
   frontend_dependencie: >
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl

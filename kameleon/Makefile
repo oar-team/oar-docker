@@ -1,6 +1,6 @@
 .PHONY: debian7 debian8
 
-VERSION = 1.0.2
+VERSION = 1.0.3
 
 all: debian7 debian8
 

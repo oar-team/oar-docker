@@ -24,7 +24,7 @@ global:
     locales net-tools iproute2 net-tools perl perl-base build-essential
     taktuk libdbi-perl libsort-versions-perl libdbd-pg-perl postgresql-client
     inetutils-ping git tmux openssh-server netcat unionfs-fuse procps
-    python-pip rsync libdatetime-perl libterm-ui-perl
+    python-pip rsync libdatetime-perl libterm-ui-perl socat python-psutil
 
   frontend_dependencie: >
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl
