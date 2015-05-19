@@ -11,7 +11,8 @@ RUN echo "export COLOR=blue" > /etc/hostname.color
 RUN apt-get update
 RUN apt-get install -y \
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl \
-    libtie-ixhash-perl libwww-perl apache2 libcgi-fast-perl
+    libtie-ixhash-perl libwww-perl apache2 libcgi-fast-perl ruby-rspec \
+    librestclient-ruby
 
 # Install php
 RUN apt-get install -y php5 php5-pgsql php5-mcrypt php-apc
