@@ -91,5 +91,17 @@ sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
 #This line must be uncommented if the mount_cgroup.sh script is not used
 #sed -e 's/#exit/exit/' -i /etc/oar/job_resource_manager_cgroups.pl
 
+## init database
+echo "Starting postgresql..."
+/etc/init.d/postgresql restart
+
+echo "Waiting postgresql to be available..."
+wait_pgsql --host localhost
+
+/usr/local/sbin/oar-database --create --db-admin-user postgres --db-admin-pass postgres --db-host localhost
+
+echo "Stopping postgresql..."
+/etc/init.d/postgresql stop
+
 echo "$VERSION" | tee /oar_version
 echo "$COMMENT"
