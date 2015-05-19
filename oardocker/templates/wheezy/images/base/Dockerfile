@@ -13,6 +13,9 @@ RUN echo "export COLOR=green" > /etc/hostname.color
 ## Python
 RUN pip install -I pip ipdb grin jedi
 
+## Chandler
+RUN pip install chandler
+
 ## configure sshd daemon:
 RUN mkdir -p $CONTAINER_LIB_PATH
 RUN mv /etc/ssh/ $CONTAINER_LIB_PATH/ssh ;\

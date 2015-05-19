@@ -10,6 +10,9 @@ ENV DEBCONF_NOWARNINGS yes
 ENV COLOR green
 RUN echo "export COLOR=green" > /etc/hostname.color
 
+## Chandler
+RUN pip install chandler
+
 ## configure sshd daemon:
 RUN mkdir -p $CONTAINER_LIB_PATH
 RUN mv /etc/ssh/ $CONTAINER_LIB_PATH/ssh ;\
