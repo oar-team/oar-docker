@@ -1,10 +1,23 @@
 oar-docker CHANGELOG
 ====================
 
-Version 0.5.3.dev0
-------------------
+Version 0.5.3
+-------------
 
-**unreleased**
+Released on May 22nd 2015
+
+- Installed ruby-rspec librestclient-ruby for Rest API unittests
+- Fixed oar resources initialization
+- Initialized database during OAR installation
+- Installed chandler
+- Sequential oar resources Initialization (Fixed #28)
+- Run cleanup scripts and kill all processes in the container when receiving SIGINT (Fixed #27)
+- Updated base images to version 1.0.3
+- Improved oardocker cgroup cleanup
+- Cleanup oardocker nodes cgroup on oardocker stop (Fixed #27)
+- Configured oarsh to get the current cpuset from the containers (Fixed #30)
+- Added ugly patch to fix /etc/hosts mount with docker >=1.6.0
+
 
 Version 0.5.2
 -------------
