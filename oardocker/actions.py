@@ -204,9 +204,34 @@ def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
         ctx.cgroup_path: {'bind': "/sys/fs/cgroup", 'ro': True},
         ctx.nodes_file: {'bind': "/var/lib/container/nodes", 'ro': True}
     }
+    mount_options = ('ro', 'rw', 'cow')
+    cow_volumes = []
     for volume in volumes:
-        host_path, container_path = volume.split(":")
-        extra_binds[host_path] = {'bind': container_path, "ro": False}
+        parts = volume.split(":")
+        if len(parts) >= 3:
+            host_path, container_path, mount_option = volume.split(":")
+        elif len(parts) == 2:
+            host_path, container_path = volume.split(":")
+            mount_option = "rw"
+        else:
+            host_path = container_path = volume
+            mount_option = "rw"
+
+        if mount_option == "ro":
+            ro = True
+        elif mount_option == "rw":
+            ro = False
+        elif mount_option == "cow":
+            ro = True
+            cow_path = container_path
+            container_path = "%s_read_only" % container_path
+            cow_volumes.append("%s:%s" % (cow_path, container_path))
+        else:
+            raise ValueError("Volume '%s' have wrong option. Must be one the "
+                             "following options %s" % (volume, mount_options))
+
+        extra_binds[host_path] = {'bind': container_path, "ro": ro}
+    env['COW_VOLUMES'] = '\n'.join(cow_volumes)
     frontend = start_frontend_container(ctx, command, extra_binds,
                                         num_nodes, http_port, env)
     start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend, env)
