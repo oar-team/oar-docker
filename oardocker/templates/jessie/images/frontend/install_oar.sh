@@ -137,8 +137,8 @@ Alias /monika.css /usr/local/share/oar-web-status/monika.css
 Alias /drawgantt-svg /usr/local/share/oar-web-status/drawgantt-svg
 Alias /drawgantt /usr/local/share/oar-web-status/drawgantt-svg
 <Directory /usr/local/share/oar-web-status>
-        Options Indexes FollowSymlinks
         Require all granted
+        Options Indexes FollowSymlinks
 </Directory>
 EOF
 
