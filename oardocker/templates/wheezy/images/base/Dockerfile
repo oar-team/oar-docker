@@ -10,11 +10,8 @@ ENV DEBCONF_NOWARNINGS yes
 ENV COLOR green
 RUN echo "export COLOR=green" > /etc/hostname.color
 
-## Python
-RUN pip install -I pip ipdb grin jedi
-
-## Chandler
-RUN pip install chandler
+# RUN apt-get update
+# RUN apt-get install -y my_packages
 
 ## configure sshd daemon:
 RUN mkdir -p $CONTAINER_LIB_PATH
