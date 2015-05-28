@@ -4,11 +4,10 @@ import argparse
 import time
 
 
-def check_pgsql(host, database, user, password):
+def check_pgsql(**kwargs):
     while True:
         try:
-            conn = psycopg2.connect(dbname=database, host=host,
-                                    user=user, password=password)
+            conn = psycopg2.connect(**kwargs)
             cur = conn.cursor()
             cur.execute("select pg_postmaster_start_time()")
             return True
@@ -20,9 +19,17 @@ def check_pgsql(host, database, user, password):
 if __name__ == "__main__":
     # Parse options.
     parser = argparse.ArgumentParser(description='Wait postgresql to be ready')
-    parser.add_argument('--host', dest='host', default="localhost")
+    parser.add_argument('--host', dest='host', default=None)
     parser.add_argument('--user', dest='user', default="postgres")
     parser.add_argument('--password', dest='password', default="postgres")
     parser.add_argument('--database', dest='database', default="template1")
     args = parser.parse_args()
-    check_pgsql(args.host, args.database, args.user, args.password)
+    if args.host:
+        check_pgsql(host=args.host,
+                    database=args.database,
+                    user=args.user,
+                    password=args.password)
+    else:
+        check_pgsql(database=args.database,
+                    user=args.user,
+                    password=args.password)
