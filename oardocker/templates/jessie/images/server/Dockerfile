@@ -23,15 +23,6 @@ RUN chmod +x /usr/local/sbin/*
 ADD install_oar.sh /root/install_oar.sh
 RUN chmod +x /root/*.sh
 
-## Configure database
-# configure PostgreSQL to listen for remote connections
-RUN sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/9.4/main/postgresql.conf
-# configure PostgreSQL to accept remote connections (from any host):
-RUN echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/9.4/main/pg_hba.conf
-# set insecure postgres password
-RUN service postgresql start && \
-    sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
-
 ## Cleanup
 RUN rm -rf /tmp/* /var/tmp/*
 

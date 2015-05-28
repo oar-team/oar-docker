@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+IFS='.' read DEBIAN_VERSION DEBIAN_VERSION_MINOR < /etc/debian_version
+
 TMPDIR=$(mktemp -d --tmpdir install_oar.XXXXXXXX)
 SRCDIR="$TMPDIR/src"
 
@@ -91,13 +93,28 @@ sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
 #This line must be uncommented if the mount_cgroup.sh script is not used
 #sed -e 's/#exit/exit/' -i /etc/oar/job_resource_manager_cgroups.pl
 
-## init database
+
+if [ ${DEBIAN_VERSION} = '8' ]; then
+    POSTGRESQL_VERSION="9.4"
+else
+    POSTGRESQL_VERSION="9.1"
+fi
+
+echo "Configure PostgreSQL to listen for remote connections"
+sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/$POSTGRESQL_VERSION/main/postgresql.conf
+echo "Configure PostgreSQL to accept remote connections (from any host):"
+echo "host all all 0.0.0.0/0 md5" >> /etc/postgresql/$POSTGRESQL_VERSION/main/pg_hba.conf
+
 echo "Starting postgresql..."
 /etc/init.d/postgresql restart
 
 echo "Waiting postgresql to be available..."
-wait_pgsql --host localhost
+sudo -u postgres wait_pgsql
 
+echo "Set (insecure) postgres password"
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+
+echo "Init database"
 /usr/local/sbin/oar-database --create --db-admin-user postgres --db-admin-pass postgres --db-host localhost
 
 echo "Stopping postgresql..."
