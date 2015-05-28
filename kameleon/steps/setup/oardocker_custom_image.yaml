@@ -2,6 +2,15 @@
 
 - skel_directory: $$kameleon_data_dir/skel
 
+- get_debian_version:
+    - exec_in: IFS='.' read VERSION VERSION_MINOR < /etc/debian_version
+
+- install_ruby_rest_client:
+  - exec_in: |
+      if [ ${VERSION} = '8' ]; then
+        gem install --verbose rest-client
+      fi
+
 - copy_default_skel:
     - exec_in: rm -rf /etc/skel
     - exec_in: mkdir -p /etc/skel

@@ -30,13 +30,14 @@ global:
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl
     libtie-ixhash-perl libwww-perl apache2 apache2-mpm-prefork
     libcgi-fast-perl libapache2-mod-fastcgi php5 libapache2-mod-php5
-    php5-mcrypt php5-pgsql phppgadmin libjs-jquery
+    php5-mcrypt php5-pgsql phppgadmin libjs-jquery rubygems ruby-dev php-apc
+    ruby-rspec
 
   server_packages: >
     postgresql python-psycopg2
 
   python3_build_deps: >
-    build-essential libncurses5-dev libncursesw5-dev libreadline6-dev
+    libncurses5-dev libncursesw5-dev libreadline6-dev
     libdb5.3-dev libgdbm-dev libsqlite3-dev libssl-dev libbz2-dev
     libexpat1-dev liblzma-dev zlib1g-dev
 
