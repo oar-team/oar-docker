@@ -7,21 +7,10 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV COLOR blue
 RUN echo "export COLOR=blue" > /etc/hostname.color
 
-## Prepare packages
-RUN apt-get update
-RUN apt-get install -y \
-    libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl \
-    libtie-ixhash-perl libwww-perl apache2 libcgi-fast-perl ruby-rspec \
-    librestclient-ruby
-
-# Install php
-RUN apt-get install -y php5 php5-pgsql php5-mcrypt php-apc
-
-# Install phppgadmin
-RUN apt-get install -y phppgadmin
+# RUN apt-get update
+# RUN apt-get install -y my_packages
 
 ADD motd /etc/motd
-
 RUN echo "PrintMotd yes" >> /etc/ssh/sshd_config
 
 ## Add postinstall scripts

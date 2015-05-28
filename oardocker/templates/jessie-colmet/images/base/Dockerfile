@@ -14,9 +14,6 @@ RUN echo "export COLOR=green" > /etc/hostname.color
 RUN apt-get install -y python-dev python-zmq python-pip python-tables  \
     python-h5py python-pyinotify python-numpy
 
-## Chandler
-RUN pip install chandler
-
 ## configure sshd daemon:
 RUN mkdir -p $CONTAINER_LIB_PATH
 RUN mv /etc/ssh/ $CONTAINER_LIB_PATH/ssh ;\

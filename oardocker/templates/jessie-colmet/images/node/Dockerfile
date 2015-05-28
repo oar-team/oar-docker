@@ -3,7 +3,6 @@ MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 ENV COLOR yellow
 RUN echo "export COLOR=yellow" > /etc/hostname.color
 
-
 # kvm utils
 RUN apt-get update ;\
     apt-get install -y \

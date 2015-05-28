@@ -1,17 +1,14 @@
 FROM oardocker/wheezy-base:latest
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
-ENV OAR_VERSION 2.5
 ENV HOME /root
 ENV LC_ALL C
 ENV DEBIAN_FRONTEND noninteractive
 ENV COLOR red
 RUN echo "export COLOR=red" > /etc/hostname.color
 
-## Prepare packages
-RUN apt-get update -q
-RUN apt-get install -y --no-install-recommends postgresql
-RUN apt-get install -y --no-install-recommends libdatetime-perl
+# RUN apt-get update
+# RUN apt-get install -y my_packages
 
 ##  postgresql daemon.
 RUN mkdir -p /etc/service/postgresql/
