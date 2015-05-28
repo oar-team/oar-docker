@@ -88,10 +88,7 @@ FastCgiServer /usr/local/lib/cgi-bin/oarapi/oarapi.cgi
      <IfModule mod_fastcgi.c>
      AddHandler fcgid-script .cgi
      </IfModule>
-     order deny,allow
-     deny from all
-     allow from 127.0.0.0/255.0.0.0 ::1/128
-     allow from all
+     Require all granted
      # Pidentd may be useful for testing without a login/passwd or when you
      # fully trust some hosts (ie users have no way to fake their login name).
      # Ident trust may be disabled into the api itself.
@@ -186,6 +183,7 @@ Alias /phppgadmin /usr/share/phppgadmin
 DirectoryIndex index.php
 AllowOverride None
 Require all granted
+
 <IfModule mod_php5.c>
   php_flag magic_quotes_gpc Off
   php_flag track_vars On
