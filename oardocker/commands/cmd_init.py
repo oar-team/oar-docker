@@ -3,6 +3,8 @@ from __future__ import with_statement, absolute_import, unicode_literals
 
 import os
 import os.path as op
+import random
+
 import click
 
 from ..utils import copy_tree
@@ -31,5 +33,5 @@ def cli(ctx, force, env):
               overwrite=True, ignore_if_exists=ignore)
     ctx.log('Initialized oardocker environment in %s',
             click.format_filename(ctx.envdir))
-    with open(ctx.env_file, "w+") as fd:
-        fd.write(env)
+    env_id = "%x" % random.getrandbits(32)
+    ctx.init_workdir(env_name=env, env_id=env_id)

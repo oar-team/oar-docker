@@ -4,10 +4,12 @@ from __future__ import with_statement, absolute_import, unicode_literals
 import os
 import os.path as op
 import sys
-import click
+import tempfile
 
 from io import open
 from functools import update_wrapper
+
+import click
 
 from .state import State
 from .client import Docker
@@ -31,16 +33,35 @@ class Context(object):
         self.prefix = "oardocker"
         self.debug = False
 
+    def init_workdir(self, env_name, env_id):
+        with open(self.env_name_file, "w+") as fd:
+            fd.write(env_name + "\n")
+        with open(self.env_id_file, "w+") as fd:
+            fd.write(env_id + "\n")
+
     @property
-    def env(self):
-        with open(self.env_file) as env_file:
+    def tmp_workdir(self):
+        sys_tmp = tempfile.gettempdir()
+        tmp_dir = op.join(sys_tmp, self.prefix, self.env_name, self.env_id)
+        if not os.path.isdir(tmp_dir):
+            os.makedirs(tmp_dir)
+        return tmp_dir
+
+    @property
+    def env_name(self):
+        with open(self.env_name_file) as env_file:
+            return env_file.read().strip()
+
+    @property
+    def env_id(self):
+        with open(self.env_id_file) as env_file:
             return env_file.read().strip()
 
     def image_name(self, node, tag=""):
         if not tag == "":
             tag = ":%s" % tag
-        if not self.env == "default":
-            return "%s/%s-%s%s" % (self.prefix, self.env, node, tag)
+        if not self.env_name == "default":
+            return "%s/%s-%s%s" % (self.prefix, self.env_name, node, tag)
         else:
             return "%s/%s%s" % (self.prefix, node, tag)
 
@@ -55,7 +76,8 @@ class Context(object):
     def update(self):
         self.envdir = op.join(self.workdir, ".%s" % self.prefix)
         self.postinstall_dir = op.join(self.envdir, "postinstall")
-        self.env_file = op.join(self.envdir, "env")
+        self.env_name_file = op.join(self.envdir, "env_name")
+        self.env_id_file = op.join(self.envdir, "env_id")
         self.state_file = op.join(self.envdir, "state.json")
         self.dns_file = op.join(self.envdir, "hosts")
         self.nodes_file = op.join(self.envdir, "nodes")

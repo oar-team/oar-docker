@@ -8,7 +8,7 @@ import click
 
 from .compat import iteritems, reraise
 from .utils import (check_tarball, check_git, check_url, download_file,
-                    git_pull_or_clone)
+                    git_pull_or_clone, touch)
 from .container import Container
 
 
@@ -131,10 +131,25 @@ def log_started(hostname):
     click.echo("Container %s --> %s" % (hostname, started))
 
 
+def get_common_binds(ctx, hostname):
+    paths = (
+        '/root/.bash_hisotry',
+        '/root/.pyhistory',
+        '/home/docker/.bash_history',
+        '/home/docker/.pyhistory',
+    )
+    binds = {}
+    for container_path in paths:
+        host_path = op.join(ctx.tmp_workdir, hostname) + container_path
+        touch(host_path)
+        binds[host_path] = {'bind': container_path, 'ro': False}
+    return binds
+
+
 def start_server_container(ctx, command, extra_binds, num_nodes, env):
     image = ctx.image_name("server", "latest")
     hostname = "server"
-    binds = {}
+    binds = get_common_binds(ctx, hostname)
     binds.update(extra_binds)
     environment = dict(env)
     environment["NUM_NODES"] = num_nodes
@@ -154,7 +169,7 @@ def start_frontend_container(ctx, command, extra_binds, num_nodes,
                              http_port, env):
     image = ctx.image_name("frontend", "latest")
     hostname = "frontend"
-    binds = {}
+    binds = get_common_binds(ctx, hostname)
     binds.update(extra_binds)
     environment = dict(env)
     environment["NUM_NODES"] = num_nodes
@@ -178,7 +193,7 @@ def start_nodes_containers(ctx, command, extra_binds, num_nodes,
     environment["NUM_NODES"] = num_nodes
     for i in range(1, num_nodes + 1):
         hostname = "node%d" % i
-        binds = {}
+        binds = get_common_binds(ctx, hostname)
         binds.update(extra_binds)
         container = Container.create(ctx.docker, image=image,
                                      detach=True, hostname=hostname,
