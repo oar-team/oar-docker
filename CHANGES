@@ -1,10 +1,22 @@
 oar-docker CHANGELOG
 ====================
 
-Version 0.5.4.dev0
-------------------
+Version 0.5.4
+-------------
 
-**unreleased**
+Released on June 02nd 2015
+
+- Bump base image version to 1.0.4
+- Added persistent .bash_history and .pyhistory
+- Added :ro, :rw and :cow options to ``--volume`` option
+- Fixed phppgadmin and oarapi 403 error in jessie
+- Fixed oarapi 403 error in jessie
+- Removed duplicated package installation from dockerfile
+- Fixed rest-client installation in debian jessie
+- Installed chandler in base image
+- Configured postgresql just after OAR installation
+- Update wait_pgsql script : used UNIX socket if no host provided
+
 
 Version 0.5.3
 -------------
