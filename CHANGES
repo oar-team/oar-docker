@@ -1,10 +1,12 @@
 oar-docker CHANGELOG
 ====================
 
-Version 0.5.5.dev0
-------------------
+Version 0.5.5
+-------------
 
-**unreleased**
+Released on June 12th 2015
+
+- Minor bug fix about persistent bash history
 
 Version 0.5.4
 -------------
