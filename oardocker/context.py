@@ -4,7 +4,6 @@ from __future__ import with_statement, absolute_import, unicode_literals
 import os
 import os.path as op
 import sys
-import tempfile
 
 from io import open
 from functools import update_wrapper
@@ -41,8 +40,7 @@ class Context(object):
 
     @property
     def tmp_workdir(self):
-        sys_tmp = tempfile.gettempdir()
-        tmp_dir = op.join(sys_tmp, self.prefix, self.env_name, self.env_id)
+        tmp_dir = op.join(self.envdir, "tmp")
         if not os.path.isdir(tmp_dir):
             os.makedirs(tmp_dir)
         return tmp_dir

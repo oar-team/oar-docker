@@ -3,13 +3,15 @@ from __future__ import with_statement, absolute_import, unicode_literals
 
 import os
 import os.path as op
+import shutil
 import sys
-import click
 
 from .compat import iteritems, reraise
+from .container import Container
 from .utils import (check_tarball, check_git, check_url, download_file,
                     git_pull_or_clone, touch)
-from .container import Container
+
+import click
 
 
 def execute(ctx, user, hostname, cmd, workdir):
@@ -141,7 +143,12 @@ def get_common_binds(ctx, hostname):
     binds = {}
     for container_path in paths:
         host_path = op.join(ctx.tmp_workdir, hostname) + container_path
-        touch(host_path)
+        if op.exists(host_path):
+            if op.isdir(host_path):
+                shutil.rmtree(host_path)
+                touch(host_path)
+        else:
+            touch(host_path)
         binds[host_path] = {'bind': container_path, 'ro': False}
     return binds
 
@@ -193,7 +200,7 @@ def start_nodes_containers(ctx, command, extra_binds, num_nodes,
     environment["NUM_NODES"] = num_nodes
     for i in range(1, num_nodes + 1):
         hostname = "node%d" % i
-        binds = get_common_binds(ctx, hostname)
+        binds = get_common_binds(ctx, "node")
         binds.update(extra_binds)
         container = Container.create(ctx.docker, image=image,
                                      detach=True, hostname=hostname,
