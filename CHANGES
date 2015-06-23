@@ -1,10 +1,12 @@
 oar-docker CHANGELOG
 ====================
 
-Version 0.5.6.dev0
-------------------
+Version 0.5.6
+-------------
 
-**unreleased**
+Released on June 23rd 2015
+
+- Used jessie as default env
 
 Version 0.5.5
 -------------
