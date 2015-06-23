@@ -17,7 +17,7 @@ VARIANTS = set(os.listdir(TEMPLATES_PATH)) - set(["common"])
 
 @click.command('init')
 @click.option('-f', '--force', is_flag=True, help='Overwrite existing env')
-@click.option('-e', '--env', default="wheezy",
+@click.option('-e', '--env', default="jessie",
               help='Use variant X of the Dockerfiles [default: wheezy]',
               type=click.Choice(VARIANTS))
 @pass_context
