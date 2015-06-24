@@ -58,36 +58,34 @@ sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
 sed -i s/__OAR_VERSION__/${VERSION}/ /etc/motd
 chmod 644 /etc/motd
 
-## Configure apache
+## Configure HTTP
 a2enmod ident
+a2enmod suexec
 a2enmod headers
 a2enmod rewrite
 
-# configure open api
-ln -sf /etc/oar/apache2/oar-restful-api-priv.conf /etc/apache2/conf.d/oar-restful-api-priv.conf
-perl -pi -e "s/Deny from all/#Deny from all/" /etc/oar/apache2/oar-restful-api.conf
-
-## Configure basic auth api
-echo "ScriptAlias /oarapi-priv /usr/local/lib/cgi-bin/oarapi/oarapi.cgi
-ScriptAlias /oarapi-priv-debug /usr/local/lib/cgi-bin/oarapi/oarapi.cgi
-
-<Location /oarapi-priv>
- Options ExecCGI -MultiViews FollowSymLinks
- AuthType      basic
- AuthUserfile  /etc/oar/api-users
- AuthName      \"OAR API authentication\"
- Require valid-user
- #RequestHeader set X_REMOTE_IDENT %{REMOTE_USER}e
- RewriteEngine On
- RewriteCond %{REMOTE_USER} (.*)
- RewriteRule .* - [E=MY_REMOTE_IDENT:%1]
- RequestHeader add X-REMOTE_IDENT %{MY_REMOTE_IDENT}e
-</Location>
-" > /etc/oar/apache2/oar-restful-api-priv.conf
-ln -sf /etc/oar/apache2/oar-restful-api-priv.conf /etc/apache2/conf.d/oar-restful-api-priv.conf
-
+rm -f /etc/oar/api-users
 htpasswd -b -c /etc/oar/api-users docker docker
 htpasswd -b /etc/oar/api-users oar docker
+
+# configure apache API
+sed -e 's/#\(FastCgiWrapper.*\)/\1/' -i /etc/apache2/mods-available/fastcgi.conf
+ln -sf  /etc/apache2/conf-available/oar-restful-api.conf /etc/apache2/conf-enabled/oar-restful-api.conf
+
+perl -pi -e "s/Deny from all/Allow from all/" /etc/oar/apache2/oar-restful-api.conf
+
+# configure apache oar-web-status
+cat > /etc/apache2/conf-available/oar-web-status.conf <<"EOF"
+ScriptAlias /monika /usr/local/lib/cgi-bin/monika.cgi
+Alias /monika.css /usr/local/share/oar-web-status/monika.css
+Alias /drawgantt-svg /usr/local/share/oar-web-status/drawgantt-svg
+Alias /drawgantt /usr/local/share/oar-web-status/drawgantt-svg
+<Directory /usr/local/share/oar-web-status>
+    Order Allow,Deny
+    Allow from all
+</Directory>
+EOF
+ln -sf  /etc/apache2/conf-available/oar-web-status.conf /etc/apache2/conf-enabled/oar-web-status.conf
 
 sed -e "s/^\(hostname = \).*/\1server/" -i /etc/oar/monika.conf
 sed -e "s/^\(username.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
