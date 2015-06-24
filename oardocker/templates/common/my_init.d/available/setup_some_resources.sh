@@ -1,5 +1,7 @@
 #!/bin/bash
 
+STAMP="/var/lib/container/stamps_oar_resources_initialized"
+
 wait_pgsql --host server --user oar --password oar
 
 NODE_CMD_FILE="/tmp/_oar_resources_init_current_node"
