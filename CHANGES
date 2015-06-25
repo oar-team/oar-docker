@@ -1,10 +1,14 @@
 oar-docker CHANGELOG
 ====================
 
-Version 0.5.7.dev0
-------------------
+Version 0.5.7
+-------------
 
-**unreleased**
+Released on June 25th 2015
+
+- Bump base images version to 1.1 (included apache2-suexec and pidentd)
+- Fixed the stamp for setup_resources script (Fixed #33)
+- Fixed oar-api apache configuration
 
 Version 0.5.6
 -------------
