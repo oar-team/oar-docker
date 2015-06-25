@@ -78,7 +78,7 @@ global:
     libtie-ixhash-perl libwww-perl apache2 apache2-mpm-prefork
     libcgi-fast-perl libapache2-mod-fastcgi php5 libapache2-mod-php5
     php5-mcrypt php5-pgsql phppgadmin libjs-jquery ruby-rspec
-    librestclient-ruby
+    librestclient-ruby apache2-suexec pidentd
 
   server_packages: >
     postgresql python-psycopg2
