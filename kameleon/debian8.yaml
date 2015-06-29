@@ -24,7 +24,9 @@ global:
     locales net-tools iproute2 net-tools perl perl-base build-essential
     taktuk libdbi-perl libsort-versions-perl libdbd-pg-perl postgresql-client
     inetutils-ping git tmux openssh-server netcat unionfs-fuse procps
-    python-pip rsync libdatetime-perl libterm-ui-perl socat python-psutil
+    libdatetime-perl libterm-ui-perl rsync socat
+    python python3 python-pip python3-pip python-psutil python-psycopg2
+    python3-psycopg2 python-virtualenv
 
   frontend_dependencie: >
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl
@@ -34,12 +36,7 @@ global:
     ruby-rspec apache2-suexec pidentd
 
   server_packages: >
-    postgresql python-psycopg2
-
-  python3_build_deps: >
-    libncurses5-dev libncursesw5-dev libreadline6-dev
-    libdb5.3-dev libgdbm-dev libsqlite3-dev libssl-dev libbz2-dev
-    libexpat1-dev liblzma-dev zlib1g-dev
+    postgresql
 
 # Bootstrap the new system and create the 'in_context'
 bootstrap:
