@@ -1,17 +1,20 @@
 oar-docker CHANGELOG
 ====================
 
-Version 0.5.8.dev0
-------------------
+Version 0.5.8
+-------------
 
-**unreleased**
+Released on June 29th 2015
+
+- Removed compiled python3 versions
+- Bumped base images version to 1.2 
 
 Version 0.5.7
 -------------
 
 Released on June 25th 2015
 
-- Bump base images version to 1.1 (included apache2-suexec and pidentd)
+- Bumped base images version to 1.1 (included apache2-suexec and pidentd)
 - Fixed the stamp for setup_resources script (Fixed #33)
 - Fixed oar-api apache configuration
 
@@ -34,7 +37,7 @@ Version 0.5.4
 
 Released on June 02nd 2015
 
-- Bump base image version to 1.0.4
+- Bumped base image version to 1.0.4
 - Added persistent .bash_history and .pyhistory
 - Added :ro, :rw and :cow options to ``--volume`` option
 - Fixed phppgadmin and oarapi 403 error in jessie
