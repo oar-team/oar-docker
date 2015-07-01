@@ -1,10 +1,12 @@
 oar-docker CHANGELOG
 ====================
 
-Version 0.5.9.dev0
-------------------
+Version 0.5.9
+-------------
 
-**unreleased**
+Released on July 01st 2015
+
+- Set OAREXEC_DEBUG_MODE=1 to improve the dev environement (Fixed #34)
 
 Version 0.5.8
 -------------
