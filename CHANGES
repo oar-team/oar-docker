@@ -1,10 +1,14 @@
 oar-docker CHANGELOG
 ====================
 
-Version 0.5.10.dev0
--------------------
+Version 0.5.10
+--------------
 
-**unreleased**
+Released on July 03rd 2015
+
+- Make /etc/oar/job_resource_manager_cgroup.pl a symlink to improve debugging (Fixed #34)
+- Fixed API by reverted to oidentd
+
 
 Version 0.5.9
 -------------
