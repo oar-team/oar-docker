@@ -73,6 +73,16 @@ fi
 if [ -f /usr/local/share/doc/oar-server/examples/default/oar-server ]; then
     cat /usr/local/share/doc/oar-server/examples/default/oar-server > /etc/default/oar-server
 fi
+
+## See https://github.com/oar-team/oar-docker/issues/34
+if [ -f /usr/local/share/oar/oar-server/job_resource_manager_cgroups.pl ]; then
+    ln -sf /usr/local/share/oar/oar-server/job_resource_manager_cgroups.pl /etc/oar/job_resource_manager_cgroups.pl
+fi
+
+if [ -f /usr/local/share/oar/oar-server/job_resource_manager.pl ]; then
+    ln -sf /usr/local/share/oar/oar-server/job_resource_manager.pl /etc/oar/job_resource_manager.pl
+fi
+
 sed -e 's/^LOG_LEVEL\=\"2\"/LOG_LEVEL\=\"3\"/' -i /etc/oar/oar.conf
 sed -e 's/^#\(TAKTUK_CMD\=\"\/usr\/bin\/taktuk \-t 30 \-s\".*\)/\1/' -i /etc/oar/oar.conf
 sed -e 's/^#\(PINGCHECKER_TAKTUK_ARG_COMMAND\=\"broadcast exec timeout 5 kill 9 \[ true \]\".*\)/\1/' -i /etc/oar/oar.conf
