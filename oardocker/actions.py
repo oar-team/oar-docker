@@ -135,7 +135,7 @@ def log_started(hostname):
 
 def get_common_binds(ctx, hostname):
     paths = (
-        '/root/.bash_hisotry',
+        '/root/.bash_history',
         '/root/.pyhistory',
         '/home/docker/.bash_history',
         '/home/docker/.pyhistory',
