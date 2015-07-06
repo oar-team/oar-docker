@@ -48,13 +48,34 @@ else
 fi
 
 # Install OAR
-make -C $SRCDIR PREFIX=/usr/local user-build tools-build
-make -C $SRCDIR PREFIX=/usr/local user-install drawgantt-svg-install monika-install www-conf-install api-install tools-install
-make -C $SRCDIR PREFIX=/usr/local user-setup drawgantt-svg-setup monika-setup www-conf-setup api-setup tools-setup
+make -C $SRCDIR PREFIX=/usr/local user-build tools-build node-build
+make -C $SRCDIR PREFIX=/usr/local user-install drawgantt-svg-install monika-install www-conf-install api-install tools-install node-install
+make -C $SRCDIR PREFIX=/usr/local user-setup drawgantt-svg-setup monika-setup www-conf-setup api-setup tools-setup node-setup
 
 # Configure MOTD
 sed -i s/__OAR_VERSION__/${VERSION}/ /etc/motd
 chmod 644 /etc/motd
+
+# Configure oar-node for cosystem/deploy jobs
+# Copy initd scripts
+if [ -f /usr/local/share/oar/oar-node/init.d/oar-node ]; then
+    cat /usr/local/share/oar/oar-node/init.d/oar-node > /etc/init.d/oar-node
+    chmod +x  /etc/init.d/oar-node
+fi
+
+if [ -f /usr/local/share/doc/oar-node/examples/init.d/oar-node ]; then
+    cat /usr/local/share/oar/oar-node/init.d/oar-node > /etc/init.d/oar-node
+    chmod +x  /etc/init.d/oar-node
+fi
+
+
+if [ -f /usr/local/share/oar/oar-node/default/oar-node ]; then
+    cat /usr/local/share/oar/oar-node/default/oar-node > /etc/default/oar-node
+fi
+
+if [ -f /usr/local/share/doc/oar-node/examples/default/oar-node ]; then
+    cat /usr/local/share/doc/oar-node/examples/default/oar-node > /etc/default/oar-node
+fi
 
 ## Configure HTTP
 a2enmod ident
@@ -109,6 +130,11 @@ sed -e 's/^\(DB_BASE_LOGIN\)=.*/\1="oar"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DB_BASE_PASSWD_RO\)=.*/\1="oar_ro"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DB_BASE_LOGIN_RO\)=.*/\1="oar_ro"/' -i /etc/oar/oar.conf
 
+# Configure cosystem and deploy jobs
+sed -e 's/^\(COSYSTEM_HOSTNAME\)=.*/\1="frontend"/' -i /etc/oar/oar.conf
+sed -e 's/^\(DEPLOY_HOSTNAME\)=.*/\1="frontend"/' -i /etc/oar/oar.conf
+
+# Configure oarsh
 sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
 
 # Configure phppgadmin
