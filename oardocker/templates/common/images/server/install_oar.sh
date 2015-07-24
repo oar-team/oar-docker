@@ -61,7 +61,7 @@ if [ -f /usr/local/share/oar/oar-server/init.d/oar-server ]; then
 fi
 
 if [ -f /usr/local/share/doc/oar-server/examples/init.d/oar-server ]; then
-    cat /usr/local/share/oar/oar-server/init.d/oar-server > /etc/init.d/oar-server
+    cat /usr/local/share/doc/oar-server/examples/init.d/oar-server > /etc/init.d/oar-server
     chmod +x  /etc/init.d/oar-server
 fi
 

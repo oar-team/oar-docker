@@ -64,7 +64,7 @@ if [ -f /usr/local/share/oar/oar-node/init.d/oar-node ]; then
 fi
 
 if [ -f /usr/local/share/doc/oar-node/examples/init.d/oar-node ]; then
-    cat /usr/local/share/oar/oar-node/init.d/oar-node > /etc/init.d/oar-node
+    cat /usr/local/share/doc/oar-node/examples/init.d/oar-node > /etc/init.d/oar-node
     chmod +x  /etc/init.d/oar-node
 fi
 
