@@ -163,11 +163,11 @@ class Container(object):
 
     def execute(self, cmd, user, workdir, tty):
         tty_option = "t" if tty else ""
-        return self.docker.cli(["exec", "-i%s", self.id,
+        return self.docker.cli(["exec", "-i%s" % tty_option, self.id,
                                 "script", "-q", "/dev/null", "-c",
                                 "exec setuser %s /bin/bash -ilc "
                                 "'exec_in_container %s %s'"
-                                % (tty_option, user, workdir, cmd)])
+                                % (user, workdir, cmd)])
 
     def __repr__(self):
         return '<Container: %s>' % self.name
