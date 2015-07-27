@@ -14,7 +14,7 @@ from .utils import (check_tarball, check_git, check_url, download_file,
 import click
 
 
-def execute(ctx, user, hostname, cmd, workdir):
+def execute(ctx, user, hostname, cmd, workdir, tty=False):
     node_name = ''.join([i for i in hostname if not i.isdigit()])
     nodes = ("frontend", "services", "node", "server")
     if node_name not in nodes:
@@ -26,7 +26,7 @@ def execute(ctx, user, hostname, cmd, workdir):
                                    "running this command. Run  `oardocker"
                                    " start` first")
     user_cmd = ' '.join(cmd)
-    return containers[hostname].execute(user_cmd, user, workdir)
+    return containers[hostname].execute(user_cmd, user, workdir, tty)
 
 
 def check_images_requirements(ctx, nodes, needed_tag, parent_cmd):

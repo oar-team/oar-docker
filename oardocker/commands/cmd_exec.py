@@ -9,11 +9,13 @@ from ..actions import execute
 @click.command('exec')
 @click.option('-l', '--user', default="docker")
 @click.option('-w', '--workdir', default="~")
+@click.option('-t', '--tty', is_flag=True, default=False,
+              help='Allocate a pseudo-TTY')
 @click.argument('hostname', required=True)
 @click.argument('cmd', nargs=-1)
 @pass_context
 @on_finished(lambda ctx: ctx.state.dump())
 @on_started(lambda ctx: ctx.assert_valid_env())
-def cli(ctx, user, workdir, hostname, cmd):
+def cli(ctx, user, workdir, tty, hostname, cmd):
     """Run a command in an existing node."""
-    execute(ctx, user, hostname, cmd, workdir)
+    execute(ctx, user, hostname, cmd, workdir, tty)

@@ -17,4 +17,4 @@ from ..actions import execute
 def cli(ctx, user, workdir, shell, hostname):
     """Connect to a node."""
     cmd = ["\"cat /etc/motd && %s\"" % shell]
-    execute(ctx, user, hostname, cmd, workdir)
+    execute(ctx, user, hostname, cmd, workdir, tty=True)
