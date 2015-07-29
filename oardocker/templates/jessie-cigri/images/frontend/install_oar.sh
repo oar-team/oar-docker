@@ -93,17 +93,6 @@ ln -sf  /etc/apache2/conf-available/oar-restful-api.conf /etc/apache2/conf-enabl
 
 perl -pi -e "s/Deny from all/Allow from all/" /etc/oar/apache2/oar-restful-api.conf
 
-# configure apache oar-web-status
-cat > /etc/apache2/conf-available/oar-web-status.conf <<"EOF"
-ScriptAlias /monika /usr/local/lib/cgi-bin/monika.cgi
-Alias /monika.css /usr/local/share/oar-web-status/monika.css
-Alias /drawgantt-svg /usr/local/share/oar-web-status/drawgantt-svg
-Alias /drawgantt /usr/local/share/oar-web-status/drawgantt-svg
-<Directory /usr/local/share/oar-web-status>
-        Require all granted
-        Options Indexes FollowSymlinks
-</Directory>
-EOF
 ln -sf  /etc/apache2/conf-available/oar-web-status.conf /etc/apache2/conf-enabled/oar-web-status.conf
 
 
