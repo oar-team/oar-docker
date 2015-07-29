@@ -93,8 +93,9 @@ ln -sf  /etc/apache2/conf-available/oar-restful-api.conf /etc/apache2/conf-enabl
 
 perl -pi -e "s/Deny from all/Allow from all/" /etc/oar/apache2/oar-restful-api.conf
 
+# Configure web status
 ln -sf  /etc/apache2/conf-available/oar-web-status.conf /etc/apache2/conf-enabled/oar-web-status.conf
-
+a2enmod cgi
 
 sed -e "s/^\(hostname = \).*/\1server/" -i /etc/oar/monika.conf
 sed -e "s/^\(username.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
