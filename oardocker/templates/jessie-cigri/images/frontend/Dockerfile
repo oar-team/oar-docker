@@ -8,7 +8,7 @@ ENV COLOR blue
 RUN echo "export COLOR=blue" > /etc/hostname.color
 
 RUN apt-get update
-RUN apt-get install -y apache2-suexec oidentd libdbd-pg-ruby ruby-json libapache2-mod-passenger
+RUN apt-get install -y apache2-suexec oidentd libdbd-pg-ruby ruby-dbi ruby-json libapache2-mod-passenger
 RUN gem install sinatra rack-test xmpp4r
 
 ADD motd /etc/motd
