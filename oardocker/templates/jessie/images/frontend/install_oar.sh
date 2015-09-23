@@ -171,5 +171,8 @@ sed -i "s/\$CONF\['db_server'\]=\"127.0.0.1\"/\$CONF\['db_server'\]=\"server\"/g
 sed -i "s/\$CONF\['db_port'\]=\"3306\"/\$CONF\['db_port'\]=\"5432\"/g" /etc/oar/drawgantt-config.inc.php
 sed -i "s/\"My OAR resources\"/\"Docker oardocker resources\"/g" /etc/oar/drawgantt-config.inc.php
 
+# Fix permissions
+chmod a+r /etc/oar/oar.conf
+
 echo "$VERSION" | tee /oar_version
 echo "$COMMENT"

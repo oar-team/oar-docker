@@ -74,5 +74,9 @@ fi
 
 sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
 
+
+# Fix permissions
+chmod a+r /etc/oar/oar.conf
+
 echo "$VERSION" | tee /oar_version
 echo "$COMMENT"

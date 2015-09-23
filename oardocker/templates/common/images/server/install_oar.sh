@@ -131,5 +131,8 @@ echo "Init database"
 echo "Stopping postgresql..."
 /etc/init.d/postgresql stop
 
+# Fix permissions
+chmod a+r /etc/oar/oar.conf
+
 echo "$VERSION" | tee /oar_version
 echo "$COMMENT"
