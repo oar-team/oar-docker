@@ -8,7 +8,7 @@ ENV COLOR blue
 RUN echo "export COLOR=blue" > /etc/hostname.color
 
 RUN apt-get update
-RUN apt-get install -y apache2-suexec oidentd
+RUN apt-get install -y nginx spawn-fcgi fcgiwrap php5-fpm
 
 ADD motd /etc/motd
 RUN echo "PrintMotd yes" >> /etc/ssh/sshd_config
