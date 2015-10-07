@@ -86,13 +86,13 @@ Getting started
 To get started with oar-docker, the first thing to do is to initialize a
 project::
 
-    $ oardocker init -e wheezy
+    $ oardocker init -e jessie 
 
 If you already have OAR sources, the best is to initialize directly the
 oardocker project in the OAR sources directory::
 
     $ cd path/to/oar/src
-    $ oardocker init -e wheezy
+    $ oardocker init -e jessie
 
 You have to do this only once. It allows you to import the Dockerfiles
 and other configuration files.
