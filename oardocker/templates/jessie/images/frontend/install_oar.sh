@@ -78,82 +78,20 @@ if [ -f /usr/local/share/doc/oar-node/examples/default/oar-node ]; then
 fi
 
 ## Configure HTTP
+a2enmod ident
+a2enmod suexec
+a2enmod headers
+a2enmod rewrite
+
 rm -f /etc/oar/api-users
 htpasswd -b -c /etc/oar/api-users docker docker
 htpasswd -b /etc/oar/api-users oar docker
 
-# configure API on nginx
+# configure apache API
+sed -e 's/#\(FastCgiWrapper.*\)/\1/' -i /etc/apache2/mods-available/fastcgi.conf
+ln -sf  /etc/apache2/conf-available/oar-restful-api.conf /etc/apache2/conf-enabled/oar-restful-api.conf
 
-OLD_OARAPI_CGI="/usr/local/lib/cgi-bin/oarapi/oarapi.cgi"
-
-if [ -f "/usr/local/lib/cgi-bin/oarapi/oarapi.cgi" ]; then
-    OLD_OARAPI_CGI="/var/www/cgi-bin/oarapi/oarapi.cgi"
-fi
-
-if [ -f "/usr/local/lib/cgi-bin/oarapi/oarapi.cgi" ]; then
-    mkdir -p /var/www/cgi-bin/oarapi/
-    ln -sf /usr/local/lib/cgi-bin/oarapi/oarapi.cgi /var/www/cgi-bin/oarapi/oarapi.cgi
-fi
-
-if [ -f "/usr/local/lib/cgi-bin/monika.cgi" ]; then
-    mkdir -p /var/www/cgi-bin/monika/
-    ln -sf /usr/local/lib/cgi-bin/monika.cgi /var/www/cgi-bin/monika/monika.cgi
-fi
-
-if [ -f "/var/www/cgi-bin/monika.cgi" ]; then
-    mkdir -p /var/www/cgi-bin/monika/
-    ln -sf /var/www/cgi-bin/monika.cgi /var/www/cgi-bin/monika/monika.cgi
-fi
-
-cat > /etc/nginx/sites-enabled/default <<"EOF"
-# Default server configuration
-#
-server {
-  listen 80 default_server;
-  listen [::]:80 default_server;
-
-  root /var/www/html;
-  index index.php index.html;
-
-  server_name _;
-
-  location /oarapi {
-    rewrite ^/oarapi(.*)$ $1 break;
-    include fastcgi_params;
-    fastcgi_pass unix:/var/run/oar-fcgi.sock;
-    fastcgi_param SCRIPT_FILENAME /var/www/cgi-bin/oarapi/oarapi.cgi;
-    fastcgi_param PATH_INFO $fastcgi_script_name;
-  }
-
-  location /drawgantt-svg {
-    root /usr/local/share/oar-web-status/;
-    try_files $uri $uri/ =404;
-  }
-
-  location /monika {
-    rewrite ^/monika(.*)$ $1 break;
-    include fastcgi_params;
-    fastcgi_pass unix:/var/run/oar-fcgi.sock;
-    fastcgi_param SCRIPT_FILENAME /var/www/cgi-bin/monika/monika.cgi;
-    fastcgi_param PATH_INFO $fastcgi_script_name;
-  }
-
-  location /monika.css {
-    root /usr/local/share/oar-web-status/;
-  }
-
-  location ~ .*.php$ {
-    fastcgi_split_path_info ^(.+?\.php)(/.*)$;
-    if (!-f $document_root$fastcgi_script_name) {
-        return 404;
-    }
-
-    fastcgi_pass unix:/var/run/php5-fpm.sock;
-    fastcgi_index index.php;
-    include fastcgi_params;
-  }
-}
-EOF
+perl -pi -e "s/Deny from all/Allow from all/" /etc/oar/apache2/oar-restful-api.conf
 
 # Configure web status
 ln -sf  /etc/apache2/conf-available/oar-web-status.conf /etc/apache2/conf-enabled/oar-web-status.conf
@@ -235,7 +173,6 @@ sed -i "s/\"My OAR resources\"/\"Docker oardocker resources\"/g" /etc/oar/drawga
 
 # Fix permissions
 chmod a+r /etc/oar/oar.conf
-chown oar  /etc/oar/monika.conf
 
 echo "$VERSION" | tee /oar_version
 echo "$COMMENT"
