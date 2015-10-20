@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement, absolute_import, unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 import filecmp
 import hashlib
@@ -17,7 +17,27 @@ import requests
 
 from io import open
 
-from sh import git, ErrorReturnCode
+from sh import ErrorReturnCode
+
+from .compat import PY3
+
+
+if PY3:
+    def _out(x):
+        print(x, end="", flush=True)
+    _err = _out
+else:
+    _out = sys.stdout
+    _err = sys.stdout
+
+
+def git(*args, **kwargs):
+    try:
+        from sh import git as git_cmd
+    except ImportError:
+        raise Exception('git is missing, please install it before using this'
+                        ' command')
+    return git_cmd(*args, **kwargs)
 
 
 def check_tcp_port_open(ip, port):
@@ -87,7 +107,7 @@ def git_pull_or_clone(src, dest):
         else:
             shutil.rmtree(dest)
     else:
-        git.clone(src, dest, "--progress", _out=sys.stdout, _err=sys.stderr)
+        git("clone", src, dest, "--progress", _out=_out, _err=_err)
 
 
 def download_file(file_url, dest):
