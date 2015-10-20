@@ -88,10 +88,10 @@ class Context(object):
                                        " a new oardocker environment")
 
     def log(self, msg, *args, **kwargs):
-        """Logs a message to stderr."""
+        """Logs a message to stdout."""
         if args:
             msg %= args
-        kwargs.setdefault("file", sys.stderr)
+        kwargs.setdefault("file", sys.stdout)
         click.echo(msg, **kwargs)
 
     def vlog(self, msg, *args):
