@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 import filecmp
 import hashlib
@@ -9,26 +9,15 @@ import random
 import shutil
 import socket
 import string
-import sys
 import tarfile
 
 import click
 import requests
 
 from io import open
-
 from sh import ErrorReturnCode
 
-from .compat import PY3
-
-
-if PY3:
-    def _out(x):
-        print(x, end="", flush=True)
-    _err = _out
-else:
-    _out = sys.stdout
-    _err = sys.stdout
+from .compat import _out, _err
 
 
 def git(*args, **kwargs):
@@ -103,7 +92,7 @@ def git_pull_or_clone(src, dest):
                          "--get", "remote.origin.url")
         if remote_url.rstrip() == src:
             git("--git-dir", op.join(dest, ".git"), "--work-tree",
-                dest, "pull", "--progress", _out=sys.stdout, _err=sys.stderr)
+                dest, "pull", "--progress", _out=_out, _err=_err)
         else:
             shutil.rmtree(dest)
     else:
