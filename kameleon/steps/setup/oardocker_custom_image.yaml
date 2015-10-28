@@ -56,6 +56,68 @@
   - exec_in: sed -i 's/stretch/jessie/g' /etc/apt/sources.list
   - exec_in: apt-get update
 
+- delete_systemd_services:
+  - exec_in: |
+      cd /lib/systemd/system/sysinit.target.wants/
+      ls | grep -v systemd-tmpfiles-setup | xargs rm -f "$1"
+
+  - exec_in: rm -f /lib/systemd/system/multi-user.target.wants/*
+  - exec_in: rm -f /etc/systemd/system/*.wants/*
+  - exec_in: rm -f /lib/systemd/system/local-fs.target.wants/*
+  - exec_in: rm -f /lib/systemd/system/sockets.target.wants/*udev*
+  - exec_in: rm -f /lib/systemd/system/sockets.target.wants/*initctl*
+  - exec_in: rm -f /lib/systemd/system/basic.target.wants/*
+  - exec_in: rm -f /lib/systemd/system/anaconda.target.wants/*
+  - exec_in: rm -f /lib/systemd/system/plymouth*
+  - exec_in: rm -f /lib/systemd/system/systemd-update-utmp*
+
+- disable_all_sysvinit_services:
+  - exec_in: |
+      ls /etc/init.d/* | \
+        xargs -I {} basename {} | \
+        xargs -I {} bash -c "echo Disable: {}; systemctl disable {} 2> /dev/null || true
+
+- mask_systemd_services:
+  - exec_in: systemctl mask -- -.mount
+  - exec_in: systemctl mask -- dev-mqueue.mount
+  - exec_in: systemctl mask -- etc-hostname.mount
+  - exec_in: systemctl mask -- etc-hosts.mount
+  - exec_in: systemctl mask -- etc-resolv.conf.mount
+  - exec_in: systemctl mask -- systemd-ask-password-console.path
+  - exec_in: systemctl mask -- systemd-ask-password-wall.path
+  - exec_in: systemctl mask -- init.scope
+  - exec_in: systemctl mask -- networking.service
+  - exec_in: systemctl mask -- systemd-modules-load.service
+  - exec_in: systemctl mask -- systemd-sysctl.service
+  - exec_in: systemctl mask -- systemd-tmpfiles-setup-dev.service
+  - exec_in: systemctl mask -- systemd-tmpfiles-setup.service
+  - exec_in: systemctl mask -- systemd-udevd.service
+  - exec_in: systemctl mask -- systemd-update-utmp.service
+  - exec_in: systemctl mask -- systemd-user-sessions.service
+  - exec_in: systemctl mask -- -.slice
+  - exec_in: systemctl mask -- system.slice
+  - exec_in: systemctl mask -- systemd-initctl.socket
+  - exec_in: systemctl mask -- systemd-udevd-control.socket
+  - exec_in: systemctl mask -- systemd-udevd-kernel.socket
+  - exec_in: systemctl mask -- cryptsetup.target
+  - exec_in: systemctl mask -- getty.target
+  - exec_in: systemctl mask -- local-fs.target
+  - exec_in: systemctl mask -- multi-user.target
+  - exec_in: systemctl mask -- network-online.target
+  - exec_in: systemctl mask -- network.target
+  - exec_in: systemctl mask -- swap.target
+  - exec_in: systemctl mask -- basic.target
+  - exec_in: systemctl mask -- console-getty.service
+  - exec_in: systemctl mask -- display-manager.service
+  - exec_in: systemctl mask -- getty-static.service
+  - exec_in: systemctl mask -- getty\@tty1.service
+  - exec_in: systemctl mask -- hwclock-save.service
+  - exec_in: systemctl mask -- ondemand.service
+  - exec_in: systemctl mask -- systemd-logind.service
+  - exec_in: systemctl mask -- systemd-remount-fs.service
+
+- set_default_systemd_targets:
+  - exec_in: ln -sf /lib/systemd/system/halt.target /etc/systemd/system/sigpwr.target
 - configure_rsyslog:
   - exec_in: sed -i 's/^\($ModLoad imklog\)/#\1/' /etc/rsyslog.conf
   - local2in:
