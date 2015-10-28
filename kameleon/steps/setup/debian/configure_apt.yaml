@@ -5,6 +5,11 @@
 # Software Install
 - configure_apt_to_use_less_disk_space:
   - write_in:
+    - /etc/apt/apt.conf.d/02force_yes
+    - |
+      APT::Get::Assume-Yes "true";
+      APT::Get::force-yes "true";
+  - write_in:
     - /etc/apt/apt.conf.d/02compress_indexes
     - |
       Acquire::GzipIndexes "true";
@@ -19,9 +24,9 @@
   - write_in:
     - /etc/apt/apt.conf.d/97norecommends
     - |
-      APT {
-        Install-Recommends "false";
-      };
+      APT::Install-Recommends "0";
+      APT::Install-Suggests "0";
+
   - write_in:
     - /etc/dpkg/dpkg.cfg.d/01_nodoc
     - |
@@ -55,10 +60,10 @@
     - |
       deb $$apt_repository $${release} main
       deb-src $$apt_repository $${release} main
-      
+
       deb $$apt_repository $${release}-backports main
       deb-src $$apt_repository $${release}-backports main
-      
+
       deb http://security.debian.org/ $${release}/updates main
       deb-src http://security.debian.org/ $${release}/updates main
 
