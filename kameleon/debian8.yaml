@@ -6,11 +6,58 @@
 #
 #==============================================================================
 ---
-extend: debian7.yaml
+aliases: defaults.yaml
 
+checkpoint: docker.yaml
+
+# Custom shell environement (this files are located in steps/env/ directory)
+env:
+  - bashrc
+  - functions.sh
+
+# Global variables use by Kameleon engine and the steps
 global:
+  ## User varibales : used by the recipe
+  user_name: docker
+  user_password: $$user_name
+
   # Distribution
+  distrib: debian
   release: jessie
+  arch: amd64
+  kernel_arch: $$arch
+  hostname: oardocker-$${distrib}-$${release}
+
+  rootfs: $$kameleon_cwd/rootfs
+
+  # Docker options
+  docker_dns: 208.67.222.222
+  docker_image: oardocker/$$kameleon_recipe_name
+  docker_hostname: $$kameleon_recipe_name
+
+  # System variables. Required by kameleon engine
+  # Include specific steps
+  include_steps:
+    - $$distrib/$$release
+    - $$distrib
+
+  # Apt recipe options
+  apt_repository: http://ftp.debian.org/debian/
+  apt_enable_contrib: true
+  apt_enable_nonfree: true
+
+  out_context:
+    cmd: bash
+    workdir: $$kameleon_cwd
+    proxy_cache: localhost
+
+  # Shell session that allows us to connect to the building machine in order to
+  # configure it and setup additional programs
+  ssh_config_file: $$kameleon_cwd/ssh_config
+  in_context:
+    cmd: LC_ALL=POSIX ssh -F $$ssh_config_file $$kameleon_recipe_name -t /bin/bash
+    workdir: /root/kameleon_workdir
+    proxy_cache: 172.17.42.1
 
   bootstrap_packages: >
     bsdutils ca-certificates perl perl-modules locales man-db less
