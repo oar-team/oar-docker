@@ -1,0 +1,13 @@
+[Unit]
+Description=OpenBSD Secure Shell server
+ConditionPathExists=!/etc/ssh/sshd_not_to_be_run
+
+[Service]
+EnvironmentFile=-/etc/default/ssh
+ExecStart=/bin/bash -c "/bin/mkdir -p /var/run/sshd; exec /usr/sbin/sshd -D $SSHD_OPTS"
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=oar-docker.target
