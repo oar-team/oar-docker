@@ -92,7 +92,7 @@ bootstrap:
     - release: $$release
     - arch: $$arch
     - repository: http://ftp.debian.org/debian/
-    - variant: default  # default|minbase|buildd|fakechroot|scratchbox
+    - variant: minbase  # default|minbase|buildd|fakechroot|scratchbox
   - prepare_docker
   - start_docker
 
