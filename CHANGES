@@ -1,10 +1,26 @@
 oar-docker CHANGELOG
 ====================
 
-Version 0.6.0.dev0
-------------------
+Version 0.6.0
+-------------
 
-**unreleased**
+Released on October 22nd 2015
+
+- Removed wheezy environement (Fixed #39)
+- Logged to stdout by default
+- Fixed oar.conf permissions to allow normal user to read it
+- disable_unicode_literals_warning in click
+- Added oidentd start for the API to do auth
+- Enabled mod_cgi (for monika)
+- Let the oar makefile configure the web tools
+- New template for cigri base
+- Fixed resources initialization
+- Fixed string formating
+- Do not allocate a pseudo-TTY by default
+- Fixed oar-node and oar-server init.d script for OAR 2.5.3 and older
+- Adapt new oar_resources_init options
+- Setup cosystem and deploy jobs and install oar-node on the frontend
+
 
 Version 0.5.10
 --------------
