@@ -63,7 +63,7 @@ global:
     bsdutils ca-certificates perl perl-modules locales man-db less
     libui-dialog-perl dialog isc-dhcp-client ifupdown iptables iputils-ping
     iproute2 netbase net-tools psmisc openssh-server acpid acpi-support-base
-    sysvinit systemd systemd-sysv pciutils
+    systemd systemd-sysv systemd-cron
 
   core_packages: >
     debian-keyring sudo less vim nano bash-completion apt-transport-https

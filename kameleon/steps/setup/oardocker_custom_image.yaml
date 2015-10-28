@@ -47,6 +47,15 @@
 
 - install_python_dev_tools:
   - exec_in: pip install -U $$python_dev_packages
+
+- install_higher_systemd_version:
+  - exec_in: sed -i 's/jessie/stretch/g' /etc/apt/sources.list
+  - exec_in: sed -i 's/stretch-backports/jessie-backports/g' /etc/apt/sources.list
+  - exec_in: apt-get update
+  - exec_in: apt-get -y --force-yes install systemd
+  - exec_in: sed -i 's/stretch/jessie/g' /etc/apt/sources.list
+  - exec_in: apt-get update
+
 - configure_rsyslog:
   - exec_in: sed -i 's/^\($ModLoad imklog\)/#\1/' /etc/rsyslog.conf
   - local2in:
