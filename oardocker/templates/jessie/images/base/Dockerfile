@@ -24,6 +24,9 @@ RUN chmod +x /usr/local/sbin/*
 ADD bin/ /usr/local/bin/
 RUN chmod 755 /usr/local/bin/*
 
+## tmpfiles.d — Configuration for creation, deletion and cleaning of volatile and temporary files
+ADD config/tmpfiles_oardocker.conf /etc/tmpfiles.d/oardocker.conf
+
 ## systemd services
 RUN systemctl mask sysinit.target ; \
     rm -rf /etc/systemd/system/*
