@@ -24,3 +24,4 @@ RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh && r
 
 EXPOSE 22
 EXPOSE 80
+EXPOSE 9090
