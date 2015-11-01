@@ -28,9 +28,7 @@ RUN chmod 755 /usr/local/bin/*
 ADD config/tmpfiles_oardocker.conf /etc/tmpfiles.d/oardocker.conf
 
 ## systemd services
-RUN systemctl mask sysinit.target ; \
-    rm -rf /etc/systemd/system/*
-
+RUN rm -rf /etc/systemd/system/*
 ADD systemd /etc/systemd/system
 RUN systemctl set-default oardocker.target ; \
     chmod 644 /etc/systemd/system/* ; \

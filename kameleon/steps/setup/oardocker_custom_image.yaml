@@ -94,8 +94,6 @@
   - exec_in: systemctl mask -- systemd-udevd.service
   - exec_in: systemctl mask -- systemd-update-utmp.service
   - exec_in: systemctl mask -- systemd-user-sessions.service
-  # - exec_in: systemctl mask -- -.slice
-  # - exec_in: systemctl mask -- system.slice
   - exec_in: systemctl mask -- systemd-initctl.socket
   - exec_in: systemctl mask -- systemd-udevd-control.socket
   - exec_in: systemctl mask -- systemd-udevd-kernel.socket
@@ -115,6 +113,7 @@
   - exec_in: systemctl mask -- ondemand.service
   - exec_in: systemctl mask -- systemd-logind.service
   - exec_in: systemctl mask -- systemd-remount-fs.service
+  - exec_in: systemctl mask -- sysinit.target
 
 - set_default_systemd_targets:
   - exec_in: ln -sf /lib/systemd/system/halt.target /etc/systemd/system/sigpwr.target
