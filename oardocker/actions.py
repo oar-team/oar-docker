@@ -215,13 +215,13 @@ def start_nodes_containers(ctx, command, extra_binds, num_nodes,
 
 def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
            env={}):
-    command = ["/usr/local/sbin/oardocker_init"]
+    command = ["/lib/systemd/systemd", "systemd.unit=oardocker.target"]
     nodes = ("frontend", "server", "node")
     check_images_requirements(ctx, nodes, needed_tag, parent_cmd)
 
-    my_initd = op.join(ctx.envdir, "my_init.d")
+    init_scripts = op.join(ctx.envdir, "init-scripts")
     extra_binds = {
-        my_initd: {'bind': "/var/lib/container/my_init.d/", 'ro': True},
+        init_scripts: {'bind': "/var/lib/container/init-scripts/", 'ro': True},
         ctx.dns_file: {'bind': "/etc/hosts", 'ro': True},
         ctx.cgroup_path: {'bind': "/sys/fs/cgroup", 'ro': True},
         ctx.nodes_file: {'bind': "/var/lib/container/nodes", 'ro': True}

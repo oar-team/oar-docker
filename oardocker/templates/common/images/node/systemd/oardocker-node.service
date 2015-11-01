@@ -1,0 +1,11 @@
+[Unit]
+Description=OAR Node Daemon
+
+[Service]
+# Allow to connect from normal ssh port (instead of running two sshd processes)
+ExecStart=/usr/bin/socat TCP-LISTEN:22,fork,reuseaddr TCP:localhost:6667
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=oardocker.target

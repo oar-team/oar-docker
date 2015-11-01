@@ -1,0 +1,26 @@
+[Unit]
+Description=OAR server
+Requires=oardocker-postgresql.service
+After=oardocker-postgresql.service
+
+[Service]
+Type=forking
+TimeoutSec=120
+User=oar
+Group=oar
+
+SyslogIdentifier=oar-server
+PIDFile=/var/run/oar-server.pid
+
+# Run ExecStartPre with root-permissions
+PermissionsStartOnly=true
+ExecStartPre=/usr/bin/install -b  -m 644 -o oar -g oar /dev/null /var/run/oar-server.pid
+
+ExecStart=/bin/sh -c "oar-database --check > /dev/null 2>&1 && /usr/local/sbin/oar-server || (echo \"OAR database seems not ready. See 'oar-database --check'\"; exit 1)"
+
+ExecStopPost=/bin/rm -f /var/run/oar-server.pid
+
+Restart=on-failure
+
+[Install]
+WantedBy=oardocker.target

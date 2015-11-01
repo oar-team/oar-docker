@@ -1,6 +1,8 @@
-FROM oardocker/debian8:1.2
+FROM oardocker/debian8:1.3
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
+ENV container docker
+ENV init /lib/systemd/systemd
 ENV CONTAINER_LIB_PATH /var/lib/container
 ENV HOME /root
 ENV LC_ALL C
@@ -22,10 +24,21 @@ RUN chmod +x /usr/local/sbin/*
 ADD bin/ /usr/local/bin/
 RUN chmod 755 /usr/local/bin/*
 
+## systemd services
+RUN systemctl mask sysinit.target ; \
+    rm -rf /etc/systemd/system/*
+
+ADD systemd /etc/systemd/system
+RUN systemctl set-default oardocker.target ; \
+    chmod 644 /etc/systemd/system/* ; \
+    systemctl enable oardocker-sshd oardocker-fix-mount oardocker-ssh-keys
+
 ADD create_users.sh /tmp/create_users.sh
 RUN bash /tmp/create_users.sh
 
 ADD . /tmp
 RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh  && rm -rf /tmp/*
 
-CMD ["/usr/local/sbin/oardocker_init"]
+VOLUME [ "/sys/fs/cgroup" ]
+
+CMD ["/lib/systemd/systemd", "systemd.unit=oar-docker.target"]
