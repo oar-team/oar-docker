@@ -63,15 +63,15 @@ global:
     bsdutils ca-certificates perl perl-modules locales man-db less
     libui-dialog-perl dialog isc-dhcp-client ifupdown iptables iputils-ping
     iproute2 netbase net-tools psmisc openssh-server acpid acpi-support-base
-    systemd systemd-sysv systemd-cron
+    systemd systemd-sysv systemd-cron dbus
 
   core_packages: >
     debian-keyring sudo less vim nano bash-completion apt-transport-https
     ca-certificates psmisc openssh-client curl wget iptables socat pciutils
-    rsyslog locales net-tools iproute2 net-tools perl perl-base build-essential
-    taktuk libdbi-perl libsort-versions-perl libdbd-pg-perl postgresql-client
-    inetutils-ping git tmux openssh-server netcat unionfs-fuse procps
-    libdatetime-perl libterm-ui-perl rsync socat
+    syslog-ng-core locales net-tools iproute2 net-tools perl perl-base
+    build-essential taktuk libdbi-perl libsort-versions-perl libdbd-pg-perl
+    postgresql-client inetutils-ping git tmux openssh-server netcat
+    unionfs-fuse procps libdatetime-perl libterm-ui-perl rsync socat
     python python3 python-pip python3-pip python-psutil python-psycopg2
     python3-psycopg2 python-virtualenv
 

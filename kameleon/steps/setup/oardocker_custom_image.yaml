@@ -123,8 +123,3 @@
     - /lib/systemd/system/oar-docker.target
   - exec_in: systemctl set-default oar-docker.target
 
-- configure_rsyslog:
-  - exec_in: sed -i 's/^\($ModLoad imklog\)/#\1/' /etc/rsyslog.conf
-  - local2in:
-    - $$kameleon_data_dir/etc/rsyslog.d/50-default.conf
-    - /etc/rsyslog.d/50-default.conf
