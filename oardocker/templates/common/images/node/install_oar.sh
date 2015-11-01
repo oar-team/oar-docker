@@ -78,5 +78,11 @@ sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
 # Fix permissions
 chmod a+r /etc/oar/oar.conf
 
+# Allow all users (for debug)
+sed -i "s/AllowUsers oar//g" /etc/oar/sshd_config
+sed -i "s/PermitRootLogin no/PermitRootLogin yes/g" /etc/oar/sshd_config
+# Use only one sshd daemon
+rm -f /etc/ssh/sshd_config
+ln -s /etc/oar/sshd_config /etc/ssh/sshd_config
 echo "$VERSION" | tee /oar_version
 echo "$COMMENT"
