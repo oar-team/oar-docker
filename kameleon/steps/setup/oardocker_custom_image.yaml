@@ -118,8 +118,3 @@
 
 - set_default_systemd_targets:
   - exec_in: ln -sf /lib/systemd/system/halt.target /etc/systemd/system/sigpwr.target
-  - local2in:
-    - $$kameleon_data_dir/lib/systemd/system/oar-docker.target
-    - /lib/systemd/system/oar-docker.target
-  - exec_in: systemctl set-default oar-docker.target
-
