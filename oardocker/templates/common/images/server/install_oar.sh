@@ -134,5 +134,8 @@ echo "Stopping postgresql..."
 # Fix permissions
 chmod a+r /etc/oar/oar.conf
 
+# Disable all sysvinit services
+ls /etc/init.d/* | xargs -I {} basename {} | xargs -I {} systemctl disable {} 2> /dev/null || true
+
 echo "$VERSION" | tee /oar_version
 echo "$COMMENT"
