@@ -1,1 +1,0 @@
-../available/start_database.sh

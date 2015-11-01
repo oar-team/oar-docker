@@ -75,7 +75,7 @@
   - exec_in: |
       ls /etc/init.d/* | \
         xargs -I {} basename {} | \
-        xargs -I {} bash -c "echo Disable: {}; systemctl disable {} 2> /dev/null || true
+        xargs -I {} bash -c "echo Disable: {}; systemctl disable {} 2> /dev/null || true"
 
 - mask_systemd_services:
   - exec_in: systemctl mask -- -.mount
@@ -94,8 +94,8 @@
   - exec_in: systemctl mask -- systemd-udevd.service
   - exec_in: systemctl mask -- systemd-update-utmp.service
   - exec_in: systemctl mask -- systemd-user-sessions.service
-  - exec_in: systemctl mask -- -.slice
-  - exec_in: systemctl mask -- system.slice
+  # - exec_in: systemctl mask -- -.slice
+  # - exec_in: systemctl mask -- system.slice
   - exec_in: systemctl mask -- systemd-initctl.socket
   - exec_in: systemctl mask -- systemd-udevd-control.socket
   - exec_in: systemctl mask -- systemd-udevd-kernel.socket
