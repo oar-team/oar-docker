@@ -1,6 +1,0 @@
-#!/bin/bash
-WORKDIR=$1
-CMD="${@:2}"
-
-wait_ssh -h 172.18.0.2 -p 22
-cd $WORKDIR && ssh 172.18.0.2 -t "cd $WORKDIR && $CMD"
