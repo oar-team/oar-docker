@@ -1,10 +1,6 @@
 FROM oardocker/jessie-cigri-base:latest
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
-ENV OAR_VERSION 2.5
-ENV HOME /root
-ENV LC_ALL C
-ENV DEBIAN_FRONTEND noninteractive
 ENV COLOR red
 RUN echo "export COLOR=red" > /etc/hostname.color
 
@@ -23,9 +19,6 @@ RUN chmod +x /root/*.sh
 
 ## Cleanup
 RUN rm -rf /tmp/* /var/tmp/*
-
-## Configure log
-RUN echo "/var/log/oar.log" >> $CONTAINER_LIB_PATH/log2watch.txt
 
 EXPOSE 22
 

@@ -13,11 +13,7 @@ RUN echo "export COLOR=green" > /etc/hostname.color
 # RUN apt-get update
 # RUN apt-get install -y my_packages
 
-## configure sshd daemon:
-RUN mkdir -p $CONTAINER_LIB_PATH
-RUN mv /etc/ssh/ $CONTAINER_LIB_PATH/ssh ;\
-    ln -sf $CONTAINER_LIB_PATH/ssh /etc/ssh ;\
-    mkdir -p /var/run/sshd
+## configure sshd daemon
 ADD config/sshd_config /etc/ssh/sshd_config
 
 ## add helpers scripts:
@@ -26,8 +22,6 @@ RUN chmod +x /usr/local/sbin/*
 ADD bin/ /usr/local/bin/
 RUN chmod 755 /usr/local/bin/*
 
-RUN echo "/var/log/auth.log" >> $CONTAINER_LIB_PATH/log2watch.txt ;\
-    echo "/var/log/my_init.d.log" >> $CONTAINER_LIB_PATH/log2watch.txt
 
 ADD . /tmp
 RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh  && rm -rf /tmp/*
