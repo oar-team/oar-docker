@@ -79,6 +79,7 @@ class Context(object):
         self.state_file = op.join(self.envdir, "state.json")
         self.dns_file = op.join(self.envdir, "hosts")
         self.nodes_file = op.join(self.envdir, "nodes")
+        self.systemd_config_file = op.join(self.envdir, "systemd.conf")
         self.etc_profile_file = op.join(self.envdir, "profile.sh")
         self.docker = Docker(self, self.docker_host, self.docker_binary)
 

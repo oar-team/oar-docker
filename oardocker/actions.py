@@ -202,6 +202,23 @@ def start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend):
         ctx.state.update_etc_hosts(container)
 
 
+def generate_systemd_config_file(ctx, default_env={}):
+    default_env_list = ['"%s=%s"' % (k, v) for k, v in iteritems(default_env)]
+    default_config = """
+# See systemd-system.conf(5) for details.
+[Manager]
+LogLevel=info
+LogTarget=journal-or-kmsg
+LogColor=yes
+#LogLocation=no
+DefaultTimeoutStartSec=5s
+DefaultTimeoutStopSec=5s
+DefaultEnvironment="container=docker" %s
+""" % (" ".join(default_env_list))
+    with open(ctx.systemd_config_file, "w") as fd:
+        fd.write(default_config)
+
+
 def generate_etc_profile_file(ctx, default_env={}):
     etc_profile_vars = []
     for k, v in iteritems(default_env):
@@ -222,6 +239,8 @@ def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
         ctx.dns_file: {'bind': "/etc/hosts", 'ro': True},
         ctx.cgroup_path: {'bind': "/sys/fs/cgroup", 'ro': True},
         ctx.nodes_file: {'bind': "/var/lib/container/nodes", 'ro': True},
+        ctx.systemd_config_file: {'bind': "/etc/systemd/system.conf",
+                                  'ro': True},
         ctx.etc_profile_file: {'bind': "/etc/profile.d/oardocker_env.sh",
                                'ro': True},
     }
@@ -254,6 +273,7 @@ def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
         extra_binds[host_path] = {'bind': container_path, "ro": ro}
     env['COW_VOLUMES'] = '\n'.join(cow_volumes)
 
+    generate_systemd_config_file(ctx, env)
     generate_etc_profile_file(ctx, env)
 
     frontend = start_frontend_container(ctx, command, extra_binds, http_port)
