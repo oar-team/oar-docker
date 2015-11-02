@@ -153,37 +153,30 @@ def get_common_binds(ctx, hostname):
     return binds
 
 
-def start_server_container(ctx, command, extra_binds, num_nodes, env):
+def start_server_container(ctx, command, extra_binds):
     image = ctx.image_name("server", "latest")
     hostname = "server"
     binds = get_common_binds(ctx, hostname)
     binds.update(extra_binds)
-    environment = dict(env)
-    environment["NUM_NODES"] = num_nodes
     container = Container.create(ctx.docker, image=image,
-                                 detach=True, hostname=hostname,
-                                 environment=environment, ports=[22],
+                                 detach=True, hostname=hostname, ports=[22],
                                  command=command, tty=True)
     ctx.state["containers"].append(container.short_id)
-    container.start(binds=binds, privileged=True,
-                    volumes_from=None)
+    container.start(binds=binds, privileged=True, volumes_from=None)
     log_started(hostname)
     ctx.state.update_etc_hosts(container)
     return container
 
 
-def start_frontend_container(ctx, command, extra_binds, num_nodes,
-                             http_port, env):
+def start_frontend_container(ctx, command, extra_binds, http_port):
     image = ctx.image_name("frontend", "latest")
     hostname = "frontend"
     binds = get_common_binds(ctx, hostname)
     binds.update(extra_binds)
-    environment = dict(env)
-    environment["NUM_NODES"] = num_nodes
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
-                                 environment=environment, volumes=["/home"],
-                                 ports=[22, 80], command=command, tty=True)
+                                 volumes=["/home"], ports=[22, 80],
+                                 command=command, tty=True)
     ctx.state["containers"].append(container.short_id)
     container.start(binds=binds, privileged=True,
                     port_bindings={80: ('127.0.0.1', http_port)},
@@ -193,24 +186,28 @@ def start_frontend_container(ctx, command, extra_binds, num_nodes,
     return container
 
 
-def start_nodes_containers(ctx, command, extra_binds, num_nodes,
-                           frontend, env):
+def start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend):
     image = ctx.image_name("node", "latest")
-    environment = dict(env)
-    environment["NUM_NODES"] = num_nodes
     for i in range(1, num_nodes + 1):
         hostname = "node%d" % i
         binds = get_common_binds(ctx, "node")
         binds.update(extra_binds)
         container = Container.create(ctx.docker, image=image,
                                      detach=True, hostname=hostname,
-                                     ports=[22], command=command, tty=True,
-                                     environment=environment)
+                                     ports=[22], command=command, tty=True)
         ctx.state["containers"].append(container.short_id)
         container.start(binds=binds, privileged=True,
                         volumes_from=frontend.id)
         log_started(hostname)
         ctx.state.update_etc_hosts(container)
+
+
+def generate_etc_profile_file(ctx, default_env={}):
+    etc_profile_vars = []
+    for k, v in iteritems(default_env):
+        etc_profile_vars.append("export %s=\"%s\"" % (k, v))
+    with open(ctx.etc_profile_file, "w") as fd:
+        fd.write('\n'.join(etc_profile_vars) + "\n")
 
 
 def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
@@ -224,7 +221,9 @@ def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
         init_scripts: {'bind': "/var/lib/container/init-scripts/", 'ro': True},
         ctx.dns_file: {'bind': "/etc/hosts", 'ro': True},
         ctx.cgroup_path: {'bind': "/sys/fs/cgroup", 'ro': True},
-        ctx.nodes_file: {'bind': "/var/lib/container/nodes", 'ro': True}
+        ctx.nodes_file: {'bind': "/var/lib/container/nodes", 'ro': True},
+        ctx.etc_profile_file: {'bind': "/etc/profile.d/oardocker_env.sh",
+                               'ro': True},
     }
     mount_options = ('ro', 'rw', 'cow')
     cow_volumes = []
@@ -254,7 +253,9 @@ def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
 
         extra_binds[host_path] = {'bind': container_path, "ro": ro}
     env['COW_VOLUMES'] = '\n'.join(cow_volumes)
-    frontend = start_frontend_container(ctx, command, extra_binds,
-                                        num_nodes, http_port, env)
-    start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend, env)
-    start_server_container(ctx, command, extra_binds, num_nodes, env)
+
+    generate_etc_profile_file(ctx, env)
+
+    frontend = start_frontend_container(ctx, command, extra_binds, http_port)
+    start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend)
+    start_server_container(ctx, command, extra_binds)
