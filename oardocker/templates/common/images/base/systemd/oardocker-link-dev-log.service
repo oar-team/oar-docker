@@ -1,0 +1,12 @@
+[Unit]
+Description=Link /var/run/rsyslog/dev/log to /dev/log
+Before=oardocker.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/ln -sf /var/run/rsyslog/dev/log /dev/log
+# TimeoutSec=0
+RemainAfterExit=on
+
+[Install]
+WantedBy=oardocker.target

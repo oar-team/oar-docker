@@ -1,0 +1,12 @@
+[Unit]
+Description=Send Journalctl to Syslog
+
+[Service]
+TimeoutStartSec=0
+ExecStart=/bin/sh -c '/usr/bin/journalctl -o json -f | /usr/bin/ncat syslog 515'
+
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=oardocker.target

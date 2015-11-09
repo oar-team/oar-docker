@@ -33,7 +33,7 @@ ADD systemd /etc/systemd/system
 RUN systemctl set-default oardocker.target ; \
     chmod 644 /etc/systemd/system/* ; \
     systemctl enable oardocker-sshd oardocker-fix-mount oardocker-ssh-keys \
-                     oardocker-mount-cow
+                     oardocker-mount-cow oardocker-link-dev-log
 
 ADD create_users.sh /tmp/create_users.sh
 RUN bash /tmp/create_users.sh

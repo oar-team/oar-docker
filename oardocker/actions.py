@@ -153,6 +153,23 @@ def get_common_binds(ctx, hostname):
     return binds
 
 
+def start_rsyslog_container(ctx, extra_binds):
+    image = ctx.image_name("rsyslog", "latest")
+    command = ["rsyslogd", "-n"]
+    hostname = "frontend"
+    binds = get_common_binds(ctx, hostname)
+    binds.update(extra_binds)
+    container = Container.create(ctx.docker, image=image,
+                                 detach=True, hostname=hostname,
+                                 volumes=["/var/run/rsyslog/dev"],
+                                 command=command, tty=True)
+    ctx.state["containers"].append(container.short_id)
+    container.start(binds=binds, volumes_from=None)
+    log_started(hostname)
+    ctx.state.update_etc_hosts(container)
+    return container
+
+
 def start_server_container(ctx, command, extra_binds):
     image = ctx.image_name("server", "latest")
     hostname = "server"
@@ -285,4 +302,4 @@ def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
 
     frontend = start_frontend_container(ctx, command, extra_binds, http_port)
     start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend)
-    start_server_container(ctx, command, extra_binds)
+    start_server_container(ctx, command, extra_binds, frontend)

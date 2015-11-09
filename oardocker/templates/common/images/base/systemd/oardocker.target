@@ -4,4 +4,4 @@
 Description=Basic oardocker System
 DefaultDependencies=no
 AllowIsolate=yes
-Wants=systemd-journald.service rc-local.service
+Wants=oardocker-link-dev-log.service systemd-journald.service rc-local.service
