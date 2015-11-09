@@ -55,7 +55,7 @@ global:
   # configure it and setup additional programs
   ssh_config_file: $$kameleon_cwd/ssh_config
   in_context:
-    cmd: LC_ALL=POSIX ssh -F $$ssh_config_file $$kameleon_recipe_name -t /bin/bash
+    cmd: LC_ALL=POSIX docker exec -i $(cat MAIN_CONTAINER_ID) /bin/bash
     workdir: /root/kameleon_workdir
     proxy_cache: 172.17.42.1
 
@@ -72,15 +72,15 @@ global:
     build-essential taktuk libdbi-perl libsort-versions-perl libdbd-pg-perl
     postgresql-client inetutils-ping git tmux openssh-server netcat
     unionfs-fuse procps libdatetime-perl libterm-ui-perl rsync socat
-    python python3 python-pip python3-pip python-psutil python-psycopg2
-    python3-psycopg2 python-virtualenv
+    python python3 python-dev python3-dev python-pip python3-pip
+    python-psutil python-psycopg2 python3-psycopg2 python-virtualenv
 
   frontend_dependencie: >
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl
     libtie-ixhash-perl libwww-perl libcgi-fast-perl libapache2-mod-fastcgi
-    php5 libapache2-mod-php5 php5-mcrypt php5-pgsql phppgadmin libjs-jquery
-    rubygems ruby-dev php-apc ruby-rspec apache2-suexec-custom apache2
-    apache2-mpm-prefork oidentd nginx
+    php5 php5-fpm libapache2-mod-php5 php5-mcrypt php5-pgsql phppgadmin
+    libjs-jquery rubygems ruby-dev php-apc ruby-rspec spawn-fcgi fcgiwrap
+    apache2-suexec-custom apache2 apache2-mpm-prefork oidentd nginx
 
   server_packages: >
     postgresql
