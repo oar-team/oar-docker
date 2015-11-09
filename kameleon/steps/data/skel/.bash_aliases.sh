@@ -18,8 +18,6 @@ alias pycclean='find . -name "*.pyc" | xargs -I {} rm -v "{}"'
 alias gitclean='git clean -fd'
 alias myip="dig +short myip.opendns.com @resolver1.opendns.com"
 
-alias ssh-x='ssh -X'
-
 ## TMUX
 alias tmux='tmux -2'
 
@@ -49,10 +47,7 @@ alias df='df -h'
 alias chown='chown -h'
 alias process='ps aux | grep'
 # Date
-alias ntpupdate='ntpdate fr.pool.ntp.org'
 alias memrss='while read command percent rss; do if [[ "${command}" != "COMMAND" ]]; then rss="$(bc <<< "scale=2;${rss}/1024")"; fi; printf "%-26s%-8s%s\n" "${command}" "${percent}" "${rss}"; done < <(ps -A --sort -rss -o comm,pmem,rss | head -n 11)'
-
-alias fast_rsync="rsync -aHAXxv --numeric-ids --delete --progress -e \"ssh -T -c arcfour -o Compression=no -x\""
 
 # Copy SSH public key
 alias cbssh="cbf $HOME/.ssh/id_rsa.pub"
