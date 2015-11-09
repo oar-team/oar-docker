@@ -5,12 +5,10 @@
 alias sudo="sudo -E "
 alias _='sudo'
 
-for __cmd in apt-get aptitude yum service systemctl pacman; do
+for __cmd in apt-get aptitude setuser ps_mem systemctl journalctl $(echo $(compgen -c systemd-)); do
   eval "alias $__cmd='_ $__cmd'"
 done ; unset __cmd
 
-alias apt="aptitude"
-alias ap="apt update && apt upgrade -y && sudo apt safe-upgrade -y && apt autoclean -y"
 alias la='ls -alhFt --color=auto'
 alias ll='ls -halF --color=tty'
 alias ls='ls --color=tty'
