@@ -14,6 +14,9 @@ RUN echo "PrintMotd yes" >> /etc/ssh/sshd_config
 ADD install_oar.sh /root/install_oar.sh
 RUN chmod +x /root/*.sh
 
+## nginx
+ADD config/nginx.conf /etc/nginx/nginx.conf
+
 ## systemd services
 ADD systemd /etc/systemd/system
 RUN chmod 644 /etc/systemd/system/* ; \
