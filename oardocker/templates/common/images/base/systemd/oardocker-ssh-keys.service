@@ -1,5 +1,5 @@
 [Unit]
-Description=Configure SSH keys
+Description=Configuration of OAR SSH keys
 ConditionPathExists=!/var/lib/container/configure_ssh_keys_done
 ConditionFileIsExecutable=/var/lib/container/init-scripts/configure_ssh_keys.sh
 Requires=oardocker-sshd.service

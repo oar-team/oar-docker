@@ -1,5 +1,5 @@
 [Unit]
-Description=Fix broken docker /etc/hosts mount
+Description=Fix of docker /etc/hosts mountpoint
 ConditionFileIsExecutable=/var/lib/container/init-scripts/fix_etc_hosts_mount.sh
 Before=oardocker.target
 
