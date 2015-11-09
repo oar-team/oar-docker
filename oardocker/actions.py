@@ -202,6 +202,11 @@ def start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend):
         ctx.state.update_etc_hosts(container)
 
 
+def generate_cow_volumes_file(ctx, cow_volumes):
+    with open(ctx.cow_volumes_file, "w") as fd:
+        fd.write('\n'.join(cow_volumes) + '\n')
+
+
 def generate_systemd_config_file(ctx, default_env={}):
     default_env_list = ['"%s=%s"' % (k, v) for k, v in iteritems(default_env)]
     default_config = """
@@ -239,6 +244,8 @@ def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
         ctx.dns_file: {'bind': "/etc/hosts", 'ro': True},
         ctx.cgroup_path: {'bind': "/sys/fs/cgroup", 'ro': True},
         ctx.nodes_file: {'bind': "/var/lib/container/nodes", 'ro': True},
+        ctx.cow_volumes_file: {'bind': "/var/lib/container/cow_volumes",
+                               'ro': True},
         ctx.systemd_config_file: {'bind': "/etc/systemd/system.conf",
                                   'ro': True},
         ctx.etc_profile_file: {'bind': "/etc/profile.d/oardocker_env.sh",
@@ -271,8 +278,8 @@ def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
                              "following options %s" % (volume, mount_options))
 
         extra_binds[host_path] = {'bind': container_path, "ro": ro}
-    env['COW_VOLUMES'] = '\n'.join(cow_volumes)
 
+    generate_cow_volumes_file(ctx, cow_volumes)
     generate_systemd_config_file(ctx, env)
     generate_etc_profile_file(ctx, env)
 
