@@ -1,0 +1,17 @@
+[Unit]
+Description=OAR FastCGI Process Manager
+
+[Service]
+Type=forking
+PIDFile=/var/run/oar-fcgi.pid
+ExecStartPre=/bin/rm -f /run/oar-fcgi.pid
+ExecStart=/usr/bin/spawn-fcgi \
+            -u oar -g oar \
+            -s /var/run/oar-fcgi.sock -U www-data -G www-data \
+            -F 3 \
+            -P /var/run/oar-fcgi.pid \
+            -- /usr/sbin/fcgiwrap
+Restart=on-abort
+
+[Install]
+WantedBy=oardocker.target

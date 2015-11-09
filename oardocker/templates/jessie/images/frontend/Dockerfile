@@ -20,7 +20,7 @@ ADD config/nginx.conf /etc/nginx/nginx.conf
 ## systemd services
 ADD systemd /etc/systemd/system
 RUN chmod 644 /etc/systemd/system/* ; \
-    systemctl enable oardocker-nginx
+    systemctl enable oardocker-nginx oardocker-php oardocker-fcgi
 
 ADD . /tmp
 RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh && rm -rf /tmp/*

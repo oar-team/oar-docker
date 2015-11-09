@@ -1,0 +1,12 @@
+[Unit]
+Description=The PHP FastCGI Process Manager
+
+[Service]
+Type=notify
+PIDFile=/run/php-fpm/php-fpm.pid
+PrivateTmp=true
+ExecStart=/usr/sbin/php5-fpm --nodaemonize --pid /run/php-fpm/php-fpm.pid
+ExecReload=/bin/kill -USR2 $MAINPID
+
+[Install]
+WantedBy=oardocker.target
