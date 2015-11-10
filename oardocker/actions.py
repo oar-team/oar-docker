@@ -16,7 +16,7 @@ import click
 
 def execute(ctx, user, hostname, cmd, workdir, tty=False):
     node_name = ''.join([i for i in hostname if not i.isdigit()])
-    nodes = ("frontend", "services", "node", "server")
+    nodes = ("frontend", "services", "node", "server", "rsyslog")
     if node_name not in nodes:
         raise click.ClickException("Cannot find the container with the name "
                                    "'%s'" % hostname)
@@ -156,12 +156,11 @@ def get_common_binds(ctx, hostname):
 def start_rsyslog_container(ctx, extra_binds):
     image = ctx.image_name("rsyslog", "latest")
     command = ["rsyslogd", "-n"]
-    hostname = "frontend"
+    hostname = "rsyslog"
     binds = get_common_binds(ctx, hostname)
     binds.update(extra_binds)
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
-                                 volumes=["/var/run/rsyslog/dev"],
                                  command=command, tty=True)
     ctx.state["containers"].append(container.short_id)
     container.start(binds=binds, volumes_from=None)
@@ -300,6 +299,7 @@ def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
     generate_systemd_config_file(ctx, env)
     generate_etc_profile_file(ctx, env)
 
+    start_rsyslog_container(ctx, extra_binds)
     frontend = start_frontend_container(ctx, command, extra_binds, http_port)
     start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend)
-    start_server_container(ctx, command, extra_binds, frontend)
+    start_server_container(ctx, command, extra_binds)
