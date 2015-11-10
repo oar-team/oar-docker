@@ -3,6 +3,7 @@ Description=OAR FastCGI Process Manager
 
 [Service]
 Type=forking
+SyslogIdentifier=oar-fcgi
 PIDFile=/var/run/oar-fcgi.pid
 ExecStartPre=/bin/rm -f /run/oar-fcgi.pid
 ExecStart=/usr/bin/spawn-fcgi \

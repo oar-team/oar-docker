@@ -8,6 +8,7 @@ After=oardocker-server.service
 
 [Service]
 Type=oneshot
+SyslogIdentifier=resources
 ExecStart=/var/lib/container/init-scripts/create_resources.sh
 ExecStartPost=/usr/bin/touch /var/lib/container/create_resources_done
 RemainAfterExit=on

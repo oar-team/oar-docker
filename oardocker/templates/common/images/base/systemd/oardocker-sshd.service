@@ -3,6 +3,7 @@ Description=OpenBSD Secure Shell server
 ConditionPathExists=!/etc/ssh/sshd_not_to_be_run
 
 [Service]
+SyslogIdentifier=sshd
 EnvironmentFile=-/etc/default/ssh
 ExecStartPre=-/bin/mkdir -p /var/run/sshd
 ExecStartPre=-/bin/chmod 0755 /var/run/sshd

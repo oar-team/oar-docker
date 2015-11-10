@@ -8,6 +8,7 @@ After=oardocker-sshd.service
 
 [Service]
 Type=oneshot
+SyslogIdentifier=ssh-keys
 ExecStart=/var/lib/container/init-scripts/configure_ssh_keys.sh
 ExecStartPost=/usr/bin/touch /var/lib/container/configure_ssh_keys_done
 RemainAfterExit=on
