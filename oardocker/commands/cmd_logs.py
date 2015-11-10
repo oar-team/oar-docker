@@ -72,7 +72,7 @@ class LogPrinter(object):
 
 
 @click.command('logs')
-@click.argument('hostname', required=False, default="")
+@click.argument('hostname', required=False, default="rsyslog")
 @click.option('-t', '--tail', default=-1,
               help="Output the specified number of lines at the end of logs")
 @click.option('-f', '--follow', is_flag=True, default=False,
@@ -85,15 +85,9 @@ def cli(ctx, hostname, tail, follow):
     containers = list(ctx.docker.get_containers())
     if hostname:
         node_name = ''.join([i for i in hostname if not i.isdigit()])
-        nodes = ("frontend", "services", "node", "server")
+        nodes = ("frontend", "services", "node", "server", "rsyslog")
         if node_name not in nodes:
             raise click.ClickException("Cannot find the container with the "
                                        "name '%s'" % hostname)
         containers = [c for c in containers if hostname in c.hostname]
-    if not containers:
-        print_msg = "container" if hostname else "containers"
-        raise click.ClickException("The %s must be started before "
-                                   "running this command. Run  `oardocker"
-                                   " start` first" % print_msg)
-    else:
         LogPrinter(containers, tail, follow).run()
