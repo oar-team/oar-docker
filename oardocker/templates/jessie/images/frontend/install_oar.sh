@@ -147,14 +147,23 @@ server {
 
   location /drawgantt-svg {
     root /usr/local/share/oar-web-status/;
-    include fastcgi_params;
+    fastcgi_split_path_info ^(.+\.php)(/.+)$;
     fastcgi_pass unix:/var/run/php5-fpm.sock;
-    fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
     fastcgi_index index.php;
+    include fastcgi_params;
   }
 
   location /drawgantt {
     rewrite ^/drawgantt(.*)$ /drawgantt-svg$1 last;
+  }
+
+  location /phppgadmin {
+    root /usr/share/;
+    access_log off;
+    fastcgi_split_path_info ^(.+\.php)(/.+)$;
+    fastcgi_pass unix:/var/run/php5-fpm.sock;
+    fastcgi_index index.php;
+    include fastcgi_params;
   }
 
   location /monika {
@@ -210,41 +219,9 @@ sed -e 's/^\(DEPLOY_HOSTNAME\)=.*/\1="frontend"/' -i /etc/oar/oar.conf
 sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
 
 # Configure phppgadmin
-if [ -f /etc/apache2/conf-available/phppgadmin.conf ]; then
-  # work around current bug in the package (see: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=669837)
-  cat <<EOF > /etc/apache2/conf-available/phppgadmin.conf
-Alias /phppgadmin /usr/share/phppgadmin
-
-<Directory /usr/share/phppgadmin>
-
-DirectoryIndex index.php
-AllowOverride None
-Require all granted
-
-<IfModule mod_php5.c>
-  php_flag magic_quotes_gpc Off
-  php_flag track_vars On
-  #php_value include_path .
-</IfModule>
-<IfModule !mod_php5.c>
-  <IfModule mod_actions.c>
-    <IfModule mod_cgi.c>
-      AddType application/x-httpd-php .php
-      Action application/x-httpd-php /cgi-bin/php
-    </IfModule>
-    <IfModule mod_cgid.c>
-      AddType application/x-httpd-php .php
-      Action application/x-httpd-php /cgi-bin/php
-    </IfModule>
-  </IfModule>
-</IfModule>
-
-</Directory>
-EOF
-  ln -sf /etc/apache2/conf-available/phppgadmin.conf /etc/apache2/conf-enabled/phppgadmin.conf
-fi
 sed -i "s/\$conf\['extra_login_security'\] = true;/\$conf\['extra_login_security'\] = false;/g" /etc/phppgadmin/config.inc.php
 sed -i "s/\$conf\['servers'\]\[0\]\['host'\] = 'localhost';/\$conf\['servers'\]\[0\]\['host'\] = 'server';/g" /etc/phppgadmin/config.inc.php
+chown -R  www-data:www-data /usr/share/phppgadmin/
 
 ## Visualization tools
 # Configure drawgantt-svg
