@@ -91,6 +91,9 @@ class Container(object):
         self.inspect_if_not_inspected()
         return self.dictionary["Config"]["Hostname"]
 
+    def nodename(self):
+        return ''.join([i for i in self.hostname if not i.isdigit()])
+
     @property
     def ip(self):
         self.inspect_if_not_inspected()
@@ -134,13 +137,15 @@ class Container(object):
         return self.docker.api.wait(self.id)
 
     def logs(self, *args, **kwargs):
-        follow = kwargs.get("follow", False)
-        tail = kwargs.get("tail", -1)
-        _iter = kwargs.get("_iter", False)
+        follow = kwargs.pop("follow", False)
+        if follow:
+            lines = kwargs.pop("lines", 10)
+        else:
+            lines = kwargs.pop("lines", "all")
+        _iter = kwargs.pop("_iter", False)
         if _iter:
             call_args = ["logs"]
-            if tail > 0:
-                call_args.extend(["--tail", "%s" % tail])
+            call_args.extend(["--tail", "%s" % lines])
             if follow:
                 call_args.append("--follow")
             call_args.append(self.id)
@@ -148,10 +153,12 @@ class Container(object):
         else:
             return to_unicode(self.docker.api.logs(self.id, *args, **kwargs))
 
-    def get_log_prefix(self, prefix_width):
+    def get_log_prefix(self, prefix_width=None):
         """
         Generate the prefix for a log line without colour
         """
+        if prefix_width is None:
+            prefix_width = len(self.hostname)
         color = self.environment.get("COLOR", "white")
         name = click.style(self.hostname, fg=color)
         padding = ' ' * (prefix_width - len(self.hostname))

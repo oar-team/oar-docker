@@ -12,82 +12,81 @@ from ..compat import Empty, to_unicode
 
 class LogPrinter(object):
 
-    def __init__(self, containers, tail, follow):
-        self.containers = containers
+    def __init__(self, container, lines, follow):
+        self.container = container
         self.follow = follow
-        self.tail = tail
-        self.prefix_width = self.compute_prefix_width(containers)
+        self.lines = lines
         self.queue = Queue()
-        self.processes = []
-
-    def compute_prefix_width(self, containers):
-        prefix_width = 0
-        for container in containers:
-            prefix_width = max(prefix_width, len(container.hostname))
-        return prefix_width
-
-    def feed_queue(self, container):
-        try:
-            prefix = container.get_log_prefix(self.prefix_width)
-            for line in container.logs(_iter=True,
-                                       follow=self.follow,
-                                       tail=self.tail):
-                self.queue.put(prefix + to_unicode(line))
-        except KeyboardInterrupt:
-            sys.exit(0)
+        self.prefix = self.container.get_log_prefix()
+        self.process = None
 
     def run(self):
-        for container in self.containers:
-            p = Process(target=self.feed_queue, args=(container,))
-            p.start()
-            self.processes.append(p)
+        if not self.follow:
+            lines = self.container.logs(_iter=False,
+                                        follow=self.follow,
+                                        lines=self.lines).split('\n')
+            text = '\n'.join(self.prefix + to_unicode(l) for l in lines)
+            click.echo_via_pager(text)
+        else:
 
-        def join_processes(terminate=False):
-            alive_processes = []
-            for process in self.processes:
-                if not terminate:
-                    if not process.is_alive():
-                        process.join()
-                    else:
-                        alive_processes.append(process)
-                    self.processes = alive_processes[:]
-                else:
-                    if process.is_alive():
-                        process.terminate()
-                    process.join()
-
-        try:
-            while True:
+            def feed():
                 try:
-                    line = self.queue.get(timeout=0.2)
-                    click.echo(line, nl=False)
-                except Empty:
-                    if len(self.processes) == 0:
-                        break
-                    join_processes()
+                    for line in self.container.logs(_iter=True,
+                                                    follow=self.follow,
+                                                    lines=self.lines):
+                        self.queue.put(self.prefix + to_unicode(line))
                 except KeyboardInterrupt:
                     sys.exit(0)
-        finally:
-            join_processes(terminate=True)
+
+            def join(terminate=False):
+                if self.process is not None:
+                    if not terminate:
+                        if not self.process.is_alive():
+                            self.process.join()
+                    else:
+                        if self.process.is_alive():
+                            self.process.terminate()
+                        self.process.join()
+
+            self.process = Process(target=feed)
+            self.process.start()
+
+            try:
+                while True:
+                    try:
+                        line = self.queue.get(timeout=0.2)
+                        click.echo(line, nl=False)
+                    except Empty:
+                        join()
+                    except KeyboardInterrupt:
+                        sys.exit(0)
+            finally:
+                join(terminate=True)
 
 
 @click.command('logs')
 @click.argument('hostname', required=False, default="rsyslog")
-@click.option('-t', '--tail', default=-1,
-              help="Output the specified number of lines at the end of logs")
+@click.option('-n', '--lines', default=None,
+              help="Number of journal entries to show")
+@click.option('--no-tail', is_flag=True, default=False,
+              help="Show all lines, even in follow mode")
 @click.option('-f', '--follow', is_flag=True, default=False,
               help="Follow log output")
 @pass_context
 @on_finished(lambda ctx: ctx.state.dump())
 @on_started(lambda ctx: ctx.assert_valid_env())
-def cli(ctx, hostname, tail, follow):
+def cli(ctx, hostname, lines, no_tail, follow):
     """Fetch the logs of all nodes or only one."""
-    containers = list(ctx.docker.get_containers())
-    if hostname:
-        node_name = ''.join([i for i in hostname if not i.isdigit()])
-        nodes = ("frontend", "services", "node", "server", "rsyslog")
-        if node_name not in nodes:
-            raise click.ClickException("Cannot find the container with the "
-                                       "name '%s'" % hostname)
-        containers = [c for c in containers if hostname in c.hostname]
-        LogPrinter(containers, tail, follow).run()
+    containers = ctx.docker.get_containers_by_hosts()
+    if hostname in containers:
+        if no_tail:
+            lines = "all"
+        if lines is None:
+            if follow:
+                lines = 10
+            else:
+                lines = "all"
+        LogPrinter(containers[hostname], lines, follow).run()
+    else:
+        raise click.ClickException("Cannot find the container with the "
+                                   "name '%s'" % hostname)

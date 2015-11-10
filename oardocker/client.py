@@ -62,6 +62,9 @@ class Docker(object):
                 continue
             yield Container(self, container)
 
+    def get_containers_by_hosts(self):
+        return dict(((c.hostname, c) for c in self.get_containers()))
+
     def get_images(self):
         state_images_ids = [i[:12] for i in self.ctx.state["images"]]
         images = self.api.images(name=None, quiet=False,
