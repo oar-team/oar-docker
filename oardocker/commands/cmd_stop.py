@@ -5,6 +5,12 @@ import click
 from ..context import pass_context, on_started, on_finished
 
 
+SIGNALS = {
+    "default": "SIGINT",
+    "rsyslog": "SIGTERM",
+}
+
+
 @click.command('stop')
 @pass_context
 @on_finished(lambda ctx: ctx.state.dump())
@@ -15,8 +21,12 @@ def cli(ctx):
     removed = click.style("Removed", fg="blue")
     for container in ctx.docker.get_containers():
         name = container.hostname
+        node_name = ''.join([i for i in name if not i.isdigit()])
         image_name = container.dictionary['Config']['Image']
-        container.kill("SIGINT")
+        if node_name in SIGNALS:
+            container.kill(SIGNALS[node_name])
+        else:
+            container.kill(SIGNALS["default"])
         container.wait()
         ctx.log("Container %s --> %s" % (name, stopped))
         container.remove(v=False, link=False, force=True)
