@@ -250,7 +250,8 @@ def generate_etc_profile_file(ctx, default_env={}):
 
 def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
            env={}):
-    command = ["/lib/systemd/systemd", "systemd.unit=oardocker.target"]
+    command = ["/lib/systemd/systemd", "systemd.unit=oardocker.target",
+               "systemd.journald.forward_to_console=1"]
     nodes = ("frontend", "server", "node")
     check_images_requirements(ctx, nodes, needed_tag, parent_cmd)
 
