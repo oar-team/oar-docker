@@ -68,7 +68,7 @@ global:
   core_packages: >
     debian-keyring sudo less vim nano bash-completion apt-transport-https
     ca-certificates psmisc openssh-client curl wget iptables socat pciutils
-    rsyslog locales net-tools iproute2 net-tools perl perl-base
+    rsyslog nmap locales net-tools iproute2 net-tools perl perl-base
     build-essential taktuk libdbi-perl libsort-versions-perl libdbd-pg-perl
     postgresql-client inetutils-ping git tmux openssh-server netcat
     unionfs-fuse procps libdatetime-perl libterm-ui-perl rsync socat
