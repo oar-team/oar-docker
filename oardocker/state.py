@@ -55,6 +55,13 @@ class State(dict):
             images.append(image["Id"][:12])
         self["images"] = list(set(images))
 
+    def fast_dump(self):
+        if op.isdir(self.ctx.envdir):
+            touch(self.state_file)
+            if op.isdir(op.dirname(self.state_file)):
+                with open(self.state_file, "w", encoding='utf8') as json_file:
+                    json_file.write(json.dumps(self, ensure_ascii=False))
+
     def dump(self):
         if op.isdir(self.ctx.envdir):
             self.update_list_containers()

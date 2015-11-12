@@ -166,6 +166,7 @@ def start_rsyslog_container(ctx, extra_binds):
     container.start(binds=binds, volumes_from=None)
     log_started(hostname)
     ctx.state.update_etc_hosts(container)
+    ctx.state.fast_dump()
     return container
 
 
@@ -181,6 +182,7 @@ def start_server_container(ctx, command, extra_binds):
     container.start(binds=binds, privileged=True, volumes_from=None)
     log_started(hostname)
     ctx.state.update_etc_hosts(container)
+    ctx.state.fast_dump()
     return container
 
 
@@ -199,6 +201,7 @@ def start_frontend_container(ctx, command, extra_binds, http_port):
                     volumes_from=None)
     log_started(hostname)
     ctx.state.update_etc_hosts(container)
+    ctx.state.fast_dump()
     return container
 
 
@@ -216,6 +219,7 @@ def start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend):
                         volumes_from=frontend.id)
         log_started(hostname)
         ctx.state.update_etc_hosts(container)
+        ctx.state.fast_dump()
 
 
 def generate_cow_volumes_file(ctx, cow_volumes):

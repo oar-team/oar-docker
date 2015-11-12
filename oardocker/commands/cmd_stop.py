@@ -31,6 +31,8 @@ def cli(ctx):
         ctx.log("Container %s --> %s" % (name, stopped))
         container.remove(v=False, link=False, force=True)
         ctx.log("Container %s --> %s" % (name, removed))
+        ctx.state['containers'].remove(container.short_id)
+        ctx.state.fast_dump()
         # remove untagged image
         if not image_name.startswith(ctx.prefix):
             ctx.docker.remove_image(image_name, force=True)
