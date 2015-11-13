@@ -82,7 +82,7 @@ mv /var/www/html/index.nginx-debian.html /var/www/html/index.html
 
 rm -f /etc/oar/api-users
 htpasswd -b -c /etc/oar/api-users docker docker
-htpasswd -b /etc/oar/api-users oar docker
+htpasswd -b /etc/oar/api-users oar oar
 
 # configure API on nginx
 
