@@ -9,6 +9,4 @@ Environment=NGINX=3:4;
 ExecStart=/usr/sbin/nginx -c/etc/nginx/nginx.conf
 SyslogIdentifier=nginx
 PrivateNetwork=true
-
-[Install]
-WantedBy=oardocker.target
+PrivateTmp=true
