@@ -1,18 +1,10 @@
 [Unit]
 Description=OAR FastCGI Process Manager
+ConditionFileIsExecutable=/var/lib/container/init-scripts/systemd-spawn-fcgi.sh
 
 [Service]
-Type=forking
+ExecStart=/var/lib/container/init-scripts/systemd-spawn-fcgi.sh /usr/sbin/fcgiwrap
+User=oar
+Group=oar
 SyslogIdentifier=oar-fcgi
-PIDFile=/var/run/oar-fcgi.pid
-ExecStartPre=/bin/rm -f /run/oar-fcgi.pid
-ExecStart=/usr/bin/spawn-fcgi \
-            -u oar -g oar \
-            -s /var/run/oar-fcgi.sock -U www-data -G www-data \
-            -F 3 \
-            -P /var/run/oar-fcgi.pid \
-            -- /usr/sbin/fcgiwrap
-Restart=on-abort
-
-[Install]
-WantedBy=oardocker.target
+PrivateTmp=true

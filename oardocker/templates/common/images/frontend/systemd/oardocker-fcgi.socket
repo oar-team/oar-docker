@@ -1,0 +1,11 @@
+[Unit]
+Description=OAR FastCGI Socket
+
+[Socket]
+ListenStream=/var/run/oar-fcgi.sock
+SocketUser=www-data
+SocketGroup=www-data
+SocketMode=0600
+
+[Install]
+WantedBy=oardocker.target

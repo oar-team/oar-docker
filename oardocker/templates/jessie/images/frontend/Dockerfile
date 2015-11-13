@@ -25,7 +25,7 @@ ADD config/php5.conf /etc/php5/fpm/pool.d/oardocker.conf
 ## systemd services
 ADD systemd /etc/systemd/system
 RUN chmod 644 /etc/systemd/system/* ; \
-    systemctl enable oardocker-nginx.socket oardocker-php.socket oardocker-fcgi
+    systemctl enable oardocker-nginx.socket oardocker-php.socket oardocker-fcgi.socket
 
 ADD . /tmp
 RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh && rm -rf /tmp/*
