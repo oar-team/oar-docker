@@ -78,6 +78,8 @@ if [ -f /usr/local/share/doc/oar-node/examples/default/oar-node ]; then
 fi
 
 ## Configure HTTP
+mv /var/www/html/index.nginx-debian.html /var/www/html/index.html
+
 rm -f /etc/oar/api-users
 htpasswd -b -c /etc/oar/api-users docker docker
 htpasswd -b /etc/oar/api-users oar docker
@@ -105,96 +107,13 @@ if [ -f "/var/www/cgi-bin/monika.cgi" ]; then
     ln -sf /var/www/cgi-bin/monika.cgi /var/www/cgi-bin/monika/monika.cgi
 fi
 
-cat > /etc/nginx/sites-enabled/default <<"EOF"
-# Default server configuration
-#
-server {
-  listen 80 default_server;
-  listen [::]:80 default_server;
-
-  root /var/www/html;
-  index index.php index.html;
-
-  server_name _;
-
-  location ~ ^/newoarapi-priv {
-    auth_basic           "OAR API Authentication";
-    auth_basic_user_file /etc/oar/api-users;
-    error_page 404 = @newoarapi;
-  }
-
-  location ~ ^/newoarapi {
-    error_page 404 = @newoarapi;
-  }
-
-  location @newoarapi {
-    rewrite ^/newoarapi-priv(.*)$ $1 break;
-    rewrite ^/newoarapi(.*)$ $1 break;
-    proxy_pass         http://127.0.0.1:9090;
-    proxy_set_header   Host             $host;
-    proxy_set_header   X-Real-IP        $remote_addr;
-    proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
-    proxy_set_header   X-Remote-Ident   $remote_user;
-  }
-
-  location /oarapi {
-    rewrite ^/oarapi(.*)$ $1/ break;
-    include fastcgi_params;
-    fastcgi_pass unix:/var/run/oar-fcgi.sock;
-    fastcgi_param SCRIPT_FILENAME /var/www/cgi-bin/oarapi/oarapi.cgi;
-    fastcgi_param PATH_INFO $fastcgi_script_name;
-  }
-
-  location /drawgantt-svg {
-    root /usr/local/share/oar-web-status/;
-    fastcgi_split_path_info ^(.+\.php)(/.+)$;
-    fastcgi_pass unix:/var/run/php5-fpm.sock;
-    fastcgi_index index.php;
-    include fastcgi_params;
-  }
-
-  location /drawgantt {
-    rewrite ^/drawgantt(.*)$ /drawgantt-svg$1 last;
-  }
-
-  location /phppgadmin {
-    root /usr/share/;
-    access_log off;
-    fastcgi_split_path_info ^(.+\.php)(/.+)$;
-    fastcgi_pass unix:/var/run/php5-fpm.sock;
-    fastcgi_index index.php;
-    include fastcgi_params;
-  }
-
-  location /monika {
-    rewrite ^/monika(.*)$ /$1 break;
-    include fastcgi_params;
-    fastcgi_pass unix:/var/run/oar-fcgi.sock;
-    fastcgi_param SCRIPT_FILENAME /var/www/cgi-bin/monika/monika.cgi;
-    fastcgi_param PATH_INFO $fastcgi_script_name;
-  }
-
-  location /monika.css {
-    root /usr/local/share/oar-web-status/;
-  }
-
-  location /var/www/monika.css {
-      rewrite ^/(.*)$ /monika.css last;
-  }
-}
-EOF
-
-# Configure web status
-ln -sf  /etc/apache2/conf-available/oar-web-status.conf /etc/apache2/conf-enabled/oar-web-status.conf
-a2enmod cgi
-
 sed -e "s/^\(hostname = \).*/\1server/" -i /etc/oar/monika.conf
 sed -e "s/^\(username.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
 sed -e "s/^\(password.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
 sed -e "s/^\(dbtype.*\)mysql.*/\1psql/" -i /etc/oar/monika.conf
 sed -e "s/^\(dbport.*\)3306.*/\15432/" -i /etc/oar/monika.conf
 sed -e "s/^\(hostname.*\)localhost.*/\1server/" -i /etc/oar/monika.conf
-
+ln -s /usr/local/share/oar-web-status/monika.css /var/www/html/monika.css
 
 # Edit oar.conf
 sed -e 's/^LOG_LEVEL\=\"2\"/LOG_LEVEL\=\"3\"/' -i /etc/oar/oar.conf
@@ -221,7 +140,8 @@ sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
 # Configure phppgadmin
 sed -i "s/\$conf\['extra_login_security'\] = true;/\$conf\['extra_login_security'\] = false;/g" /etc/phppgadmin/config.inc.php
 sed -i "s/\$conf\['servers'\]\[0\]\['host'\] = 'localhost';/\$conf\['servers'\]\[0\]\['host'\] = 'server';/g" /etc/phppgadmin/config.inc.php
-chown -R  www-data:www-data /usr/share/phppgadmin/
+# chown -R  www-data:www-data /usr/share/phppgadmin/
+ln -s /usr/share/phppgadmin /var/www/html/phppgadmin
 
 ## Visualization tools
 # Configure drawgantt-svg
@@ -229,6 +149,8 @@ sed -i "s/\$CONF\['db_type'\]=\"mysql\"/\$CONF\['db_type'\]=\"pg\"/g" /etc/oar/d
 sed -i "s/\$CONF\['db_server'\]=\"127.0.0.1\"/\$CONF\['db_server'\]=\"server\"/g" /etc/oar/drawgantt-config.inc.php
 sed -i "s/\$CONF\['db_port'\]=\"3306\"/\$CONF\['db_port'\]=\"5432\"/g" /etc/oar/drawgantt-config.inc.php
 sed -i "s/\"My OAR resources\"/\"Docker oardocker resources\"/g" /etc/oar/drawgantt-config.inc.php
+ln -s /usr/local/share/oar-web-status/drawgantt-svg /var/www/html/drawgantt
+ln -s /usr/local/share/oar-web-status/drawgantt-svg /var/www/html/drawgantt-svg
 
 # Fix permissions
 chmod a+r /etc/oar/oar.conf

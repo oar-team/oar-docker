@@ -16,6 +16,8 @@ RUN chmod +x /root/*.sh
 
 ## nginx
 ADD config/nginx.conf /etc/nginx/nginx.conf
+ADD config/nginx-default-site.conf /etc/nginx/sites-available/default
+
 
 ## systemd services
 ADD systemd /etc/systemd/system
