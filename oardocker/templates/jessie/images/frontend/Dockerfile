@@ -18,11 +18,14 @@ RUN chmod +x /root/*.sh
 ADD config/nginx.conf /etc/nginx/nginx.conf
 ADD config/nginx-default-site.conf /etc/nginx/sites-available/default
 
+## Php5
+ADD config/php5.conf /etc/php5/fpm/pool.d/oardocker.conf
+#RUN chown www-data:www-data /etc/php5/fpm/pool.d/oardocker.conf
 
 ## systemd services
 ADD systemd /etc/systemd/system
 RUN chmod 644 /etc/systemd/system/* ; \
-    systemctl enable oardocker-nginx oardocker-php oardocker-fcgi
+    systemctl enable oardocker-nginx.socket oardocker-php.socket oardocker-fcgi
 
 ADD . /tmp
 RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh && rm -rf /tmp/*

@@ -2,12 +2,10 @@
 Description=The PHP FastCGI Process Manager
 
 [Service]
-Type=notify
 SyslogIdentifier=php
-PIDFile=/run/php-fpm/php-fpm.pid
+Environment="FPM_SOCKETS=/var/run/php5-fpm.sock=3"
+ExecStart=/usr/sbin/php5-fpm --fpm-config=/etc/php5/fpm/pool.d/oardocker.conf
 PrivateTmp=true
-ExecStart=/usr/sbin/php5-fpm --nodaemonize --pid /run/php-fpm/php-fpm.pid
-ExecReload=/bin/kill -USR2 $MAINPID
 
 [Install]
 WantedBy=oardocker.target
