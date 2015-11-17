@@ -32,8 +32,12 @@ RUN rm -rf /etc/systemd/system/*
 ADD systemd /etc/systemd/system
 RUN systemctl set-default oardocker.target ; \
     chmod 644 /etc/systemd/system/* ; \
-    systemctl enable oardocker-sshd oardocker-fix-mount oardocker-ssh-keys \
-                     oardocker-mount-cow oardocker-remote-log
+    systemctl enable oardocker-sshd.socket oardocker-fix-mount \
+                     oardocker-ssh-keys oardocker-mount-cow \
+                     oardocker-remote-log
+
+ADD generate_ssh_keys.sh /tmp/generate_ssh_keys.sh
+RUN bash /tmp/generate_ssh_keys.sh
 
 ADD create_users.sh /tmp/create_users.sh
 RUN bash /tmp/create_users.sh
