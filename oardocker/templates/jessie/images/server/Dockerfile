@@ -25,7 +25,5 @@ ADD systemd /etc/systemd/system
 RUN chmod 644 /etc/systemd/system/* ; \
     systemctl enable oardocker-postgresql oardocker-server oardocker-resources
 
-EXPOSE 22
-
 ADD . /tmp
 RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh && rm -rf /tmp/*

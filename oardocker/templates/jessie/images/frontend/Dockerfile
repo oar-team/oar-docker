@@ -30,6 +30,5 @@ RUN chmod 644 /etc/systemd/system/* ; \
 ADD . /tmp
 RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh && rm -rf /tmp/*
 
-EXPOSE 22
 EXPOSE 80
 EXPOSE 9090

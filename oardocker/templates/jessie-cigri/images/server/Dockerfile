@@ -20,7 +20,5 @@ RUN chmod +x /root/*.sh
 ## Cleanup
 RUN rm -rf /tmp/* /var/tmp/*
 
-EXPOSE 22
-
 ADD . /tmp
 RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh && rm -rf /tmp/*
