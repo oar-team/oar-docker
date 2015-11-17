@@ -1,0 +1,9 @@
+[Unit]
+Description=OpenBSD Secure Shell server per-connection daemon
+
+[Service]
+EnvironmentFile=-/etc/default/ssh
+ExecStart=-/usr/sbin/sshd -i $SSHD_OPTS
+ExecReload=/bin/kill -HUP $MAINPID
+StandardInput=socket
+StandardError=syslog
