@@ -1,9 +1,8 @@
 [Unit]
 Description=OAR FastCGI Process Manager
-ConditionFileIsExecutable=/var/lib/container/init-scripts/systemd-spawn-fcgi.sh
 
 [Service]
-ExecStart=/var/lib/container/init-scripts/systemd-spawn-fcgi.sh /usr/sbin/fcgiwrap
+ExecStart=/bin/bash /var/lib/container/init-scripts/systemd-spawn-fcgi.sh /usr/sbin/fcgiwrap
 User=oar
 Group=oar
 SyslogIdentifier=oar-fcgi

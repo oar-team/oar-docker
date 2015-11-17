@@ -1,11 +1,10 @@
 [Unit]
 Description=Fix of docker /etc/hosts mountpoint
-ConditionFileIsExecutable=/var/lib/container/init-scripts/fix_etc_hosts_mount.sh
 Before=oardocker.target
 
 [Service]
 Type=oneshot
-ExecStart=/var/lib/container/init-scripts/fix_etc_hosts_mount.sh
+ExecStart=/bin/bash /var/lib/container/init-scripts/fix_etc_hosts_mount.sh
 # TimeoutSec=0
 RemainAfterExit=on
 

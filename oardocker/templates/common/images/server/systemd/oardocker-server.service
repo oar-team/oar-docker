@@ -1,13 +1,12 @@
 [Unit]
 Description=OAR server
-ConditionFileIsExecutable=/var/lib/container/init-scripts/oar_server.sh
 Requires=oardocker-postgresql.service
 After=oardocker-postgresql.service
 
 [Service]
 Restart=on-failure
 SyslogIdentifier=oar-server
-ExecStart=/var/lib/container/init-scripts/oar_server.sh
+ExecStart=/bin/bash /var/lib/container/init-scripts/oar_server.sh
 
 [Install]
 WantedBy=oardocker.target

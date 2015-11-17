@@ -1,11 +1,10 @@
 [Unit]
 Description=COW volumes mount service
-ConditionFileIsExecutable=/var/lib/container/init-scripts/mount_cow_volumes.sh
 Before=oardocker.target
 
 [Service]
 Type=oneshot
-ExecStart=/var/lib/container/init-scripts/mount_cow_volumes.sh
+ExecStart=/bin/bash /var/lib/container/init-scripts/mount_cow_volumes.sh
 # TimeoutSec=0
 RemainAfterExit=on
 

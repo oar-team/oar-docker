@@ -1,7 +1,5 @@
 [Unit]
 Description=Configuration of OAR SSH keys
-ConditionPathExists=!/var/lib/container/configure_ssh_keys_done
-ConditionFileIsExecutable=/var/lib/container/init-scripts/configure_ssh_keys.sh
 Requires=oardocker-sshd.service
 After=oardocker-sshd.service
 
@@ -9,8 +7,7 @@ After=oardocker-sshd.service
 [Service]
 Type=oneshot
 SyslogIdentifier=ssh-keys
-ExecStart=/var/lib/container/init-scripts/configure_ssh_keys.sh
-ExecStartPost=/usr/bin/touch /var/lib/container/configure_ssh_keys_done
+ExecStart=/bin/bash /var/lib/container/init-scripts/configure_oar_ssh_keys.sh
 RemainAfterExit=on
 
 [Install]

@@ -1,7 +1,6 @@
 [Unit]
 Description=Create some OAR resources
 ConditionPathExists=!/var/lib/container/create_resources_done
-ConditionFileIsExecutable=/var/lib/container/init-scripts/create_resources.sh
 Requires=oardocker-server.service
 After=oardocker-server.service
 
@@ -9,7 +8,7 @@ After=oardocker-server.service
 [Service]
 Type=oneshot
 SyslogIdentifier=resources
-ExecStart=/var/lib/container/init-scripts/create_resources.sh
+ExecStart=/bin/bash /var/lib/container/init-scripts/create_resources.sh
 ExecStartPost=/usr/bin/touch /var/lib/container/create_resources_done
 RemainAfterExit=on
 
