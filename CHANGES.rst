@@ -1,10 +1,24 @@
 oar-docker CHANGELOG
 ====================
 
-Version 1.0.0.dev0
-------------------
+Version 1.0.0
+-------------
 
-**unreleased**
+Released on November 18th 2015
+
+- Improved stability, performance and security
+- Used systemd as default init for the containers
+- Improved ressources usage with systemd activation socket.
+- Used tmpfiles.d to create runtimes volatile files (pid,/var/run etc.)
+- Passed environement variables to containers by using /etc/profile
+- No more insecure ssh keys
+- Fixed all web services (api, monika...) by replacing apache2 by nginx
+- Improved logging by adding rsyslog node to centralize all logs
+- Added ``--no-tail`` and ``--lines/-n`` options to ``oardocker logs`` command
+- Created resources manually as it is faster than oar_resources_ini (no ssh connection)
+- Removed unused scripts
+- OAR3 ready
+
 
 Version 0.6.0
 -------------
