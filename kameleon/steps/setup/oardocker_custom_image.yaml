@@ -19,8 +19,6 @@
       - exec_in: tar xfp - -C /etc/skel
 
 - configure_root:
-  - exec_in: chmod 700 /etc/skel/.ssh
-  - exec_in: chmod 600 /etc/skel/.ssh/*
   - exec_in: rsync -avh /etc/skel/ /root
   - exec_in: chown -R root:root /root
 
