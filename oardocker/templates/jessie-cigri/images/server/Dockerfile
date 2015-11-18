@@ -20,5 +20,10 @@ RUN chmod +x /root/*.sh
 ## Cleanup
 RUN rm -rf /tmp/* /var/tmp/*
 
+## systemd services
+ADD systemd /etc/systemd/system
+RUN chmod 644 /etc/systemd/system/* ; \
+    systemctl enable oardocker-postgresql oardocker-server oardocker-resources
+
 ADD . /tmp
 RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh && rm -rf /tmp/*

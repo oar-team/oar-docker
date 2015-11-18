@@ -1,0 +1,14 @@
+[Unit]
+Description=Apache Web Server
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/apachectl start -DFOREGROUND
+ExecStop=/usr/bin/apachectl graceful-stop
+ExecReload=/usr/bin/apachectl graceful
+PrivateTmp=true
+LimitNOFILE=infinity
+KillMode=mixed
+
+[Install]
+WantedBy=oardocker.target
