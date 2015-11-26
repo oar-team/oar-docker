@@ -9,7 +9,7 @@ from ..actions import execute
 @click.command('exec')
 @click.option('-l', '--user', default="docker")
 @click.option('-w', '--workdir', default="~")
-@click.option('-t', '--tty', is_flag=True, default=False,
+@click.option('-t', '--tty/--no-tty', is_flag=True, default=True,
               help='Allocate a pseudo-TTY')
 @click.argument('hostname', required=True)
 @click.argument('cmd', nargs=-1)
