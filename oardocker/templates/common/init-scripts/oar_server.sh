@@ -10,6 +10,4 @@ trap 'stop_server' INT TERM EXIT
 
 source /etc/init.d/oar-server start
 
-tail -F -n 0 /var/log/oar.log \
-    | awk '{ $2=""; $3=""; print }' \
-    | tr -s " "
+tail -F -n 0 /var/log/oar.log
