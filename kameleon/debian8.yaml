@@ -53,7 +53,6 @@ global:
 
   # Shell session that allows us to connect to the building machine in order to
   # configure it and setup additional programs
-  ssh_config_file: $$kameleon_cwd/ssh_config
   in_context:
     cmd: LC_ALL=POSIX docker exec -i $(cat MAIN_CONTAINER_ID) /bin/bash
     workdir: /root/kameleon_workdir
