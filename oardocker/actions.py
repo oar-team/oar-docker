@@ -4,6 +4,7 @@ from __future__ import with_statement, absolute_import, unicode_literals
 import os
 import os.path as op
 import shutil
+import json
 import sys
 
 from .compat import iteritems, reraise
@@ -31,7 +32,9 @@ def execute(ctx, user, hostname, cmd, workdir, tty=False):
 
 def check_images_requirements(ctx, nodes, needed_tag, parent_cmd):
     available_images = [', '.join(im["RepoTags"]) for im in
-                        ctx.docker.get_images()]
+                        ctx.docker.get_images(all_images=False)]
+    all_images = list(set([', '.join(im["RepoTags"]) for im in
+                           ctx.docker.get_images(all_images=True)]))
     no_missings_images = set()
     needed_images = set([ctx.image_name(node, needed_tag) for node in nodes])
     for image in needed_images:
@@ -41,9 +44,42 @@ def check_images_requirements(ctx, nodes, needed_tag, parent_cmd):
     missings_images = list(set(needed_images) - set(no_missings_images))
     if missings_images:
         for image in missings_images:
-            image_name = click.style(image, fg="red")
-            click.echo("missing image '%s'" % image_name)
-        raise click.ClickException("You need build base images first with "
+            red_image_name = click.style(image, fg="red")
+            blue_image_name = click.style(image, fg="blue")
+            if image in all_images:
+                click.echo("Attached '%s' image to the workdir"
+                           % blue_image_name)
+                ctx.docker.add_image(image)
+            else:
+                pull_error = None
+                try:
+                    rl = "'\x1b[2K\r"
+                    bar_template = '[%(bar)s] %(label)s %(info)s'
+                    label = "Pulling '%s'\t" % blue_image_name
+                    pull_generator = ctx.docker.api.pull(image, stream=True)
+                    with click.progressbar(pull_generator,
+                                           bar_template=bar_template,
+                                           label=label) as stream:
+                        for line in stream:
+                            dline = json.loads(line)
+                            if "error" in dline:
+                                click.echo(rl + dline['error'], nl=False)
+                                pull_error = dline['error']
+                    click.echo("'\x1b[2K\r", nl=False)
+                    if not pull_error:
+                        ctx.docker.add_image(image)
+                        missings_images = list(set(missings_images) -
+                                               set([image]))
+                    else:
+                        click.echo(pull_error)
+                except:
+                    import pdb; pdb.set_trace()  # noqa
+
+    if missings_images:
+        for image in missings_images:
+            red_image_name = click.style(image, fg="red")
+            click.echo("missing image '%s'" % red_image_name)
+        raise click.ClickException("You need build missing images first, with "
                                    "`%s` command" % parent_cmd)
 
 
@@ -256,7 +292,7 @@ def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
            env={}):
     command = ["/lib/systemd/systemd", "systemd.unit=oardocker.target",
                "systemd.journald.forward_to_console=1"]
-    nodes = ("frontend", "server", "node")
+    nodes = ("frontend", "server", "node", "rsyslog")
     check_images_requirements(ctx, nodes, needed_tag, parent_cmd)
 
     init_scripts = op.join(ctx.envdir, "init-scripts")

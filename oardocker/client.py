@@ -65,18 +65,30 @@ class Docker(object):
     def get_containers_by_hosts(self):
         return dict(((c.hostname, c) for c in self.get_containers()))
 
-    def get_images(self):
+    def get_images(self, all_images=False):
         state_images_ids = [i[:12] for i in self.ctx.state["images"]]
         images = self.api.images(name=None, quiet=False,
                                  all=False, viz=False)
         for image in images:
             image_id = image["Id"][:12]
             image_name = image["RepoTags"][0]
-            if (image_id not in state_images_ids
-                    and image_name not
-                    in self.ctx.state["images"]):
-                continue
+            if not all_images:
+                if (image_id not in state_images_ids
+                        and image_name not
+                        in self.ctx.state["images"]):
+                    continue
             yield image
+
+    def add_image(self, name):
+        images = self.api.images(name=None, quiet=False, all=False, viz=False)
+        for image in images:
+            image_id = image["Id"][:12]
+            image_name = image["RepoTags"][0]
+            if name == image_name:
+                self.ctx.state["images"].append(image_id)
+                return image_id
+
+        raise click.ClickException("Cannot find '%s' image" % name)
 
     def generate_container_name(self):
         return "%s_%s" % (self.ctx.prefix, time.time())
