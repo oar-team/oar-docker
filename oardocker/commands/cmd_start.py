@@ -34,7 +34,7 @@ def cli(ctx, nodes, volumes, envs, enable_x11, http_port):
     with open(ctx.nodes_file, "w") as fd:
         fd.write('\n'.join(("node%d" % i for i in range(1, nodes + 1))))
         fd.write('\n')
-    deploy(ctx, nodes, volumes, http_port, "latest", "setup", env)
+    deploy(ctx, nodes, volumes, http_port, "latest", "oardocker install", env)
     ctx.log("\n%s\n" % ("*" * 72))
     ctx.log("Python API : http://localhost:%s/newoarapi" % http_port)
     ctx.log("Python API : http://localhost:%s/newoarapi-priv" % http_port)
