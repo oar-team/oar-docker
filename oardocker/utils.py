@@ -5,6 +5,7 @@ import filecmp
 import hashlib
 import os
 import os.path as op
+import re
 import random
 import shutil
 import socket
@@ -17,7 +18,7 @@ import requests
 from io import open
 from sh import ErrorReturnCode
 
-from .compat import _out, _err
+from .compat import _out, _err, to_unicode
 
 
 def git(*args, **kwargs):
@@ -200,3 +201,25 @@ def find_executable(executable):
         return None
     else:
         return executable
+
+
+def slugify(s):
+    """
+    Simplifies ugly strings into something URL-friendly.
+    From: http://dolphm.com/slugify-a-string-in-python/
+
+    >>> print slugify("[Some] _ Article's Title--")
+    some-articles-title
+
+    """
+    s = to_unicode(s)
+    s = s.lower()
+    for c in [' ', '-', '.', '/']:
+        s = s.replace(c, '_')
+    s = re.sub('\W', '', s)
+    s = s.replace('_', ' ')
+    s = re.sub('\s+', ' ', s)
+    s = s.strip()
+    s = s.replace(' ', '-')
+
+    return s

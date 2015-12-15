@@ -1,0 +1,19 @@
+{
+    "parents": [
+        "common"
+    ],
+    "ignore_if_exists": ["custom_setup.sh"],
+    "install_script": "/root/install_oar.sh",
+    "install_software_name": "OARr",
+    "install_on": ["node", "frontend", "server"],
+    "build_order": ["base", "rsyslog", "frontend", "node", "server"],
+    "web_services": [
+        ["Python API", "/newoarapi"],
+        ["Private Python API", "/newoarapi-priv"],
+        ["Perl API", "/oarapi"],
+        ["Private Perl API", "/oarapi-priv"],
+        ["Monika", "/monika"],
+        ["Drawgantt", "/drawgantt-svg/"],
+        ["PhpPgAdmin", "/phppgadmin/"]
+    ]
+}

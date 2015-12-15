@@ -10,7 +10,7 @@ import sys
 from .compat import iteritems, reraise
 from .container import Container
 from .utils import (check_tarball, check_git, check_url, download_file,
-                    git_pull_or_clone, touch)
+                    git_pull_or_clone, touch, slugify)
 
 import click
 
@@ -84,7 +84,10 @@ def check_images_requirements(ctx, nodes, needed_tag, parent_cmd):
 
 
 def install(ctx, src, needed_tag, tag, parent_cmd):
-    nodes = ("frontend", "server", "node")
+    nodes = ctx.state.manifest['install_on']
+    install_script = ctx.state.manifest['install_script']
+    soft_name = ctx.state.manifest['install_software_name']
+    soft_slug = slugify(soft_name)
     check_images_requirements(ctx, nodes, needed_tag, parent_cmd)
     if not op.exists(ctx.postinstall_dir):
         os.makedirs(ctx.postinstall_dir)
@@ -107,23 +110,25 @@ def install(ctx, src, needed_tag, tag, parent_cmd):
         raise click.ClickException("Invalid src '%s'. Must be a tarball or a"
                                    " git repository" % src)
     if is_remote:
-        ctx.log('Fetching OAR src from %s...' % src)
+        ctx.log("Fetching '%s' src from %s..." % (soft_name, src))
         if is_git:
-            path = op.join(ctx.postinstall_dir, "oar-git")
+            path = op.join(ctx.postinstall_dir, "%s-git" % soft_slug)
             git_pull_or_clone(src, path)
         else:
-            path = op.join(ctx.postinstall_dir, "oar-tarball.tar.gz")
+            path = op.join(ctx.postinstall_dir,
+                           "%s-tarball.tar.gz" % soft_slug)
             download_file(src, path)
     else:
         path = src
-    ctx.log('Installing OAR from %s' % src)
+    ctx.log("Installing '%s' from %s" % (soft_name, src))
     postinstall_cpath = "/tmp/postintall"
     if is_git:
-        src_cpath = "%s/oar-git" % postinstall_cpath
+        src_cpath = "%s/%s-git" % (postinstall_cpath, soft_slug)
     else:
-        src_cpath = "%s/tarballs/oar-tarball.tar.gz" % postinstall_cpath
+        src_cpath = "%s/tarballs/%s-tarball.tar.gz" % (postinstall_cpath,
+                                                       soft_slug)
     binds = {path: {'bind': src_cpath, 'ro': True}}
-    command = ["/root/install_oar.sh", src_cpath]
+    command = [install_script, src_cpath]
     volumes = []
     for path, bind in iteritems(binds):
         if bind["ro"]:

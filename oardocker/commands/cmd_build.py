@@ -64,7 +64,19 @@ def cli(ctx, force_rm, no_cache, pull, quiet, rm, rebuild):
     """Build base images"""
     ctx.log('Starting oardocker build')
     dockerfiles = glob.glob(op.join(ctx.envdir, "images", "*", "Dockerfile"))
-    dockerfiles.sort()
+
+    def build_order(x):
+        if ctx.state.manifest.get('build_order', []):
+            for i, image_name in enumerate(ctx.state.manifest['build_order']):
+                dirpath = op.join(ctx.envdir, "images", image_name)
+                if dirpath in x:
+                    return i
+        else:
+            if x[0].isdigit():
+                return int(x.partition(' ')[0]), x
+        return float('inf')
+
+    dockerfiles = sorted(dockerfiles, key=build_order)
 
     def get_prefix_width():
         for dockerfile in dockerfiles:
@@ -73,7 +85,7 @@ def cli(ctx, force_rm, no_cache, pull, quiet, rm, rebuild):
     for dockerfile in dockerfiles:
         dirname = op.dirname(dockerfile)
         name = op.basename(dirname)
-        if name in ("frontend", "node", "server"):
+        if name in ctx.state.manifest.get('install_on', []):
             tag = "%s:base" % ctx.image_name(name)
         else:
             tag = "%s:latest" % ctx.image_name(name)

@@ -27,12 +27,33 @@ ff02::2 ip6-allrouters
 
 class State(dict):
     DEFAULTS = {"images": [], "containers": [], "dns": {}}
+    DEFAULT_MANIFEST = {
+        "parents": [
+            "common"
+        ],
+        "ignore_if_exists": ["custom_setup.sh"],
+        "install_script": "/root/install_oar.sh",
+        "install_software_name": "OAR",
+        "install_on": ["node", "frontend", "server"],
+        "build_order": ["base", "rsyslog", "frontend", "node", "server"],
+        "web_services": {
+            "Python API": "/newoarapi",
+            "Private Python API": "/newoarapi-priv",
+            "Perl API": "/oarapi",
+            "Private Perl API": "/oarapi-priv",
+            "Monika": "/monika",
+            "Drawgantt": "/drawgantt-svg/",
+            "PhpPgAdmin": "/phppgadmin/"
+        }
+    }
 
-    def __init__(self, ctx, state_file, dns_file):
+    def __init__(self, ctx, state_file, dns_file, manifest_file):
         dict.__init__(self, self.DEFAULTS)
         self.ctx = ctx
         self.state_file = state_file
         self.dns_file = dns_file
+        self.manifest_file = manifest_file
+        self.manifest = {}
         self.load()
 
     def load(self):
@@ -42,6 +63,11 @@ class State(dict):
                     self.update(json.loads(json_file.read()))
             except:
                 pass
+        if op.isfile(self.manifest_file):
+            with open(self.manifest_file, 'rt') as json_file:
+                self.manifest = json.loads(json_file.read())
+        else:
+            self.manifest = self.DEFAULT_MANIFEST.copy()
 
     def update_list_containers(self):
         containers = []

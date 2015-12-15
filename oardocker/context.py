@@ -68,12 +68,14 @@ class Context(object):
         if not hasattr(self, '_state'):
             self._state = State(self,
                                 state_file=self.state_file,
-                                dns_file=self.dns_file)
+                                dns_file=self.dns_file,
+                                manifest_file=self.manifest_file)
         return self._state
 
     def update(self):
         self.envdir = op.join(self.workdir, ".%s" % self.prefix)
         self.postinstall_dir = op.join(self.envdir, "postinstall")
+        self.manifest_file = op.join(self.envdir, "manifest.json")
         self.env_name_file = op.join(self.envdir, "env_name")
         self.env_id_file = op.join(self.envdir, "env_id")
         self.state_file = op.join(self.envdir, "state.json")
