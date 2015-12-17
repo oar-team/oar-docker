@@ -84,8 +84,11 @@ def check_images_requirements(ctx, nodes, needed_tag, parent_cmd):
 
 
 def install(ctx, src, needed_tag, tag, parent_cmd):
-    nodes = ctx.state.manifest['install_on']
     install_script = ctx.state.manifest['install_script']
+    if not install_script:
+        raise click.ClickException("This operation is not supported for "
+                                   "this env")
+    nodes = ctx.state.manifest['install_on']
     soft_name = ctx.state.manifest['install_software_name']
     soft_slug = slugify(soft_name)
     check_images_requirements(ctx, nodes, needed_tag, parent_cmd)
