@@ -4,7 +4,7 @@
     ],
     "ignore_if_exists": ["custom_setup.sh"],
     "install_script": "/root/install_oar.sh",
-    "install_software_name": "OARr",
+    "install_software_name": "OAR",
     "install_on": ["node", "frontend", "server"],
     "build_order": ["base", "rsyslog", "frontend", "node", "server"],
     "web_services": [
