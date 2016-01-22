@@ -52,28 +52,25 @@ def check_images_requirements(ctx, nodes, needed_tag, parent_cmd):
                 ctx.docker.add_image(image)
             else:
                 pull_error = None
-                try:
-                    rl = "'\x1b[2K\r"
-                    bar_template = '[%(bar)s] %(label)s %(info)s'
-                    label = "Pulling '%s'\t" % blue_image_name
-                    pull_generator = ctx.docker.api.pull(image, stream=True)
-                    with click.progressbar(pull_generator,
-                                           bar_template=bar_template,
-                                           label=label) as stream:
-                        for line in stream:
-                            dline = json.loads(line)
-                            if "error" in dline:
-                                click.echo(rl + dline['error'], nl=False)
-                                pull_error = dline['error']
-                    click.echo("'\x1b[2K\r", nl=False)
-                    if not pull_error:
-                        ctx.docker.add_image(image)
-                        missings_images = list(set(missings_images) -
-                                               set([image]))
-                    else:
-                        click.echo(pull_error)
-                except:
-                    import pdb; pdb.set_trace()  # noqa
+                rl = "'\x1b[2K\r"
+                bar_template = '[%(bar)s] %(label)s %(info)s'
+                label = "Pulling '%s'\t" % blue_image_name
+                pull_generator = ctx.docker.api.pull(image, stream=True)
+                with click.progressbar(pull_generator,
+                                       bar_template=bar_template,
+                                       label=label) as stream:
+                    for line in stream:
+                        dline = json.loads(line)
+                        if "error" in dline:
+                            click.echo(rl + dline['error'], nl=False)
+                            pull_error = dline['error']
+                click.echo("'\x1b[2K\r", nl=False)
+                if not pull_error:
+                    ctx.docker.add_image(image)
+                    missings_images = list(set(missings_images) -
+                                           set([image]))
+                else:
+                    click.echo(pull_error)
 
     if missings_images:
         for image in missings_images:
