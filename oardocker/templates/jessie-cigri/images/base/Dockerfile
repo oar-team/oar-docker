@@ -30,11 +30,12 @@ ADD config/tmpfiles_oardocker.conf /etc/tmpfiles.d/oardocker.conf
 ## systemd services
 RUN rm -rf /etc/systemd/system/*
 ADD systemd /etc/systemd/system
-RUN systemctl set-default oardocker.target ; \
+RUN systemctl unmask systemd-tmpfiles-setup.service ; \
+    systemctl set-default oardocker.target ; \
     chmod 644 /etc/systemd/system/* ; \
     systemctl enable oardocker-sshd.socket oardocker-fix-mount \
                      oardocker-ssh-keys oardocker-mount-cow \
-                     oardocker-remote-log
+                     oardocker-remote-log systemd-tmpfiles-setup
 
 ADD generate_ssh_keys.sh /tmp/generate_ssh_keys.sh
 RUN bash /tmp/generate_ssh_keys.sh

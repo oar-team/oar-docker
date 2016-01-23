@@ -4,6 +4,8 @@ MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 USER root
 
 RUN systemctl unmask systemd-tmpfiles-setup.service
+RUN systemctl enable systemd-tmpfiles-setup.service
+
 RUN chown -R root:root /root
 RUN chmod a+rw /etc/oar/oar.conf
 RUN touch /var/log/oar.log
