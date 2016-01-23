@@ -1,4 +1,4 @@
-FROM oardocker/debian8:1.3
+FROM oardocker/debian8:1.3.1
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 ENV container docker
