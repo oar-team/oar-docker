@@ -303,7 +303,7 @@ def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
     init_scripts = op.join(ctx.envdir, "init-scripts")
     extra_binds = {
         init_scripts: {'bind': "/var/lib/container/init-scripts/", 'ro': True},
-        ctx.dns_file: {'bind': "/etc/hosts", 'ro': True},
+        ctx.dns_file: {'bind': "/etc/hosts.oardocker", 'ro': True},
         ctx.cgroup_path: {'bind': "/sys/fs/cgroup", 'ro': True},
         ctx.nodes_file: {'bind': "/var/lib/container/nodes", 'ro': True},
         ctx.cow_volumes_file: {'bind': "/var/lib/container/cow_volumes",
