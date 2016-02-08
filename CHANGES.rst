@@ -1,7 +1,7 @@
 oar-docker CHANGELOG
 ====================
 
-Version 1.0.1.dev0
+Version 1.1.0.dev0
 ------------------
 
 **unreleased**
