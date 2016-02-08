@@ -12,8 +12,9 @@ RUN touch /var/log/oar.log
 RUN chmod a+rw /var/log/oar.log
 
 RUN pip install -U wheel setuptools sqlalchemy sqlalchemy-utils alembic Click SimPy zerorpc
-RUN pip install -U git+https://github.com/oar-team/oar-lib.git
-RUN pip install -U git+https://github.com/oar-team/oar-kao.git
-RUN pip install -U git+https://github.com/oar-team/oar-coorm.git
+RUN git clone https://github.com/oar-team/oar-lib.git /tmp/python-packages/oar-lib
+RUN git clone https://github.com/oar-team/oar-kao.git /tmp/python-packages/oar-kao
+RUN pip install -U /tmp/python-packages/oar-lib
+RUN pip install -U /tmp/python-packages/oar-kao[coorm]
 
 RUN rm -rf /tmp/* /root/.cache
