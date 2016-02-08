@@ -2,6 +2,15 @@
 
 - skel_directory: $$kameleon_data_dir/skel
 
+- configure_apt:
+  - local2in:
+    - $$kameleon_data_dir/apt-sources.list
+    - /etc/apt/sources.list
+  - local2in:
+    - $$kameleon_data_dir/apt-preferences
+    - /etc/apt/preferences
+  - exec_in: apt-get update
+
 - get_debian_version:
     - exec_in: IFS='.' read VERSION VERSION_MINOR < /etc/debian_version
 
@@ -49,12 +58,7 @@
 - packages_from_sid: nginx systemd
 
 - install_softwares_from_debian_sid:
-  - exec_in: sed -i 's/jessie/stretch/g' /etc/apt/sources.list
-  - exec_in: sed -i 's/stretch-backports/jessie-backports/g' /etc/apt/sources.list
-  - exec_in: apt-get update
-  - exec_in: apt-get -y --force-yes install $$packages_from_sid
-  - exec_in: sed -i 's/stretch/jessie/g' /etc/apt/sources.list
-  - exec_in: apt-get update
+  - exec_in: apt-get -y --force-yes install $$packages_from_sid -t sid
 
 - delete_systemd_services:
   - exec_in: |
@@ -78,6 +82,7 @@
         xargs -I {} bash -c "echo Disable: {}; systemctl disable {} 2> /dev/null || true"
 
 - mask_systemd_services:
+  # - exec_in: systemctl mask -- systemd-tmpfiles-setup.service
   - exec_in: systemctl mask -- -.mount
   - exec_in: systemctl mask -- dev-mqueue.mount
   - exec_in: systemctl mask -- etc-hostname.mount
@@ -90,7 +95,6 @@
   - exec_in: systemctl mask -- systemd-modules-load.service
   - exec_in: systemctl mask -- systemd-sysctl.service
   - exec_in: systemctl mask -- systemd-tmpfiles-setup-dev.service
-  # - exec_in: systemctl mask -- systemd-tmpfiles-setup.service
   - exec_in: systemctl mask -- systemd-udevd.service
   - exec_in: systemctl mask -- systemd-update-utmp.service
   - exec_in: systemctl mask -- systemd-user-sessions.service
