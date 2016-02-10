@@ -1,10 +1,23 @@
 oar-docker CHANGELOG
 ====================
 
-Version 1.1.0.dev0
-------------------
+Version 1.1.0
+-------------
 
-**unreleased**
+Released on February 10th 2016
+
+- Updated base image version to 1.3.2
+- Configured debian branches to pin some up-to-date packages from sid (nginx, systemd)
+- Unmask systemd-tmpfiles-setup service (Fixed #45)
+- Fixed /etc/hosts again mountpoint with the latest version of docker (>1.9)
+- Added new coorm env based on jessie one
+- Made init-scripts executable
+- The install operation is not supported if no install_script is set to the manifest.json
+- Added a manifest.json file to describe environments
+- Try to pull docker images if missing
+- Added ``--rebuild`` option to rebuild images even if already done
+- send original oar-server log to journalctl
+- Allocate tty by default in ``oardocker exec`` cmd
 
 Version 1.0.0
 -------------
