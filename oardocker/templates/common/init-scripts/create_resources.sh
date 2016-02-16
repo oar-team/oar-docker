@@ -26,14 +26,13 @@ function create_resources_manually() {
 
     cpu=1
     while read node; do
-      index=0
       for ((cpuset=0;cpuset<$num_cpuset; cpuset++)); do
-        echo_and_run oarnodesetting -a -h $node -p host=$node -p cpu=$cpu -p core=$((cpuset + 1)) -p cpuset=$cpuset -p mem=$mem
+        core=$((((cpu - 1) * num_cpuset) + cpuset + 1))
+        echo_and_run oarnodesetting -a -h $node -p host=$node -p cpu=$cpu -p core=$core -p cpuset=$cpuset -p mem=$mem
       done
       cpu=$((cpu + 1))
     done </var/lib/container/nodes
 }
-
 
 # slower
 # systemd-analyze blame | grep resources -> 5.469s oardocker-resources.service
