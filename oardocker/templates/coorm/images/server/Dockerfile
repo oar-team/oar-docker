@@ -18,4 +18,7 @@ RUN git clone https://github.com/oar-team/oar-kao.git /tmp/python-packages/oar-k
 RUN pip install -U /tmp/python-packages/oar-lib
 RUN pip install -U /tmp/python-packages/oar-kao[coorm]
 
+ADD configure_oar.sh /tmp/configure_oar.sh
+RUN /bin/bash /tmp/configure_oar.sh
+
 RUN rm -rf /tmp/* /root/.cache
