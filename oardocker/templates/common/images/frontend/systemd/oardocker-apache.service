@@ -5,8 +5,8 @@ Description=Apache Web Server
 Type=simple
 Environment="APACHE_ARGUMENTS=-D FOREGROUND"
 ExecStart=/usr/sbin/apachectl start
-ExecStop=/usr/bin/apachectl graceful-stop
-ExecReload=/usr/bin/apachectl graceful
+ExecStop=/usr/sbin/apachectl graceful-stop
+ExecReload=/usr/sbin/apachectl graceful
 PrivateTmp=true
 LimitNOFILE=infinity
 KillMode=mixed

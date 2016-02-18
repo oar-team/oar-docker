@@ -77,43 +77,40 @@ if [ -f /usr/local/share/doc/oar-node/examples/default/oar-node ]; then
     cat /usr/local/share/doc/oar-node/examples/default/oar-node > /etc/default/oar-node
 fi
 
-## Configure HTTP
-#mv /var/www/html/index.nginx-debian.html /var/www/html/index.html
+# Configure API on apache
 
 rm -f /etc/oar/api-users
 htpasswd -b -c /etc/oar/api-users docker docker
 htpasswd -b /etc/oar/api-users oar oar
 
 a2enmod suexec
+a2enmod headers
+a2enmod rewrite
 a2enconf oar-restful-api
+
+sed -i -e 's@</virtualhost>@@' /etc/apache2/conf-available/oar-restful-api.conf
+
+cat << EOF >> /etc/apache2/conf-available/oar-restful-api.conf
+ScriptAlias /oarapi-priv /usr/local/lib/cgi-bin/oarapi/oarapi.cgi
+<Location /oarapi-priv>                                
+    Options +ExecCGI -MultiViews +FollowSymLinks       
+    AuthType      basic                                
+    AuthUserfile  /etc/oar/api-users                   
+    AuthName      "OAR API authentication"             
+    Require valid-user                                 
+    RewriteEngine On                                   
+    RewriteCond %{REMOTE_USER} (.*)                    
+    RewriteRule .* - [E=X_REMOTE_IDENT:%1]             
+    RequestHeader add X_REMOTE_IDENT %{X_REMOTE_IDENT}e
+</Location>
+</virtualhost>                                         
+EOF
 
 sed -i -e '1s@^/var/www.*@/usr/local/lib/cgi-bin@' /etc/apache2/suexec/www-data                                    
 sed -i -e 's@#\(FastCgiWrapper /usr/lib/apache2/suexec\)@\1@' /etc/apache2/mods-available/fastcgi.conf       
 sed -i -e 's@Require local@Require all granted@' /etc/oar/apache2/oar-restful-api.conf                       
 
-# configure API on nginx
-
-#OLD_OARAPI_CGI="/usr/local/lib/cgi-bin/oarapi/oarapi.cgi"
-
-#if [ -f "/usr/local/lib/cgi-bin/oarapi/oarapi.cgi" ]; then
-#    OLD_OARAPI_CGI="/var/www/cgi-bin/oarapi/oarapi.cgi"
-#fi
-
-#if [ -f "/usr/local/lib/cgi-bin/oarapi/oarapi.cgi" ]; then
-#    mkdir -p /var/www/cgi-bin/oarapi/
-#    ln -sf /usr/local/lib/cgi-bin/oarapi/oarapi.cgi /var/www/cgi-bin/oarapi/oarapi.cgi
-#fi
-
-#if [ -f "/usr/local/lib/cgi-bin/monika.cgi" ]; then
-#    mkdir -p /var/www/cgi-bin/monika/
-#    ln -sf /usr/local/lib/cgi-bin/monika.cgi /var/www/cgi-bin/monika/monika.cgi
-#fi
-
-#if [ -f "/var/www/cgi-bin/monika.cgi" ]; then
-#    mkdir -p /var/www/cgi-bin/monika/
-#    ln -sf /var/www/cgi-bin/monika.cgi /var/www/cgi-bin/monika/monika.cgi
-#fi
-
+# configure Monika
 sed -e "s/^\(hostname = \).*/\1server/" -i /etc/oar/monika.conf
 sed -e "s/^\(username.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
 sed -e "s/^\(password.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
