@@ -3,7 +3,8 @@ Description=Apache Web Server
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/apachectl start -DFOREGROUND
+Environment="APACHE_ARGUMENTS=-D FOREGROUND"
+ExecStart=/usr/sbin/apachectl start
 ExecStop=/usr/bin/apachectl graceful-stop
 ExecReload=/usr/bin/apachectl graceful
 PrivateTmp=true
