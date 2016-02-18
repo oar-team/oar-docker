@@ -1,0 +1,12 @@
+This kameleon recipe is not in sync with kameleon recipes (github).
+
+It creates a docker image with a specified version (need to be incremented for the oardocker upgrade process)
+
+To generate a new one:
+- modify recipes/steps
+- increment the version number
+- run make 
+
+Once the build is OK:
+- make push
+This uploads to dockerhub website (need to have access to the dockerhub oardocker account)
