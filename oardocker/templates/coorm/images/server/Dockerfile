@@ -13,10 +13,8 @@ RUN chmod a+rw /var/log/oar.log
 
 RUN pip install -U wheel setuptools sqlalchemy sqlalchemy-utils alembic Click SimPy zerorpc
 RUN mkdir /tmp/python-packages/
-RUN git clone https://github.com/oar-team/oar-lib.git /tmp/python-packages/oar-lib
-RUN git clone https://github.com/oar-team/oar-kao.git /tmp/python-packages/oar-kao
-RUN pip install -U /tmp/python-packages/oar-lib
-RUN pip install -U /tmp/python-packages/oar-kao[coorm]
++RUN git clone https://github.com/oar-team/oar3.git /tmp/python-packages/oar3
++RUN pip install -U /tmp/python-packages/oar3[coorm]
 
 ADD configure_oar.sh /tmp/configure_oar.sh
 RUN /bin/bash /tmp/configure_oar.sh
