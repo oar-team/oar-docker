@@ -18,7 +18,7 @@ help:
 
 init:
 	pip install -e .
-	pip install -U setuptools pip tox ipdb jedi pytest pytest-cov flake8 wheel
+	pip install -U setuptools pip tox ipdb jedi pytest pytest-cov flake8 wheel bumpversion
 
 clean:
 	rm -fr build/
