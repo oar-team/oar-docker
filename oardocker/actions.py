@@ -7,7 +7,7 @@ import shutil
 import json
 import sys
 
-from .compat import iteritems, reraise
+from .compat import iteritems, reraise, to_unicode
 from .container import Container
 from .utils import (check_tarball, check_git, check_url, download_file,
                     git_pull_or_clone, touch, slugify)
@@ -60,7 +60,7 @@ def check_images_requirements(ctx, nodes, needed_tag, parent_cmd):
                                        bar_template=bar_template,
                                        label=label) as stream:
                     for line in stream:
-                        dline = json.loads(line)
+                        dline = json.loads(to_unicode(line))
                         if "error" in dline:
                             click.echo(rl + dline['error'], nl=False)
                             pull_error = dline['error']
