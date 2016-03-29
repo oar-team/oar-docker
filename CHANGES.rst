@@ -1,10 +1,16 @@
 oar-docker CHANGELOG
 ====================
 
-Version 1.2.0.dev0
-------------------
+Version 1.2.0
+-------------
 
-**unreleased**
+Released on March 30th 2016
+
+- Reverted the frontend http server from nginx to apache
+- Fixed OAR Rest API unit tests
+- Configured COORM images to use the new oar3 python package and kamelot as default scheduler
+- Fixed "core" resources creation
+- Minor python3 fixes
 
 Version 1.1.0
 -------------
