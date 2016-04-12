@@ -86,6 +86,8 @@ htpasswd -b /etc/oar/api-users oar oar
 a2enmod suexec
 a2enmod headers
 a2enmod rewrite
+a2enmod proxy
+a2enmod proxy_http
 a2enconf oar-restful-api
 
 sed -i -e 's@</virtualhost>@@' /etc/apache2/conf-available/oar-restful-api.conf
@@ -103,6 +105,22 @@ ScriptAlias /oarapi-priv /usr/local/lib/cgi-bin/oarapi/oarapi.cgi
     RewriteRule .* - [E=X_REMOTE_IDENT:%1]             
     RequestHeader add X_REMOTE_IDENT %{X_REMOTE_IDENT}e
 </Location>
+
+ProxyRequests off
+ProxyPass "/newoarapi-priv" "http://127.0.0.1:9090"
+
+<Location /newoarapi-priv>
+    Options +ExecCGI -MultiViews +FollowSymLinks
+    AuthType      basic
+    AuthUserfile  /etc/oar/api-users
+    AuthName      "OAR API authentication"
+    Require valid-user
+    RewriteEngine On
+    RewriteCond %{REMOTE_USER} (.*)
+    RewriteRule .* - [E=X_REMOTE_IDENT:%1]
+    RequestHeader add X_REMOTE_IDENT %{X_REMOTE_IDENT}e
+</Location>
+
 </virtualhost>                                         
 EOF
 
