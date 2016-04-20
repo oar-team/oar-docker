@@ -18,7 +18,7 @@ RUN chmod +x /root/*.sh
 ## systemd services
 ADD systemd /etc/systemd/system
 RUN chmod 644 /etc/systemd/system/* ; \
-    systemctl enable oardocker-apache
+    systemctl enable oardocker-apache.socket
 
 ADD . /tmp
 RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh && rm -rf /tmp/*
