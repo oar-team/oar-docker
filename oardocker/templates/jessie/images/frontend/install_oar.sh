@@ -113,6 +113,8 @@ a2enmod rewrite
 perl -i -pe 's/Require local/Require all granted/; s/#(ScriptAlias \/oarapi-priv)/$1/; $do=1 if /#<Location \/oarapi-priv>/; if ($do) { $do=0 if /#<\/Location>/; s/^#// }' /etc/oar/apache2/oar-restful-api.conf
 
 # Add newoarapi-priv location
+a2enmod proxy
+a2enmod proxy_http
 (cd /etc/oar/apache2/ && patch -p0) <<'EOF'
 --- oar-restful-api.conf.orig
 +++ oar-restful-api.conf
