@@ -112,6 +112,32 @@ a2enmod rewrite
 
 perl -i -pe 's/Require local/Require all granted/; s/#(ScriptAlias \/oarapi-priv)/$1/; $do=1 if /#<Location \/oarapi-priv>/; if ($do) { $do=0 if /#<\/Location>/; s/^#// }' /etc/oar/apache2/oar-restful-api.conf
 
+# Add newoarapi-priv location
+(cd /etc/oar/apache2/ && patch -p0) <<'EOF'
+--- oar-restful-api.conf.orig
++++ oar-restful-api.conf
+@@ -176,4 +176,19 @@
+ #  </IfModule>
+ #</Location>
+ 
++ProxyRequests off
++ProxyPass "/newoarapi-priv" "http://127.0.0.1:9090"
++
++<Location /newoarapi-priv>
++    Options +ExecCGI -MultiViews +FollowSymLinks
++    AuthType      basic
++    AuthUserfile  /etc/oar/api-users
++    AuthName      "OAR API authentication"
++    Require valid-user
++    RewriteEngine On
++    RewriteCond %{REMOTE_USER} (.*)
++    RewriteRule .* - [E=X_REMOTE_IDENT:%1]
++    RequestHeader add X_REMOTE_IDENT %{X_REMOTE_IDENT}e
++</Location>
++
+ </virtualhost>
+EOF
+
 a2enconf oar-restful-api
 
 # Configure oar-web-status for Apache2 (monika + drawgantt-svg)
