@@ -1,8 +1,5 @@
 [Unit]
 Description=Configuration of OAR SSH keys
-Requires=oardocker-sshd.service
-After=oardocker-sshd.service
-
 
 [Service]
 Type=oneshot
