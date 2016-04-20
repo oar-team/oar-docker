@@ -4,6 +4,7 @@ Description=Apache Web Server
 [Service]
 Type=simple
 Environment="APACHE_ARGUMENTS=-D FOREGROUND"
+ExecStartPre=/bin/bash -c 'while ! ping -q -c 1 server >& /dev/null; do echo "Waiting 1s for server to show up"; sleep 1; done'
 ExecStart=/usr/sbin/apachectl start
 ExecStop=/usr/sbin/apachectl graceful-stop
 ExecReload=/usr/sbin/apachectl graceful
