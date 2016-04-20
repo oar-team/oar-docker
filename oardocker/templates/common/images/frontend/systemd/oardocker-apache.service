@@ -10,3 +10,6 @@ ExecReload=/usr/sbin/apachectl graceful
 PrivateTmp=true
 LimitNOFILE=infinity
 KillMode=mixed
+
+[Install]
+WantedBy=oardocker.target
