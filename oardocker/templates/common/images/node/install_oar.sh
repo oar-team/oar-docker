@@ -74,10 +74,6 @@ fi
 
 sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
 
-
-# Fix permissions
-chmod a+r /etc/oar/oar.conf
-
 # Disable all sysvinit services
 ls /etc/init.d/* | xargs -I {} basename {} | xargs -I {} systemctl disable {} 2> /dev/null || true
 
