@@ -7,6 +7,8 @@ import shutil
 import json
 import sys
 
+from sets import Set
+
 from .compat import iteritems, reraise, to_unicode
 from .container import Container
 from .utils import (check_tarball, check_git, check_url, download_file,
@@ -232,15 +234,15 @@ def start_frontend_container(ctx, command, extra_binds, port_bindings_start):
     hostname = "frontend"
     binds = get_common_binds(ctx, hostname)
     binds.update(extra_binds)
+    ports = Set([ int(item[2]) for item in ctx.state.manifest["web_services"] if len(item) > 2 ])
+    ports.add(80)
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
-                                 volumes=["/home"], ports=[80, 6668],
+                                 volumes=["/home"], ports=list(ports),
                                  command=command, tty=True)
     ctx.state["containers"].append(container.short_id)
     container.start(binds=binds, privileged=True,
-                    port_bindings={80: ('127.0.0.1', port_bindings_start + 80),
-                    6668: ('127.0.0.1', port_bindings_start + 6668)},
-                    volumes_from=None)
+                    port_bindings={ int(port) : ('127.0.0.1', port_bindings_start + int(port)) for port in ports }, volumes_from=None)
     log_started(hostname)
     ctx.state.update_etc_hosts(container)
     ctx.state.fast_dump()

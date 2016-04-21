@@ -15,10 +15,8 @@ def print_webservices_info(ctx, port_bindings_start):
     for item in web_services:
         key_title = ('{:>%s}' % max_key_length).format(item[0])
         if len(item) < 3:
-            port = 80
-        else
-            port = item[3]
-        url = "http://localhost:%s%s" % (port_bindings_start + port , item[1])
+            item.append("80")
+        url = "http://localhost:%s%s" % (port_bindings_start + int(item[2]) , item[1])
         infos.append("%s: %s" % (key_title, url))
 
         pass
