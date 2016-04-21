@@ -6,10 +6,10 @@
     "install_script": null,
     "build_order": ["rsyslog", "frontend", "node", "server"],
     "web_services": [
-        ["Python API", "/newoarapi"],
-        ["Private Python API", "/newoarapi-priv"],
-        ["Perl API", "/oarapi"],
-        ["Private Perl API", "/oarapi-priv"],
+        ["Python API", "/newoarapi", "6668"],
+        ["Private Python API", "/newoarapi-priv", "6668"],
+        ["Perl API", "/oarapi", "6668"],
+        ["Private Perl API", "/oarapi-priv", "6668"],
         ["Monika", "/monika"],
         ["Drawgantt", "/drawgantt-svg/"],
         ["PhpPgAdmin", "/phppgadmin/"]
