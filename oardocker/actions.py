@@ -234,11 +234,12 @@ def start_frontend_container(ctx, command, extra_binds, http_port):
     binds.update(extra_binds)
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
-                                 volumes=["/home"], ports=[80],
+                                 volumes=["/home"], ports=[80, 6668],
                                  command=command, tty=True)
     ctx.state["containers"].append(container.short_id)
     container.start(binds=binds, privileged=True,
-                    port_bindings={80: ('127.0.0.1', http_port)},
+                    port_bindings={80: ('127.0.0.1', http_port + 80),
+                    6668: ('127.0.0.1', http_port + 6668)},
                     volumes_from=None)
     log_started(hostname)
     ctx.state.update_etc_hosts(container)

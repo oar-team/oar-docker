@@ -33,7 +33,7 @@ def print_webservices_info(ctx, http_port):
               help="Set environment variables")
 @click.option('--x11', '--enable-x11', is_flag=True, default=False,
               help="Allowed containers to display x11 applications")
-@click.option('--http-port', type=int, help="Server http port", default=48080,
+@click.option('--http-port', type=int, help="Server http port", default=48000,
               show_default=True)
 @pass_context
 @on_finished(lambda ctx: ctx.state.dump())
