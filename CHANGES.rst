@@ -6,6 +6,13 @@ Version 1.3.0.dev0
 
 **unreleased**
 
+- Rework install_oar.sh scripts (apache2 configuration + chmod 0600 oar.conf)
+- Add newapi apache2 config (for the Python OAR API)
+- Fix apache2 startup by systemd
+- Rework port bindings, using the manifest
+- Add port bindings to 6668 for OAR API
+- Change default host port numbers for forwarding
+
 Version 1.2.0
 -------------
 
