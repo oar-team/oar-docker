@@ -227,7 +227,7 @@ def start_server_container(ctx, command, extra_binds):
     return container
 
 
-def start_frontend_container(ctx, command, extra_binds, http_port):
+def start_frontend_container(ctx, command, extra_binds, port_bindings_start):
     image = ctx.image_name("frontend", "latest")
     hostname = "frontend"
     binds = get_common_binds(ctx, hostname)
@@ -238,8 +238,8 @@ def start_frontend_container(ctx, command, extra_binds, http_port):
                                  command=command, tty=True)
     ctx.state["containers"].append(container.short_id)
     container.start(binds=binds, privileged=True,
-                    port_bindings={80: ('127.0.0.1', http_port + 80),
-                    6668: ('127.0.0.1', http_port + 6668)},
+                    port_bindings={80: ('127.0.0.1', port_bindings_start + 80),
+                    6668: ('127.0.0.1', port_bindings_start + 6668)},
                     volumes_from=None)
     log_started(hostname)
     ctx.state.update_etc_hosts(container)
@@ -294,7 +294,7 @@ def generate_etc_profile_file(ctx, default_env={}):
         fd.write('\n'.join(etc_profile_vars) + "\n")
 
 
-def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
+def deploy(ctx, num_nodes, volumes, port_bindings_start, needed_tag, parent_cmd,
            env={}):
     command = ["/lib/systemd/systemd", "systemd.unit=oardocker.target",
                "systemd.journald.forward_to_console=1"]
@@ -347,6 +347,6 @@ def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
     generate_etc_profile_file(ctx, env)
 
     start_rsyslog_container(ctx, extra_binds)
-    frontend = start_frontend_container(ctx, command, extra_binds, http_port)
+    frontend = start_frontend_container(ctx, command, extra_binds, port_bindings_start)
     start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend)
     start_server_container(ctx, command, extra_binds)
