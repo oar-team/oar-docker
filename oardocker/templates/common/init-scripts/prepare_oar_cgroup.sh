@@ -4,19 +4,15 @@
 # subdirectories and avoid conflitcs due to having all nodes actually running on
 # the same host machine
 
-ENABLE_MEMCG="NO"
 OS_CGROUPS_PATH="/sys/fs/cgroup"
+CGROUP_SUBSYSTEMS="cpuset cpu cpuacct devices freezer blkio"
+if [ -e "$OS_CGROUPS_PATH/memory" ]; then
+  CGROUP_SUBSYSTEMS="$CGROUP_SUBSYSTEMS memory"
+fi
 CGROUP_DIRECTORY_COLLECTION_LINKS="/dev/oar_cgroups_links"
 
 
 if [ "$1" = "init" ]; then
-    CGROUP_SUBSYSTEMS="cpuset cpu cpuacct devices freezer blkio"
-    if [ "$ENABLE_MEMCG" =  "YES" ]; then
-      CGROUP_SUBSYSTEMS="cpuset cpu cpuacct devices freezer blkio memory"
-    else
-      CGROUP_SUBSYSTEMS="cpuset cpu cpuacct devices freezer blkio"
-    fi
-
     mkdir -p $CGROUP_DIRECTORY_COLLECTION_LINKS && \
     for s in $CGROUP_SUBSYSTEMS; do
       mkdir -p $OS_CGROUPS_PATH/$s/oardocker/$HOSTNAME
