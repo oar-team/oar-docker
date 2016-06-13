@@ -232,7 +232,8 @@ def start_frontend_container(ctx, command, extra_binds, port_bindings_start):
     hostname = "frontend"
     binds = get_common_binds(ctx, hostname)
     binds.update(extra_binds)
-    ports = set([ int(item[2]) for item in ctx.state.manifest["web_services"] if len(item) > 2 ])
+    ports = set([int(item[2]) for item in
+                 ctx.state.manifest["web_services"] if len(item) > 2])
     ports.add(80)
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
@@ -240,7 +241,10 @@ def start_frontend_container(ctx, command, extra_binds, port_bindings_start):
                                  command=command, tty=True)
     ctx.state["containers"].append(container.short_id)
     container.start(binds=binds, privileged=True,
-                    port_bindings={ int(port) : ('127.0.0.1', port_bindings_start + int(port)) for port in ports }, volumes_from=None)
+                    port_bindings={int(port):
+                                   ('127.0.0.1', port_bindings_start + int(port))
+                                   for port in ports},
+                    volumes_from=None)
     log_started(hostname)
     ctx.state.update_etc_hosts(container)
     ctx.state.fast_dump()

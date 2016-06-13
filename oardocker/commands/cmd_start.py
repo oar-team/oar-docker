@@ -16,7 +16,8 @@ def print_webservices_info(ctx, port_bindings_start):
         key_title = ('{:>%s}' % max_key_length).format(item[0])
         if len(item) < 3:
             item.append("80")
-        url = "http://localhost:%s%s" % (port_bindings_start + int(item[2]) , item[1])
+        url = "http://localhost:%s%s" % (port_bindings_start + int(item[2]),
+                                         item[1])
         infos.append("%s: %s" % (key_title, url))
 
         pass
@@ -35,7 +36,8 @@ def print_webservices_info(ctx, port_bindings_start):
               help="Set environment variables")
 @click.option('--x11', '--enable-x11', is_flag=True, default=False,
               help="Allow containers to display X11 applications")
-@click.option('--port-bindings-start', type=int, help="Number the host port bindings starts at", default=40000,
+@click.option('--port-bindings-start', type=int,
+              help="Number the host port bindings starts at", default=40000,
               show_default=True)
 @pass_context
 @on_finished(lambda ctx: ctx.state.dump())
@@ -54,5 +56,6 @@ def cli(ctx, nodes, volumes, envs, enable_x11, port_bindings_start):
     with open(ctx.nodes_file, "w") as fd:
         fd.write('\n'.join(("node%d" % i for i in range(1, nodes + 1))))
         fd.write('\n')
-    deploy(ctx, nodes, volumes, port_bindings_start, "latest", "oardocker install", env)
+    deploy(ctx, nodes, volumes, port_bindings_start, "latest",
+           "oardocker install", env)
     print_webservices_info(ctx, port_bindings_start)
