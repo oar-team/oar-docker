@@ -1,10 +1,10 @@
 oar-docker CHANGELOG
 ====================
 
-Version 1.3.0.dev0
-------------------
+Version 1.3.0
+-------------
 
-**unreleased**
+Released on June 13th 2016
 
 - Rework install_oar.sh scripts (apache2 configuration + chmod 0600 oar.conf)
 - Add newapi apache2 config (for the Python OAR API)
