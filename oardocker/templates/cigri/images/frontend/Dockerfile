@@ -7,7 +7,7 @@ RUN systemctl unmask systemd-tmpfiles-setup.service
 RUN systemctl enable systemd-tmpfiles-setup.service
 
 RUN apt-get update -y
-RUN apt-get install -y ruby-dbi ruby-dbd-pg libapache2-mod-passenger ruby-passenger
+RUN apt-get install -y ruby-sinatra ruby-dbi ruby-dbd-pg libapache2-mod-passenger ruby-passenger
 RUN gem install xmpp4r
 
 ADD install_cigri.sh /root/install_cigri.sh

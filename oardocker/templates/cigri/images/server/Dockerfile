@@ -1,4 +1,4 @@
-FROM oardocker/jessie-server:latest
+FROM oardocker/jessie-server:base
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 USER root

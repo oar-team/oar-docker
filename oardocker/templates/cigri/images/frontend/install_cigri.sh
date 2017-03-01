@@ -27,7 +27,3 @@
   a2enconf oar-restful-api-secured
   a2enmod ssl
   a2ensite default-ssl
-
-  # Disable nginx and enable apache
-  systemctl disable oardocker-nginx.service oardocker-nginx.socket
-  systemctl enable oardocker-apache.service oardocker-fcgi.socket
