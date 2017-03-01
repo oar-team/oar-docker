@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Oar property "cluster" creation
-oarproperty -c -a cluster
+ssh server "oarproperty -c -a cluster" 
 
 # Cigri clusters configuration
 cd /root/cigri
