@@ -19,27 +19,27 @@ env:
 global:
   ## User varibales : used by the recipe
   user_name: docker
-  user_password: $$user_name
+  user_password: $${user_name}
 
   # Distribution
   distrib: debian
   release: jessie
   arch: amd64
-  kernel_arch: $$arch
+  kernel_arch: $${arch}
   hostname: oardocker-$${distrib}-$${release}
 
-  rootfs: $$kameleon_cwd/rootfs
+  rootfs: $${kameleon_cwd}/rootfs
 
   # Docker options
   docker_dns: 208.67.222.222
-  docker_image: oardocker/$$kameleon_recipe_name
-  docker_hostname: $$kameleon_recipe_name
+  docker_image: oardocker/$${kameleon_recipe_name}
+  docker_hostname: $${kameleon_recipe_name}
 
   # System variables. Required by kameleon engine
   # Include specific steps
   include_steps:
-    - $$distrib/$$release
-    - $$distrib
+    - $${distrib}/$${release}
+    - $${distrib}
 
   # Apt recipe options
   apt_repository: http://ftp.debian.org/debian/
@@ -48,7 +48,7 @@ global:
 
   out_context:
     cmd: bash
-    workdir: $$kameleon_cwd
+    workdir: $${kameleon_cwd}
     proxy_cache: localhost
 
   # Shell session that allows us to connect to the building machine in order to
@@ -87,9 +87,9 @@ global:
 # Bootstrap the new system and create the 'in_context'
 bootstrap:
   - debootstrap:
-    - include_pkg: apt-utils $$bootstrap_packages
-    - release: $$release
-    - arch: $$arch
+    - include_pkg: apt-utils $${bootstrap_packages}
+    - release: $${release}
+    - arch: $${arch}
     - repository: http://ftp.debian.org/debian/
     - variant: minbase  # default|minbase|buildd|fakechroot|scratchbox
   - prepare_docker
@@ -98,18 +98,18 @@ bootstrap:
 
 setup:
   - configure_apt:
-    - repository: $$apt_repository
-    - enable_contrib_repo: $$apt_enable_contrib
-    - enable_nonfree_repo: $$apt_enable_nonfree
+    - repository: $${apt_repository}
+    - enable_contrib_repo: $${apt_enable_contrib}
+    - enable_nonfree_repo: $${apt_enable_nonfree}
   - upgrade_system:
     - dist_upgrade: true
   # Packages installation
   - install_software:
-    - packages: $$core_packages
+    - packages: $${core_packages}
   - install_software:
-    - packages: $$frontend_dependencie
+    - packages: $${frontend_dependencie}
   - install_software:
-    - packages: $$server_packages
+    - packages: $${server_packages}
   # Configuration
   - configure_system:
     - locales: fr_FR en_US
@@ -121,4 +121,4 @@ setup:
 export:
   - save_docker_appliance:
     - commit:
-      - exec_out: docker export $(cat MAIN_CONTAINER_ID) | docker import - $$docker_image:$$version
+      - exec_out: docker export $(cat MAIN_CONTAINER_ID) | docker import - $${docker_image}:$${version}
