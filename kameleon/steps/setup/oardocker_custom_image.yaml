@@ -50,9 +50,10 @@
 
 - python_dev_packages: >
     ipdb ipython grin termcolor tox pytest virtualenv flask
-    sqlalchemy click jedi httpie pip chandler
+    sqlalchemy click jedi httpie chandler
 
 - install_python_dev_tools:
+  - exec_in: pip install -U pip setuptools
   - exec_in: pip install -U $${python_dev_packages}
 
 - packages_from_sid: nginx systemd
