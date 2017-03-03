@@ -1,5 +1,5 @@
-FROM oardocker/jessie-node:latest
-MAINTAINER Salem Harrache "salem.harrache@inria.fr"
+FROM oardocker/jessie-node:base
+MAINTAINER Bruno Bzeznik "bruno.bzeznik@imag.fr"
 
 RUN systemctl unmask systemd-tmpfiles-setup.service
 RUN systemctl enable systemd-tmpfiles-setup.service

@@ -1,5 +1,5 @@
 FROM oardocker/jessie-server:base
-MAINTAINER Salem Harrache "salem.harrache@inria.fr"
+MAINTAINER Bruno Bzeznik "bruno.bzeznik@imag.fr"
 
 USER root
 
