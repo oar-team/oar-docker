@@ -1,14 +1,22 @@
-.PHONY: debian8
+.PHONY: build
 
-VERSION = 1.3.3
+DOCKER_TAG=oardocker/debian8
+VERSION:=$(shell date +"%Y.%m.%d")
 
-all: debian8
+ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+BASE_DOCKERFILES=$(shell find $(ROOT_DIR)/../oardocker/templates -path "*/base/Dockerfile")
 
-debian8:
-	docker images | grep -q oardocker/debian8 | awk '{print $3}' | xargs -I {} docker rmi {}
+build:
 	sudo kameleon build debian8.yaml -g version:$(VERSION)
-	docker tag oardocker/debian8:$(VERSION) oardocker/debian8:latest
+	docker tag ${DOCKER_TAG}:$(VERSION) ${DOCKER_TAG}:latest
+	sed -i "s|FROM.*|FROM ${DOCKER_TAG}:$(VERSION)|" $(BASE_DOCKERFILES)
 
 push:
-	docker push oardocker/debian8:$(VERSION)
-	docker push oardocker/debian8:latest
+	docker push ${DOCKER_TAG}:$(VERSION)
+	docker push ${DOCKER_TAG}:latest
+
+cleanup:
+	docker images -q --filter "dangling=true" | xargs -I {} bash -c "docker rmi {} 2> /dev/null || true"
+	sudo rm -rf build/
+
+release: push cleanup
