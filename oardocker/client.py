@@ -57,8 +57,8 @@ class Docker(object):
         for container in containers:
             cid = container["Id"][:12]
             cname = ''.join(container["Names"] or []).lstrip("/")
-            if (cid not in state_containers_ids
-                    and cname not in self.ctx.state["containers"]):
+            if (cid not in state_containers_ids and
+                    cname not in self.ctx.state["containers"]):
                 continue
             yield Container(self, container)
 
@@ -71,13 +71,13 @@ class Docker(object):
                                  all=False, viz=False)
         for image in images:
             image_id = image["Id"][:12]
-            image_name = image["RepoTags"][0]
-            if not all_images:
-                if (image_id not in state_images_ids
-                        and image_name not
-                        in self.ctx.state["images"]):
-                    continue
-            yield image
+            if image["RepoTags"]:
+                image_name = image["RepoTags"][0]
+                if not all_images:
+                    if (image_id not in state_images_ids and
+                            image_name not in self.ctx.state["images"]):
+                        continue
+                yield image
 
     def add_image(self, name):
         images = self.api.images(name=None, quiet=False, all=False, viz=False)
