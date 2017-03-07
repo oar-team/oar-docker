@@ -72,3 +72,16 @@ mkdir cigri-3/tmp
 cp /root/cigri/tmp/test1.sh cigri-3/tmp
 gridsub -f /root/cigri/tmp/test1.json
 ```
+
+## Cleaning
+
+Docker caches a lot of things (containers and images). So, if you want to restart from a fresh environment, do the following. WARNING: this will erase everything, even other docker containers you may have created for other purposes.
+
+```sh
+# Remove all containers
+docker ps -a -q |awk '{print "docker rm " $1}' |bash
+# Remove all images
+docker images |awk '{print "docker rmi " $3}' |bash
+# From the working directory, remove oardocker config
+rm -rf .oardocker
+```
