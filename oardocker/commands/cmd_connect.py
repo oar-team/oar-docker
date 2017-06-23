@@ -16,5 +16,5 @@ from ..actions import execute
 @on_started(lambda ctx: ctx.assert_valid_env())
 def cli(ctx, user, workdir, shell, hostname):
     """Connect to a node."""
-    cmd = ["\"cat /etc/motd && %s\"" % shell]
+    cmd = ["cat /etc/motd && %s" % shell]
     execute(ctx, user, hostname, cmd, workdir, tty=True)
