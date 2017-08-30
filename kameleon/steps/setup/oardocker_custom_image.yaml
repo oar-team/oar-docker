@@ -56,10 +56,8 @@
   - exec_in: pip install -U pip setuptools
   - exec_in: pip install -U $${python_dev_packages}
 
-- packages_from_sid: nginx systemd
-
-- install_softwares_from_debian_sid:
-  - exec_in: apt-get -y --force-yes install $${packages_from_sid} -t sid
+- install_softwares_from_debian:
+  - exec_in: apt-get -y --force-yes install systemd
 
 - delete_systemd_services:
   - exec_in: |

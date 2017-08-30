@@ -1,13 +1,13 @@
 .PHONY: build
 
-DOCKER_TAG=oardocker/debian8
+DOCKER_TAG=oardocker/debian9
 VERSION:=$(shell date +"%Y.%m.%d")
 
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 BASE_DOCKERFILES=$(shell find $(ROOT_DIR)/../oardocker/templates -path "*/base/Dockerfile")
 
 build:
-	sudo kameleon build debian8.yaml -g version:$(VERSION)
+	sudo kameleon build debian9.yaml -g version:$(VERSION)
 	docker tag ${DOCKER_TAG}:$(VERSION) ${DOCKER_TAG}:latest
 	sed -i "s|FROM.*|FROM ${DOCKER_TAG}:$(VERSION)|" $(BASE_DOCKERFILES)
 
