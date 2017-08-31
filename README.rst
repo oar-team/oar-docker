@@ -86,13 +86,13 @@ Getting started
 To get started with oar-docker, the first thing to do is to initialize a
 project::
 
-    $ oardocker init -e jessie 
+    $ oardocker init -e stretch
 
 If you already have OAR sources, the best is to initialize directly the
 oardocker project in the OAR sources directory::
 
     $ cd path/to/oar/src
-    $ oardocker init -e jessie
+    $ oardocker init -e stretch
 
 You have to do this only once. It allows you to import the Dockerfiles
 and other configuration files.
@@ -109,7 +109,7 @@ If you already have the OAR sources::
 
 Or if you want to install from tarball::
 
-    $ oardocker install http://oar-ftp.imag.fr/oar/2.5/sources/testing/oar-2.5.4+rc4.tar.gz
+    $ oardocker install http://oar-ftp.imag.fr/oar/2.5/sources/testing/oar-2.5.8+rc4.tar.gz
 
 You can also launch the installation from a git repository::
 
@@ -140,7 +140,7 @@ To clean::
 
 With oar-docker, it is possible to chain all commands to go faster::
 
-    $ oardocker init -f build install oar-2.5.4+rc4.tar.gz start -n 4 connect -l root frontend
+    $ oardocker init -f build install oar-2.5.8+rc4.tar.gz start -n 4 connect -l root frontend
 
 For instance, to develop on OAR, we often need to install OAR,
 start the cluster and connect to it::
