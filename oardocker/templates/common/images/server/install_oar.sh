@@ -104,12 +104,7 @@ sed -e 's/^\(OAREXEC_DEBUG_MODE\)=.*/\1="1"/' -i /etc/oar/oar.conf
 #This line must be uncommented if the mount_cgroup.sh script is not used
 #sed -e 's/#exit/exit/' -i /etc/oar/job_resource_manager_cgroups.pl
 
-
-if [ ${DEBIAN_VERSION} = '8' ]; then
-    POSTGRESQL_VERSION="9.4"
-else
-    POSTGRESQL_VERSION="9.1"
-fi
+POSTGRESQL_VERSION="9.6"
 
 echo "Configure PostgreSQL to listen for remote connections"
 sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/$POSTGRESQL_VERSION/main/postgresql.conf
