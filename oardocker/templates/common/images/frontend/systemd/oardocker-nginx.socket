@@ -1,8 +1,0 @@
-[Unit]
-Description=Nginx reverse proxy Socket
-
-[Socket]
-ListenStream=80
-
-[Install]
-WantedBy=oardocker.target
