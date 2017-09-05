@@ -73,15 +73,14 @@ global:
     unionfs-fuse procps libdatetime-perl libterm-ui-perl rsync socat
     python python3 python-dev python3-dev python-pip python3-pip
     python-psutil python-psycopg2 python3-psycopg2 python-virtualenv
+    python3-setuptools python3-wheel
 
   frontend_dependencie: >
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl
     libtie-ixhash-perl libwww-perl libcgi-fast-perl libapache2-mod-fcgid
     php php-fpm libapache2-mod-php php-mcrypt php-pgsql phppgadmin
     libjs-jquery rubygems ruby-dev ruby-rspec spawn-fcgi fcgiwrap
-    apache2-suexec-custom apache2  oidentd
-
-    #apache2-mpm-prefork php-apc
+    apache2-suexec-custom apache2 oidentd
     
   server_packages: >
     postgresql
