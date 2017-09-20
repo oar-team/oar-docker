@@ -48,4 +48,6 @@ RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh  && 
 
 VOLUME [ "/sys/fs/cgroup" ]
 
+STOPSIGNAL SIGRTMIN+3
+
 CMD ["/lib/systemd/systemd", "systemd.unit=oar-docker.target"]
