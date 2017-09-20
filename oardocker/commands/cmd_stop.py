@@ -5,10 +5,7 @@ import click
 from ..context import pass_context, on_started, on_finished
 
 
-SIGNALS = {
-    "default": "SIGINT",
-    "rsyslog": "SIGTERM",
-}
+TO_KILL = ["rsyslog"]
 
 
 @click.command('stop')
@@ -23,11 +20,12 @@ def cli(ctx):
         name = container.hostname
         node_name = ''.join([i for i in name if not i.isdigit()])
         image_name = container.dictionary['Config']['Image']
-        if node_name in SIGNALS:
-            container.kill(SIGNALS[node_name])
+        if node_name in TO_KILL:
+            container.stop(timeout=0)
         else:
-            container.kill(SIGNALS["default"])
-        container.wait()
+            container.stop(timeout=5)
+            # container.execute("poweroff", "root", "/", False)
+            # container.wait()
         ctx.log("Container %s --> %s" % (name, stopped))
         container.remove(v=False, link=False, force=True)
         ctx.log("Container %s --> %s" % (name, removed))

@@ -202,9 +202,9 @@ def start_rsyslog_container(ctx, extra_binds):
     binds.update(extra_binds)
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
-                                 command=command, tty=True)
+                                 command=command, tty=True, binds=binds)
     ctx.state["containers"].append(container.short_id)
-    container.start(binds=binds, volumes_from=None)
+    container.start()
     log_started(hostname)
     ctx.state.update_etc_hosts(container)
     ctx.state.fast_dump()
@@ -218,9 +218,10 @@ def start_server_container(ctx, command, extra_binds):
     binds.update(extra_binds)
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
-                                 command=command, tty=True)
+                                 command=command, tty=True,
+                                 binds=binds, privileged=True)
     ctx.state["containers"].append(container.short_id)
-    container.start(binds=binds, privileged=True, volumes_from=None)
+    container.start()
     log_started(hostname)
     ctx.state.update_etc_hosts(container)
     ctx.state.fast_dump()
@@ -235,16 +236,15 @@ def start_frontend_container(ctx, command, extra_binds, port_bindings_start):
     ports = set([int(item[2]) for item in
                  ctx.state.manifest["web_services"] if len(item) > 2])
     ports.add(80)
+    port_bindings = {int(port): ('127.0.0.1', port_bindings_start + int(port)) for port in ports}
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
                                  volumes=["/home"], ports=list(ports),
-                                 command=command, tty=True)
+                                 command=command, tty=True,
+                                 binds=binds, privileged=True,
+                                 port_bindings=port_bindings)
     ctx.state["containers"].append(container.short_id)
-    container.start(binds=binds, privileged=True,
-                    port_bindings={int(port):
-                                   ('127.0.0.1', port_bindings_start + int(port))
-                                   for port in ports},
-                    volumes_from=None)
+    container.start()
     log_started(hostname)
     ctx.state.update_etc_hosts(container)
     ctx.state.fast_dump()
@@ -259,10 +259,11 @@ def start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend):
         binds.update(extra_binds)
         container = Container.create(ctx.docker, image=image,
                                      detach=True, hostname=hostname,
-                                     command=command, tty=True)
+                                     command=command, tty=True,
+                                     binds=binds, privileged=True,
+                                     volumes_from=[frontend.id])
         ctx.state["containers"].append(container.short_id)
-        container.start(binds=binds, privileged=True,
-                        volumes_from=frontend.id)
+        container.start()
         log_started(hostname)
         ctx.state.update_etc_hosts(container)
         ctx.state.fast_dump()

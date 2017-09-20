@@ -29,6 +29,24 @@ class Container(object):
 
     @classmethod
     def create(cls, docker, **options):
+        privileged = options.pop('privileged', False)
+        port_bindings = options.pop('port_bindings', {})
+        binds = options.pop('binds', None)
+        volumes_from = options.pop('volumes_from', [])
+
+        host_config_kwargs = {}
+        if binds:
+            host_config_kwargs['binds'] = binds
+        if privileged:
+            host_config_kwargs['privileged'] = privileged
+        if port_bindings:
+            host_config_kwargs['port_bindings'] = port_bindings
+        if volumes_from:
+            host_config_kwargs['volumes_from'] = volumes_from
+
+        if host_config_kwargs:
+            options['host_config'] = docker.api.create_host_config(**host_config_kwargs)
+
         response = docker.api.create_container(**options)
         return cls(docker, response)
 
