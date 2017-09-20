@@ -49,7 +49,7 @@
     - exec_in: chown -R $${user_name}:$${user_name} /home/$${user_name}
 
 - python_dev_packages: >
-    ipdb ipython grin termcolor tox pytest virtualenv flask
+    pdbpp ptpython ipython==5.5.0 grin termcolor tox pytest virtualenv flask
     sqlalchemy click jedi httpie chandler
 
 - install_python_dev_tools:
