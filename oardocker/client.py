@@ -12,7 +12,7 @@ from oardocker.utils import find_executable
 from oardocker.container import Container
 
 
-DEFAULT_DOCKER_API_VERSION = "1.15"
+DEFAULT_DOCKER_API_VERSION = "1.21"
 
 
 class Docker(object):
@@ -21,7 +21,7 @@ class Docker(object):
         self.docker_host = docker_host
         self.docker_exe = find_executable(docker_binary)
         self.ctx = ctx
-        self.api = docker.Client(base_url=self.docker_host, timeout=10,
+        self.api = docker.APIClient(base_url=self.docker_host, timeout=10,
                                  version=DEFAULT_DOCKER_API_VERSION)
 
     def cli(self, call_args, _iter=False):
