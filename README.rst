@@ -1,6 +1,13 @@
 Build your own OAR cluster with docker
 --------------------------------------
 
+.. image:: https://img.shields.io/pypi/v/oar-docker.svg
+    :target: https://pypi.python.org/pypi/oar-docker
+
+.. image:: https://travis-ci.org/oar-team/oar-docker.svg?branch=master
+    :target: https://travis-ci.org/oar-team/oar-docker
+    :alt: CI Status
+
 oar-docker is a set of docker images especially configured for deploying
 your own OAR cluster. The main idea is to have a mini development cluster with
 a frontend, a server and some nodes that launch in just a few seconds on a
