@@ -19,7 +19,7 @@ setup(
     url='https://github.com/oar-team/docker-oardocker',
     install_requires=[
         'Click',
-        'docker-py',
+        'docker',
         'sh',
         'tabulate',
         'arrow',
