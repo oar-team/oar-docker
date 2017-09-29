@@ -236,7 +236,8 @@ def start_frontend_container(ctx, command, extra_binds, port_bindings_start):
     ports = set([int(item[2]) for item in
                  ctx.state.manifest["web_services"] if len(item) > 2])
     ports.add(80)
-    port_bindings = {int(port): ('127.0.0.1', port_bindings_start + int(port)) for port in ports}
+    port_bindings = {int(port): ('127.0.0.1', port_bindings_start + int(port))
+                     for port in ports}
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
                                  volumes=["/home"], ports=list(ports),
@@ -299,8 +300,8 @@ def generate_etc_profile_file(ctx, default_env={}):
         fd.write('\n'.join(etc_profile_vars) + "\n")
 
 
-def deploy(ctx, num_nodes, volumes, port_bindings_start, needed_tag, parent_cmd,
-           env={}):
+def deploy(ctx, num_nodes, volumes, port_bindings_start, needed_tag,
+           parent_cmd, env={}):
     command = ["/lib/systemd/systemd", "systemd.unit=oardocker.target",
                "systemd.journald.forward_to_console=1"]
     nodes = ("frontend", "server", "node", "rsyslog")
@@ -352,6 +353,7 @@ def deploy(ctx, num_nodes, volumes, port_bindings_start, needed_tag, parent_cmd,
     generate_etc_profile_file(ctx, env)
 
     start_rsyslog_container(ctx, extra_binds)
-    frontend = start_frontend_container(ctx, command, extra_binds, port_bindings_start)
+    frontend = start_frontend_container(ctx, command, extra_binds,
+                                        port_bindings_start)
     start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend)
     start_server_container(ctx, command, extra_binds)

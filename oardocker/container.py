@@ -45,7 +45,8 @@ class Container(object):
             host_config_kwargs['volumes_from'] = volumes_from
 
         if host_config_kwargs:
-            options['host_config'] = docker.api.create_host_config(**host_config_kwargs)
+            options['host_config'] = docker.api.create_host_config(
+                **host_config_kwargs)
 
         response = docker.api.create_container(**options)
         return cls(docker, response)
@@ -189,8 +190,8 @@ class Container(object):
     def execute(self, cmd, user, workdir, tty):
         tty_option = "t" if tty else ""
         return self.docker.cli(["exec", "-i%s" % tty_option, self.id,
-                                "setuser", user, "script", "-q", "/dev/null", "-c",
-                                "exec_in_container %s '%s'"
+                                "setuser", user, "script", "-q", "/dev/null",
+                                "-c", "exec_in_container %s '%s'"
                                 % (workdir, cmd)])
 
     def __repr__(self):

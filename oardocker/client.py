@@ -22,7 +22,7 @@ class Docker(object):
         self.docker_exe = find_executable(docker_binary)
         self.ctx = ctx
         self.api = docker.APIClient(base_url=self.docker_host, timeout=10,
-                                 version=DEFAULT_DOCKER_API_VERSION)
+                                    version=DEFAULT_DOCKER_API_VERSION)
 
     def cli(self, call_args, _iter=False):
         if self.docker_exe is None:
