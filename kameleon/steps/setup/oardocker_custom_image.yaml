@@ -145,6 +145,7 @@
     - exec_in: rm -f /etc/dpkg/dpkg.cfg.d/02apt-speedup
     - exec_in: rm -rf /tmp/* /var/tmp/*
     - exec_in: rm -rf /var/lib/apt/lists/*
+    - exec_in: rm -rf /var/cache/*
     # - exec_in: rm -f /etc/ssh/ssh_host_*
     - exec_in: rm -rf /root/.cache
     - exec_in: rm -rf /var/cache/debconf/*-old
