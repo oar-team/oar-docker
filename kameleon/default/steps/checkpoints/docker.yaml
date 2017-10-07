@@ -9,7 +9,7 @@ apply:
 
 list:
   - exec_local: |
-      docker images | grep $${docker_image} | awk '{print $2}'
+      docker images | grep $${docker_image} | awk '{print $2}' || true
 
 clear:
   - exec_local: |

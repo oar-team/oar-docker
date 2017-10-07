@@ -33,12 +33,28 @@
 
 ## User
 - create_group:
-  - exec_in: groupadd $${user_name}
+  - exec_in: |
+      if grep -q $${user_name} /etc/group
+      then
+           echo "group $${user_name} already exists."
+      else
+           groupadd $${user_name}
+      fi
+
 - add_user:
   # use the create_passwd.py script to generate the crypted password
-  - exec_in: useradd -m -g $${user_name} -s /bin/bash $${user_name}
+  - exec_in: |
+      if id $${user_name} > /dev/null
+      then
+           echo "user $${user_name} already exists."
+      else
+           useradd -m -g $${user_name} -s /bin/bash $${user_name}
+      fi
   - exec_in: adduser $${user_name} sudo
   - exec_in: echo -n '$${user_name}:$${user_name}' | chpasswd
+
+- configure_user:
+  - exec_in: rsync -avh /etc/skel/ /home/$${user_name}
 
 - enable_passwordless_sudo:
   - exec_in: cp /etc/sudoers /etc/sudoers.orig
@@ -64,7 +80,7 @@
 - delete_systemd_services:
   - exec_in: |
       cd /lib/systemd/system/sysinit.target.wants/
-      ls | grep -v systemd-tmpfiles-setup | xargs rm -f "$1"
+      ls | grep -v systemd-tmpfiles-setup | xargs rm -f || true
 
   - exec_in: rm -f /lib/systemd/system/multi-user.target.wants/*
   - exec_in: rm -f /etc/systemd/system/*.wants/*
@@ -122,3 +138,14 @@
 
 - set_default_systemd_targets:
   - exec_in: ln -sf /lib/systemd/system/halt.target /etc/systemd/system/sigpwr.target
+
+- cleanup:
+  - on_setup_clean:
+    - exec_in: apt-get purge -y --auto-remove
+    - exec_in: rm -f /etc/dpkg/dpkg.cfg.d/02apt-speedup
+    - exec_in: rm -rf /tmp/* /var/tmp/*
+    - exec_in: rm -rf /var/lib/apt/lists/*
+    # - exec_in: rm -f /etc/ssh/ssh_host_*
+    - exec_in: rm -rf /root/.cache
+    - exec_in: rm -rf /var/cache/debconf/*-old
+    - exec_in: rm -rf /var/lib/apt/lists/*

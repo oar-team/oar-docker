@@ -2,38 +2,28 @@
 # vim: softtabstop=2 shiftwidth=2 expandtab fenc=utf-8 cc=81 tw=80
 #==============================================================================
 #
-# DESCRIPTION: Debian jessie image for docker built with docker.
+# DESCRIPTION: <MY RECIPE DESCRIPTION>
 #
 #==============================================================================
 ---
-aliases: defaults.yaml
+extend: default/from_docker/from_docker.yaml
 
-checkpoint: docker.yaml
-
-# Custom shell environement (this files are located in steps/env/ directory)
-env:
-  - bashrc
-  - functions.sh
-
-# Global variables use by Kameleon engine and the steps
 global:
-  ## User varibales : used by the recipe
-  user_name: docker
-  user_password: $${user_name}
-
-  # Distribution
+  # You should specify this in the global of your recipe
   distrib: debian
   release: jessie
-  arch: amd64
-  kernel_arch: $${arch}
-  hostname: oardocker-$${distrib}-$${release}
+  from_docker_image: "debian:jessie"
 
-  rootfs: $${kameleon_cwd}/rootfs
+  to_docker_image: "oardocker/$${kameleon_recipe_name}:$${version}"
 
-  # Docker options
-  docker_dns: 208.67.222.222
-  docker_image: oardocker/$${kameleon_recipe_name}
-  docker_hostname: $${kameleon_recipe_name}
+  default_locales: fr_FR en_US
+  default_lang: fr_FR.UTF-8
+  default_timezone: Europe/Paris
+
+  # Apt recipe options
+  apt_repository: http://ftp.debian.org/debian/
+  apt_enable_contrib: true
+  apt_enable_nonfree: true
 
   # System variables. Required by kameleon engine
   # Include specific steps
@@ -41,22 +31,10 @@ global:
     - $${distrib}/$${release}
     - $${distrib}
 
-  # Apt recipe options
-  apt_repository: http://ftp.debian.org/debian/
-  apt_enable_contrib: true
-  apt_enable_nonfree: true
-
-  out_context:
-    cmd: bash
-    workdir: $${kameleon_cwd}
-    proxy_cache: localhost
-
-  # Shell session that allows us to connect to the building machine in order to
-  # configure it and setup additional programs
-  in_context:
-    cmd: LC_ALL=POSIX docker exec -i $(cat MAIN_CONTAINER_ID) /bin/bash
-    workdir: /root/kameleon_workdir
-    proxy_cache: 172.17.42.1
+  ## User varibales : used by the recipe
+  user_name: docker
+  user_password: $${user_name}
+  root_password: $${user_name}
 
   bootstrap_packages: >
     bsdutils ca-certificates perl perl-modules locales man-db less
@@ -84,17 +62,8 @@ global:
   server_packages: >
     postgresql
 
-# Bootstrap the new system and create the 'in_context'
 bootstrap:
-  - debootstrap:
-    - include_pkg: apt-utils $${bootstrap_packages}
-    - release: $${release}
-    - arch: $${arch}
-    - repository: http://ftp.debian.org/debian/
-    - variant: minbase  # default|minbase|buildd|fakechroot|scratchbox
-  - prepare_docker
-  - start_docker
-
+  - "@base"
 
 setup:
   - configure_apt:
@@ -112,13 +81,12 @@ setup:
     - packages: $${server_packages}
   # Configuration
   - configure_system:
-    - locales: fr_FR en_US
-    - lang: fr_FR.UTF-8
-    - timezone: Europe/Paris
+    - locales: $${default_locales}
+    - lang: $${default_lang}
+    - timezone: $${default_timezone}
   - oardocker_custom_image
+  - clean_system:
+    - enable_lighten: true
 
-#== Export the generated appliance in the format of your choice
 export:
-  - save_docker_appliance:
-    - commit:
-      - exec_out: docker export $(cat MAIN_CONTAINER_ID) | docker import - $${docker_image}:$${version}
+  - "@base"

@@ -10,3 +10,6 @@
 - set_timezone:
   - exec_in: echo "$${timezone}" > /etc/timezone
   - exec_in: "dpkg-reconfigure -f noninteractive tzdata 2>&1"
+
+- set_root_password:
+  - exec_in: echo -n 'root:$${root_password}' | chpasswd
