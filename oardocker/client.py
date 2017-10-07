@@ -12,7 +12,7 @@ from oardocker.utils import find_executable
 from oardocker.container import Container
 
 
-DEFAULT_DOCKER_API_VERSION = "1.21"
+DEFAULT_DOCKER_API_VERSION = "1.22"
 
 
 class Docker(object):

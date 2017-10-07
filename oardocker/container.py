@@ -34,7 +34,10 @@ class Container(object):
         binds = options.pop('binds', None)
         volumes_from = options.pop('volumes_from', [])
 
-        host_config_kwargs = {}
+        host_config_kwargs = {
+            "tmpfs": {'/run/lock': '', '/run': '', '/tmp': ''},
+            "security_opt": ['seccomp:unconfined']
+        }
         if binds:
             host_config_kwargs['binds'] = binds
         if privileged:
