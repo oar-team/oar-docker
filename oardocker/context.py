@@ -68,7 +68,6 @@ class Context(object):
         if not hasattr(self, '_state'):
             self._state = State(self,
                                 state_file=self.state_file,
-                                dns_file=self.dns_file,
                                 manifest_file=self.manifest_file)
         return self._state
 
@@ -79,12 +78,12 @@ class Context(object):
         self.env_name_file = op.join(self.envdir, "env_name")
         self.env_id_file = op.join(self.envdir, "env_id")
         self.state_file = op.join(self.envdir, "state.json")
-        self.dns_file = op.join(self.envdir, "hosts")
         self.nodes_file = op.join(self.envdir, "nodes")
         self.cow_volumes_file = op.join(self.envdir, "cow_volumes")
         self.systemd_config_file = op.join(self.envdir, "systemd.conf")
         self.etc_profile_file = op.join(self.envdir, "profile.sh")
         self.docker = Docker(self, self.docker_host, self.docker_binary)
+        self.network_name = "%s_%s" % (self.prefix, self.env_id)
 
     def assert_valid_env(self):
         if not os.path.isdir(self.envdir):
@@ -106,7 +105,7 @@ class Context(object):
     def vlog(self, msg, *args):
         """Logs a message to stderr only if verbose is enabled."""
         if self.verbose:
-            self.log(msg, *args)
+            self.log(msg, *args, **{'file': sys.stderr})
 
     def handle_error(self):
         exc_type, exc_value, tb = sys.exc_info()
