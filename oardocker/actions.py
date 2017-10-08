@@ -211,14 +211,15 @@ def start_rsyslog_container(ctx, extra_binds):
     return container
 
 
-def start_server_container(ctx, extra_binds):
+def start_server_container(ctx, command, extra_binds):
     image = ctx.image_name("server", "latest")
     hostname = "server"
     binds = get_common_binds(ctx, hostname)
     binds.update(extra_binds)
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
-                                 tty=True, binds=binds, privileged=True)
+                                 command=command, tty=True,
+                                 binds=binds, privileged=True)
     ctx.state["containers"].append(container.short_id)
     container.start()
     log_started(hostname)
@@ -227,7 +228,7 @@ def start_server_container(ctx, extra_binds):
     return container
 
 
-def start_frontend_container(ctx, extra_binds, port_bindings_start):
+def start_frontend_container(ctx, command, extra_binds, port_bindings_start):
     image = ctx.image_name("frontend", "latest")
     hostname = "frontend"
     binds = get_common_binds(ctx, hostname)
@@ -240,7 +241,8 @@ def start_frontend_container(ctx, extra_binds, port_bindings_start):
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
                                  volumes=["/home"], ports=list(ports),
-                                 tty=True, binds=binds, privileged=True,
+                                 command=command, tty=True,
+                                 binds=binds, privileged=True,
                                  port_bindings=port_bindings)
     ctx.state["containers"].append(container.short_id)
     container.start()
@@ -250,7 +252,7 @@ def start_frontend_container(ctx, extra_binds, port_bindings_start):
     return container
 
 
-def start_nodes_containers(ctx, extra_binds, num_nodes, frontend):
+def start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend):
     image = ctx.image_name("node", "latest")
     for i in range(1, num_nodes + 1):
         hostname = "node%d" % i
@@ -258,7 +260,8 @@ def start_nodes_containers(ctx, extra_binds, num_nodes, frontend):
         binds.update(extra_binds)
         container = Container.create(ctx.docker, image=image,
                                      detach=True, hostname=hostname,
-                                     tty=True, binds=binds, privileged=True,
+                                     command=command, tty=True,
+                                     binds=binds, privileged=True,
                                      volumes_from=[frontend.id])
         ctx.state["containers"].append(container.short_id)
         container.start()
@@ -299,6 +302,8 @@ def generate_etc_profile_file(ctx, default_env={}):
 
 def deploy(ctx, num_nodes, volumes, port_bindings_start, needed_tag,
            parent_cmd, env={}):
+    command = ["/lib/systemd/systemd", "systemd.unit=oardocker.target",
+               "systemd.journald.forward_to_console=1"]
     nodes = ("frontend", "server", "node", "rsyslog")
     check_images_requirements(ctx, nodes, needed_tag, parent_cmd)
 
@@ -348,6 +353,7 @@ def deploy(ctx, num_nodes, volumes, port_bindings_start, needed_tag,
     generate_etc_profile_file(ctx, env)
 
     start_rsyslog_container(ctx, extra_binds)
-    frontend = start_frontend_container(ctx, extra_binds, port_bindings_start)
-    start_nodes_containers(ctx, extra_binds, num_nodes, frontend)
-    start_server_container(ctx, extra_binds)
+    frontend = start_frontend_container(ctx, command, extra_binds,
+                                        port_bindings_start)
+    start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend)
+    start_server_container(ctx, command, extra_binds)
