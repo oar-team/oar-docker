@@ -1,0 +1,32 @@
+#!/bin/bash
+set -ue
+
+(( $$ == 1 )) || {
+  echo "ERROR: Script must be ran as PID 1, via 'CMD [\"/usr/sbin/init.sh\"]' entry in Dockerfile." >&2
+  exit 1
+}
+
+# Create configuration file for journald.
+mkdir -p /etc/systemd/journald.conf.d
+echo >/etc/systemd/journald.conf.d/forward-log-to-console.conf "
+[Journal]
+#Storage=none
+ForwardToConsole=yes
+# Docker -t option is necessary for /dev/console.
+#TTYPath=/dev/console
+"
+
+mkdir -p /etc/systemd/system.conf.d/
+echo >/etc/systemd/system.conf.d/forward-log-to-console.conf "
+[Manager]
+#LogLevel=info
+LogTarget=console
+#LogColor=yes
+#LogLocation=no
+"
+
+# Change target init stage from from graphical mode to multiuser text-only mode.
+systemctl set-default oardocker.target
+
+# Run systemd as PID 1.
+exec /lib/systemd/systemd "$@"
