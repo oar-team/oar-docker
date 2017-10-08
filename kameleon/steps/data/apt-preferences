@@ -3,15 +3,15 @@ Pin: release o=apt-build
 Pin-Priority: 995
 
 Package: *
-Pin: release o=Debian,a=stable-updates,l=Debian
+Pin: release o=Debian,a=jessie-updates,l=Debian
 Pin-Priority: 990
 
 Package: *
-Pin: release o=Debian,a=stable,l=Debian-Security
+Pin: release o=Debian,a=jessie,l=Debian-Security
 Pin-Priority: 990
 
 Package: *
-Pin: release o=Debian,a=stable,l=Debian
+Pin: release o=Debian,a=jessie,l=Debian
 Pin-Priority: 990
 
 Package: *
