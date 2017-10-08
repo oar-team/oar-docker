@@ -46,8 +46,9 @@ RUN bash /tmp/create_users.sh
 ADD . /tmp
 RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh  && rm -rf /tmp/*
 
-VOLUME [ "/sys/fs/cgroup" ]
+VOLUME /sys/fs/cgroup
+VOLUME /run
 
 STOPSIGNAL SIGRTMIN+3
 
-CMD ["/lib/systemd/systemd", "systemd.unit=oar-docker.target"]
+CMD ["/usr/local/sbin/container-init"]
