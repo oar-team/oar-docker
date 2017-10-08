@@ -44,7 +44,7 @@
 - add_user:
   # use the create_passwd.py script to generate the crypted password
   - exec_in: |
-      if id $${user_name} > /dev/null
+      if id $${user_name} >& /dev/null
       then
            echo "user $${user_name} already exists."
       else
@@ -64,18 +64,19 @@
   - on_export_init:
     - exec_in: chown -R $${user_name}:$${user_name} /home/$${user_name}
 
+- set_python3_as_default_python:
+  - exec_in: ln -sf $(which python3) /usr/local/bin/python
+  - exec_in: ln -sf $(which pip3) /usr/local/bin/pip
+
 - python_dev_packages: >
-    pdbpp ptpython ipython==5.5.0 grin termcolor tox pytest virtualenv flask
+    pdbpp ptpython ipython grin termcolor tox pytest virtualenv flask
     sqlalchemy click jedi httpie chandler
 
 - install_python_dev_tools:
   - exec_in: pip install -U pip setuptools
-  - exec_in: pip install -U $${python_dev_packages}
+  - exec_in: pip install -U wheel
+  - exec_in: pip3 install -U $${python_dev_packages}
 
-- packages_from_testing: nginx systemd rsyslog
-
-- install_softwares_from_debian_sid:
-  - exec_in: apt-get -y --force-yes install $${packages_from_testing} -t testing
 
 - delete_systemd_services:
   - exec_in: |
