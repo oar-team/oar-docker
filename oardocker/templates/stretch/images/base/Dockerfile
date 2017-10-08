@@ -17,6 +17,9 @@ RUN echo "export COLOR=green" > /etc/hostname.color
 # RUN apt-get update
 # RUN apt-get install -y my_packages
 
+## rsyslog sender
+COPY config/rsyslog.conf /etc/rsyslog.conf
+
 ## configure sshd daemon
 ADD config/sshd_config /etc/ssh/sshd_config
 
@@ -35,9 +38,7 @@ ADD systemd /etc/systemd/system
 RUN systemctl unmask systemd-tmpfiles-setup.service ; \
     systemctl set-default oardocker.target ; \
     chmod 644 /etc/systemd/system/* ; \
-    systemctl enable oardocker-sshd.socket oardocker-fix-mount \
-                     oardocker-ssh-keys oardocker-mount-cow \
-                     systemd-tmpfiles-setup
+    systemctl enable oardocker-sshd.socket oardocker-ssh-keys oardocker-mount-cow systemd-tmpfiles-setup oardocker-rsyslog.service
 
 ADD generate_ssh_keys.sh /tmp/generate_ssh_keys.sh
 RUN bash /tmp/generate_ssh_keys.sh
