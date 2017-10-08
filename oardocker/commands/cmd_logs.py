@@ -24,10 +24,9 @@ class LogPrinter(object):
     def get_container(self):
         try:
             self.ctx.state.load()
-            if self.hostname in self.ctx.state['dns']:
-                containers = self.ctx.docker.get_containers_by_hosts()
-                if self.hostname in containers:
-                    return containers[self.hostname]
+            containers = self.ctx.docker.get_containers_by_hosts()
+            if self.hostname in containers:
+                return containers[self.hostname]
         except docker.errors.NotFound:
             pass
 
@@ -89,7 +88,6 @@ class LogPrinter(object):
 
 
 @click.command('logs')
-@click.argument('hostname', required=False, default="rsyslog")
 @click.option('-n', '--lines', default=None,
               help="Number of journal entries to show")
 @click.option('--no-tail', is_flag=True, default=False,
@@ -98,7 +96,7 @@ class LogPrinter(object):
               help="Follow log output")
 @pass_context
 @on_started(lambda ctx: ctx.assert_valid_env())
-def cli(ctx, hostname, lines, no_tail, follow):
+def cli(ctx, lines, no_tail, follow):
     """Fetch the logs of all nodes or only one."""
     if no_tail:
         lines = "all"
@@ -107,4 +105,4 @@ def cli(ctx, hostname, lines, no_tail, follow):
             lines = 10
         else:
             lines = "all"
-    LogPrinter(ctx, hostname, lines, follow).run()
+    LogPrinter(ctx, "rsyslog", lines, follow).run()
