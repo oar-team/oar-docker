@@ -84,7 +84,10 @@ class Context(object):
         self.systemd_config_file = op.join(self.envdir, "systemd.conf")
         self.etc_profile_file = op.join(self.envdir, "profile.sh")
         self.docker = Docker(self, self.docker_host, self.docker_binary)
-        self.network_name = "%s_%s" % (self.prefix, self.env_id)
+
+    @property
+    def network_name(self):
+        return "%s_%s" % (self.prefix, self.env_id)
 
     def assert_valid_env(self):
         if not os.path.isdir(self.envdir):

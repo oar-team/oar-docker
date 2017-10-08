@@ -94,6 +94,8 @@ class Docker(object):
         return "%s_%s" % (self.ctx.prefix, time.time())
 
     def create_network(self):
+        if self.ctx.state.get("network_id", None) is not None:
+            return
         network_name = self.ctx.network_name
         driver = "bridge"
         networks = self.api.networks(names=[network_name])
@@ -108,7 +110,10 @@ class Docker(object):
         self.ctx.state["network_id"] = network['Id']
 
     def remove_network(self):
-        if "network_id" in self.ctx.state:
-            self.ctx.log('Removing network "%s" ' % self.ctx.network_name)
-            self.api.remove_network(self.ctx.state["network_id"])
-            del self.ctx.state["network_id"]
+        if self.ctx.state.get("network_id", None) is not None:
+            networks = self.api.networks(names=[self.ctx.network_name])
+
+            if networks:
+                self.ctx.log('Removing network "%s" ' % self.ctx.network_name)
+                self.api.remove_network(networks[0]['Id'])
+                self.ctx.state["network_id"] = None
