@@ -37,7 +37,8 @@ class Container(object):
 
         host_config_kwargs = {
             "tmpfs": {'/run/lock': '', '/run': '', '/tmp': ''},
-            "security_opt": ['seccomp:unconfined']
+            "security_opt": ['seccomp:unconfined'],
+            "cap_add": ["SYS_ADMIN", "MKNOD"],
         }
         if binds:
             host_config_kwargs['binds'] = binds
