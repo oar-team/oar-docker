@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-set -x
 
 IFS='.' read DEBIAN_VERSION DEBIAN_VERSION_MINOR < /etc/debian_version
 
