@@ -25,7 +25,7 @@ ff02::2 ip6-allrouters
 
 
 class State(dict):
-    DEFAULTS = {"images": [], "containers": []}
+    DEFAULTS = {"images": [], "containers": [], "network_id": None}
     DEFAULT_MANIFEST = {
         "parents": [
             "common"
