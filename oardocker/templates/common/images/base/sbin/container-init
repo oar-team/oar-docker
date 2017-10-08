@@ -6,21 +6,12 @@ set -ue
   exit 1
 }
 
-# Create configuration file for journald.
-mkdir -p /etc/systemd/journald.conf.d
-echo >/etc/systemd/journald.conf.d/forward-log-to-console.conf "
-[Journal]
-Storage=none
-ForwardToConsole=yes
-# Docker -t option is necessary for /dev/console.
-# TTYPath=/dev/console
-"
 
 mkdir -p /etc/systemd/system.conf.d/
-echo >/etc/systemd/system.conf.d/forward-log-to-console.conf "
+echo >/etc/systemd/system.conf.d/forward-log-to-journal.conf "
 [Manager]
 LogLevel=info
-LogTarget=console
+LogTarget=journal-or-kmsg
 LogColor=yes
 #LogLocation=no
 DefaultTimeoutStartSec=5s

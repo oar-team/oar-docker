@@ -4,4 +4,4 @@
 Description=Basic oardocker System
 DefaultDependencies=no
 AllowIsolate=yes
-Wants=systemd-tmpfiles-setup.service
+Wants=systemd-journald.service rc-local.service systemd-tmpfiles-setup.service
