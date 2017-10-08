@@ -141,8 +141,7 @@ def install(ctx, src, needed_tag, tag, parent_cmd):
     for node in nodes:
         container_name = ctx.docker.generate_container_name()
         image = ctx.image_name(node, needed_tag)
-        cli_options = ["run", "-a", "STDOUT", "-a", "STDERR",
-                       "--privileged", "--name", container_name]
+        cli_options = ["run", "-a", "STDOUT", "-a", "STDERR", "--name", container_name]
         cli_options.extend(volumes)
         cli_options.extend([image] + command)
         ctx.state["containers"].append(container_name)
@@ -219,7 +218,7 @@ def start_server_container(ctx, command, extra_binds):
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
                                  command=command, tty=True,
-                                 binds=binds, privileged=True)
+                                 binds=binds, privileged=False,
     ctx.state["containers"].append(container.short_id)
     container.start()
     log_started(hostname)
@@ -242,8 +241,8 @@ def start_frontend_container(ctx, command, extra_binds, port_bindings_start):
                                  detach=True, hostname=hostname,
                                  volumes=["/home"], ports=list(ports),
                                  command=command, tty=True,
-                                 binds=binds, privileged=True,
-                                 port_bindings=port_bindings)
+                                 binds=binds, privileged=False,
+                                 port_bindings=port_bindings,
     ctx.state["containers"].append(container.short_id)
     container.start()
     log_started(hostname)
@@ -261,8 +260,8 @@ def start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend):
         container = Container.create(ctx.docker, image=image,
                                      detach=True, hostname=hostname,
                                      command=command, tty=True,
-                                     binds=binds, privileged=True,
-                                     volumes_from=[frontend.id])
+                                     binds=binds, privileged=False,
+                                     volumes_from=[frontend.id],
         ctx.state["containers"].append(container.short_id)
         container.start()
         log_started(hostname)
