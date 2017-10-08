@@ -35,8 +35,9 @@ class Context(object):
     def init_workdir(self, env_name, env_id):
         with open(self.env_name_file, "w+") as fd:
             fd.write(env_name + "\n")
-        with open(self.env_id_file, "w+") as fd:
-            fd.write(env_id + "\n")
+        if not os.path.exists(self.env_id_file):
+            with open(self.env_id_file, "w+") as fd:
+                fd.write(env_id + "\n")
 
     @property
     def tmp_workdir(self):
