@@ -10,19 +10,21 @@ set -ue
 mkdir -p /etc/systemd/journald.conf.d
 echo >/etc/systemd/journald.conf.d/forward-log-to-console.conf "
 [Journal]
-#Storage=none
+Storage=none
 ForwardToConsole=yes
 # Docker -t option is necessary for /dev/console.
-#TTYPath=/dev/console
+# TTYPath=/dev/console
 "
 
 mkdir -p /etc/systemd/system.conf.d/
 echo >/etc/systemd/system.conf.d/forward-log-to-console.conf "
 [Manager]
-#LogLevel=info
+LogLevel=info
 LogTarget=console
-#LogColor=yes
+LogColor=yes
 #LogLocation=no
+DefaultTimeoutStartSec=5s
+DefaultTimeoutStopSec=5s
 "
 
 # Change target init stage from from graphical mode to multiuser text-only mode.

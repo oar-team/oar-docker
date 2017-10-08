@@ -295,8 +295,7 @@ def generate_etc_profile_file(ctx, default_env={}):
 
 def deploy(ctx, num_nodes, volumes, port_bindings_start, needed_tag,
            parent_cmd, env={}):
-    command = ["/lib/systemd/systemd", "systemd.unit=oardocker.target",
-               "systemd.journald.forward_to_console=1"]
+    command = ["/usr/local/sbin/container-init"]
     nodes = ("frontend", "server", "node", "rsyslog")
     check_images_requirements(ctx, nodes, needed_tag, parent_cmd)
 
@@ -307,7 +306,7 @@ def deploy(ctx, num_nodes, volumes, port_bindings_start, needed_tag,
         ctx.nodes_file: {'bind': "/var/lib/container/nodes", 'ro': True},
         ctx.cow_volumes_file: {'bind': "/var/lib/container/cow_volumes",
                                'ro': True},
-        ctx.systemd_config_file: {'bind': "/etc/systemd/system.conf",
+        ctx.systemd_config_file: {'bind': "/etc/systemd/system.d/oardocker.conf",
                                   'ro': True},
         ctx.etc_profile_file: {'bind': "/etc/profile.d/oardocker_env.sh",
                                'ro': True},
