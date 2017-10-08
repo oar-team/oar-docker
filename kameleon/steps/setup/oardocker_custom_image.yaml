@@ -64,18 +64,18 @@
   - on_export_init:
     - exec_in: chown -R $${user_name}:$${user_name} /home/$${user_name}
 
+- set_python3_as_default_python:
+  - exec_in: ln -sf $(which python3) /usr/local/bin/python
+  - exec_in: ln -sf $(which pip3) /usr/local/bin/pip
+
 - python_dev_packages: >
-    pdbpp ptpython ipython==5.5.0 grin termcolor tox pytest virtualenv flask
+    pdbpp ptpython ipython grin termcolor tox pytest virtualenv flask
     sqlalchemy click jedi httpie chandler
 
 - install_python_dev_tools:
   - exec_in: pip install -U pip setuptools
-  - exec_in: pip install -U $${python_dev_packages}
+  - exec_in: pip3 install -U $${python_dev_packages}
 
-- packages_from_sid: nginx systemd
-
-- install_softwares_from_debian_sid:
-  - exec_in: apt-get -y --force-yes install $${packages_from_sid} -t sid
 
 - delete_systemd_services:
   - exec_in: |

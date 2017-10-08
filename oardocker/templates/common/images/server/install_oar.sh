@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 
 IFS='.' read DEBIAN_VERSION DEBIAN_VERSION_MINOR < /etc/debian_version
 
@@ -107,6 +108,8 @@ sed -e 's/^\(OAREXEC_DEBUG_MODE\)=.*/\1="1"/' -i /etc/oar/oar.conf
 
 if [ ${DEBIAN_VERSION} = '8' ]; then
     POSTGRESQL_VERSION="9.4"
+elif [ ${DEBIAN_VERSION} = '9' ]; then
+    POSTGRESQL_VERSION="9.6"
 else
     POSTGRESQL_VERSION="9.1"
 fi
