@@ -37,7 +37,7 @@ RUN systemctl unmask systemd-tmpfiles-setup.service ; \
     chmod 644 /etc/systemd/system/* ; \
     systemctl enable oardocker-sshd.socket oardocker-fix-mount \
                      oardocker-ssh-keys oardocker-mount-cow \
-                     oardocker-remote-log systemd-tmpfiles-setup
+                     systemd-tmpfiles-setup
 
 ADD generate_ssh_keys.sh /tmp/generate_ssh_keys.sh
 RUN bash /tmp/generate_ssh_keys.sh
