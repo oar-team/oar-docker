@@ -99,6 +99,10 @@ class Context(object):
         kwargs.setdefault("file", sys.stdout)
         click.echo(msg, **kwargs)
 
+    def wlog(self, msg, *args):
+        """Logs a warning message to stderr."""
+        self.log(click.style("Warning: %s" % msg, fg="yellow"), *args, file=sys.stderr)
+
     def vlog(self, msg, *args):
         """Logs a message to stderr only if verbose is enabled."""
         if self.verbose:
