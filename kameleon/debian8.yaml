@@ -12,7 +12,8 @@ global:
   # You should specify this in the global of your recipe
   distrib: debian
   release: jessie
-  from_docker_image: "oardocker/debian8:2017.10.07"
+  # from_docker_image: "debian:jessie"
+  from_docker_image: "oardocker/debian8:2017.10.08"
 
   to_docker_image: "oardocker/$${kameleon_recipe_name}:$${version}"
 
