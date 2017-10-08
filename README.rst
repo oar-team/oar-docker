@@ -1,6 +1,13 @@
 Build your own OAR cluster with docker
 --------------------------------------
 
+.. image:: https://img.shields.io/pypi/v/oar-docker.svg
+    :target: https://pypi.python.org/pypi/oar-docker
+
+.. image:: https://travis-ci.org/oar-team/oar-docker.svg?branch=master
+    :target: https://travis-ci.org/oar-team/oar-docker
+    :alt: CI Status
+
 oar-docker is a set of docker images especially configured for deploying
 your own OAR cluster. The main idea is to have a mini development cluster with
 a frontend, a server and some nodes that launch in just a few seconds on a
@@ -86,13 +93,13 @@ Getting started
 To get started with oar-docker, the first thing to do is to initialize a
 project::
 
-    $ oardocker init -e wheezy
+    $ oardocker init -e jessie 
 
 If you already have OAR sources, the best is to initialize directly the
 oardocker project in the OAR sources directory::
 
     $ cd path/to/oar/src
-    $ oardocker init -e wheezy
+    $ oardocker init -e jessie
 
 You have to do this only once. It allows you to import the Dockerfiles
 and other configuration files.

@@ -1,0 +1,9 @@
+[Unit]
+Description=OAR FastCGI Process Manager
+
+[Service]
+ExecStart=/bin/bash /var/lib/container/init-scripts/systemd-spawn-fcgi.sh /usr/sbin/fcgiwrap
+User=oar
+Group=oar
+SyslogIdentifier=oar-fcgi
+PrivateTmp=true

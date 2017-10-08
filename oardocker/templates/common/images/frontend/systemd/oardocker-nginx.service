@@ -1,0 +1,12 @@
+[Unit]
+Description=A high performance web server and a reverse proxy server
+
+[Service]
+# Ngnix uses NGINX environmental variable this to perform reloads without
+# having to close and reopen its sockets, but it's also useful for socket
+# activation.
+Environment=NGINX=3:4;
+ExecStart=/usr/sbin/nginx -c/etc/nginx/nginx.conf
+SyslogIdentifier=nginx
+PrivateNetwork=true
+PrivateTmp=true

@@ -64,7 +64,7 @@ if [ -f /usr/local/share/oar/oar-node/init.d/oar-node ]; then
 fi
 
 if [ -f /usr/local/share/doc/oar-node/examples/init.d/oar-node ]; then
-    cat /usr/local/share/oar/oar-node/init.d/oar-node > /etc/init.d/oar-node
+    cat /usr/local/share/doc/oar-node/examples/init.d/oar-node > /etc/init.d/oar-node
     chmod +x  /etc/init.d/oar-node
 fi
 
@@ -77,45 +77,7 @@ if [ -f /usr/local/share/doc/oar-node/examples/default/oar-node ]; then
     cat /usr/local/share/doc/oar-node/examples/default/oar-node > /etc/default/oar-node
 fi
 
-## Configure HTTP
-a2enmod ident
-a2enmod suexec
-a2enmod headers
-a2enmod rewrite
-
-rm -f /etc/oar/api-users
-htpasswd -b -c /etc/oar/api-users docker docker
-htpasswd -b /etc/oar/api-users oar docker
-
-# configure apache API
-sed -e 's/#\(FastCgiWrapper.*\)/\1/' -i /etc/apache2/mods-available/fastcgi.conf
-ln -sf  /etc/apache2/conf-available/oar-restful-api.conf /etc/apache2/conf-enabled/oar-restful-api.conf
-
-perl -pi -e "s/Deny from all/Allow from all/" /etc/oar/apache2/oar-restful-api.conf
-
-# configure apache oar-web-status
-cat > /etc/apache2/conf-available/oar-web-status.conf <<"EOF"
-ScriptAlias /monika /usr/local/lib/cgi-bin/monika.cgi
-Alias /monika.css /usr/local/share/oar-web-status/monika.css
-Alias /drawgantt-svg /usr/local/share/oar-web-status/drawgantt-svg
-Alias /drawgantt /usr/local/share/oar-web-status/drawgantt-svg
-<Directory /usr/local/share/oar-web-status>
-        Require all granted
-        Options Indexes FollowSymlinks
-</Directory>
-EOF
-ln -sf  /etc/apache2/conf-available/oar-web-status.conf /etc/apache2/conf-enabled/oar-web-status.conf
-
-
-sed -e "s/^\(hostname = \).*/\1server/" -i /etc/oar/monika.conf
-sed -e "s/^\(username.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
-sed -e "s/^\(password.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
-sed -e "s/^\(dbtype.*\)mysql.*/\1psql/" -i /etc/oar/monika.conf
-sed -e "s/^\(dbport.*\)3306.*/\15432/" -i /etc/oar/monika.conf
-sed -e "s/^\(hostname.*\)localhost.*/\1server/" -i /etc/oar/monika.conf
-
-
-# Edit oar.conf
+# Adapt oar.conf
 sed -e 's/^LOG_LEVEL\=\"2\"/LOG_LEVEL\=\"3\"/' -i /etc/oar/oar.conf
 sed -e 's/^DB_HOSTNAME\=.*/DB_HOSTNAME\=\"server\"/' -i /etc/oar/oar.conf
 sed -e 's/^SERVER_HOSTNAME\=.*/SERVER_HOSTNAME\=\"server\"/' -i /etc/oar/oar.conf
@@ -130,56 +92,85 @@ sed -e 's/^\(DB_BASE_LOGIN\)=.*/\1="oar"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DB_BASE_PASSWD_RO\)=.*/\1="oar_ro"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DB_BASE_LOGIN_RO\)=.*/\1="oar_ro"/' -i /etc/oar/oar.conf
 
-# Configure cosystem and deploy jobs
 sed -e 's/^\(COSYSTEM_HOSTNAME\)=.*/\1="frontend"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DEPLOY_HOSTNAME\)=.*/\1="frontend"/' -i /etc/oar/oar.conf
 
 # Configure oarsh
 sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
 
-# Configure phppgadmin
-if [ -f /etc/apache2/conf-available/phppgadmin.conf ]; then
-  # work around current bug in the package (see: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=669837)
-  cat <<EOF > /etc/apache2/conf-available/phppgadmin.conf
-Alias /phppgadmin /usr/share/phppgadmin
+# Configure OAR restful api for Apache2
+rm -f /etc/oar/api-users
+htpasswd -b -c /etc/oar/api-users docker docker
+htpasswd -b /etc/oar/api-users oar oar
 
-<Directory /usr/share/phppgadmin>
+sed -i -e '1s@^/var/www.*@/usr/local/lib/cgi-bin@' /etc/apache2/suexec/www-data                                    
+sed -i -e 's@#\(FastCgiWrapper /usr/lib/apache2/suexec\)@\1@' /etc/apache2/mods-available/fastcgi.conf       
 
-DirectoryIndex index.php
-AllowOverride None
-Require all granted
+a2enmod suexec
+a2enmod headers
+a2enmod rewrite
 
-<IfModule mod_php5.c>
-  php_flag magic_quotes_gpc Off
-  php_flag track_vars On
-  #php_value include_path .
-</IfModule>
-<IfModule !mod_php5.c>
-  <IfModule mod_actions.c>
-    <IfModule mod_cgi.c>
-      AddType application/x-httpd-php .php
-      Action application/x-httpd-php /cgi-bin/php
-    </IfModule>
-    <IfModule mod_cgid.c>
-      AddType application/x-httpd-php .php
-      Action application/x-httpd-php /cgi-bin/php
-    </IfModule>
-  </IfModule>
-</IfModule>
+perl -i -pe 's/Require local/Require all granted/; s/#(ScriptAlias \/oarapi-priv)/$1/; $do=1 if /#<Location \/oarapi-priv>/; if ($do) { $do=0 if /#<\/Location>/; s/^#// }' /etc/oar/apache2/oar-restful-api.conf
 
-</Directory>
+# Add newoarapi-priv location
+a2enmod proxy
+a2enmod proxy_http
+(cd /etc/oar/apache2/ && patch -p0) <<'EOF'
+--- oar-restful-api.conf.orig
++++ oar-restful-api.conf
+@@ -176,4 +176,19 @@
+ #  </IfModule>
+ #</Location>
+ 
++ProxyRequests off
++ProxyPass "/newoarapi-priv" "http://127.0.0.1:9090"
++
++<Location /newoarapi-priv>
++    Options +ExecCGI -MultiViews +FollowSymLinks
++    AuthType      basic
++    AuthUserfile  /etc/oar/api-users
++    AuthName      "OAR API authentication"
++    Require valid-user
++    RewriteEngine On
++    RewriteCond %{REMOTE_USER} (.*)
++    RewriteRule .* - [E=X_REMOTE_IDENT:%1]
++    RequestHeader add X_REMOTE_IDENT %{X_REMOTE_IDENT}e
++</Location>
++
+ </virtualhost>
 EOF
-  ln -sf /etc/apache2/conf-available/phppgadmin.conf /etc/apache2/conf-enabled/phppgadmin.conf
-fi
-sed -i "s/\$conf\['extra_login_security'\] = true;/\$conf\['extra_login_security'\] = false;/g" /etc/phppgadmin/config.inc.php
-sed -i "s/\$conf\['servers'\]\[0\]\['host'\] = 'localhost';/\$conf\['servers'\]\[0\]\['host'\] = 'server';/g" /etc/phppgadmin/config.inc.php
 
-## Visualization tools
-# Configure drawgantt-svg
+a2enconf oar-restful-api
+
+# Configure oar-web-status for Apache2 (monika + drawgantt-svg)
+
+a2enmod cgi
+# Change cgi-bin path to /usr/local
+sed -i -e "s@/usr/lib/cgi-bin@/usr/local/lib/cgi-bin@" /etc/apache2/conf-available/serve-cgi-bin.conf
+
+sed -e "s/^\(clustername = \).*/\1oardocker for OAR $VERSION/" -i /etc/oar/monika.conf
+sed -e "s/^\(hostname = \).*/\1server/" -i /etc/oar/monika.conf
+sed -e "s/^\(username.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
+sed -e "s/^\(password.*\)oar.*/\1oar_ro/" -i /etc/oar/monika.conf
+sed -e "s/^\(dbtype.*\)mysql.*/\1psql/" -i /etc/oar/monika.conf
+sed -e "s/^\(dbport.*\)3306.*/\15432/" -i /etc/oar/monika.conf
+sed -e "s/^\(hostname.*\)localhost.*/\1server/" -i /etc/oar/monika.conf
+chown www-data /etc/oar/monika.conf
+
 sed -i "s/\$CONF\['db_type'\]=\"mysql\"/\$CONF\['db_type'\]=\"pg\"/g" /etc/oar/drawgantt-config.inc.php
 sed -i "s/\$CONF\['db_server'\]=\"127.0.0.1\"/\$CONF\['db_server'\]=\"server\"/g" /etc/oar/drawgantt-config.inc.php
 sed -i "s/\$CONF\['db_port'\]=\"3306\"/\$CONF\['db_port'\]=\"5432\"/g" /etc/oar/drawgantt-config.inc.php
-sed -i "s/\"My OAR resources\"/\"Docker oardocker resources\"/g" /etc/oar/drawgantt-config.inc.php
+sed -i "s/\"My OAR resources\"/\"oardocker resources for OAR $VERSION\"/g" /etc/oar/drawgantt-config.inc.php
+
+a2enconf oar-web-status
+
+# Configure phppgadmin
+sed -i "s/\$conf\['extra_login_security'\] = true;/\$conf\['extra_login_security'\] = false;/g" /etc/phppgadmin/config.inc.php
+sed -i "s/\$conf\['servers'\]\[0\]\['host'\] = 'localhost';/\$conf\['servers'\]\[0\]\['host'\] = 'server';/g" /etc/phppgadmin/config.inc.php
+sed -i "s/Require local/Require all granted/" /etc/apache2/conf-available/phppgadmin.conf
+
+# Disable all sysvinit services
+ls /etc/init.d/* | xargs -I {} basename {} | xargs -I {} systemctl disable {} 2> /dev/null || true
 
 echo "$VERSION" | tee /oar_version
 echo "$COMMENT"

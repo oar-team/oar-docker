@@ -1,0 +1,13 @@
+[Unit]
+Description=Prepopulates OAR cgroup directory hierarchy
+Before=oardocker.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /var/lib/container/init-scripts/prepare_oar_cgroup.sh init
+ExecStop=/bin/bash /var/lib/container/init-scripts/prepare_oar_cgroup.sh clean
+# TimeoutSec=0
+RemainAfterExit=on
+
+[Install]
+WantedBy=oardocker.target

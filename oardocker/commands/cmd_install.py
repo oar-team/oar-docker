@@ -18,4 +18,4 @@ def cli(ctx, src):
     install(ctx, src,
             needed_tag="base",
             tag="latest",
-            parent_cmd="build")
+            parent_cmd="oardocker build")

@@ -1,2 +1,0 @@
-- configure_kernel:
-  - exec_in: echo "Nothing to do..."

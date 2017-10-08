@@ -1,0 +1,12 @@
+[Unit]
+Description=Send Journalctl to Rsyslog
+
+[Service]
+TimeoutStartSec=0
+ExecStart=/bin/sh -c 'journalctl -b -o short -f --no-tail  | ncat rsyslog 514'
+
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=oardocker.target

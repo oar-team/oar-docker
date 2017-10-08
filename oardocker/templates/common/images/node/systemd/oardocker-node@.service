@@ -1,0 +1,14 @@
+[Unit]
+Description=OAR Node Secure Shell server per-connection daemon
+
+[Service]
+ExecStart=-/usr/sbin/sshd -i -f /etc/oar/sshd_config
+ExecReload=/bin/kill -HUP $MAINPID
+StandardInput=socket
+StandardError=syslog
+
+# When using oardocker-node.socket to start node@.service on demand,
+# detaching processess will not work. The reason is once the ssh session is
+# closed, systemd  will terminate all remaining processes in the sshd cgroups
+# this behaviour can be changed using 'KillMode=process'
+KillMode=process

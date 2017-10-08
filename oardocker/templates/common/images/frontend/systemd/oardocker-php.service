@@ -1,0 +1,8 @@
+[Unit]
+Description=The PHP FastCGI Process Manager
+
+[Service]
+SyslogIdentifier=php
+Environment="FPM_SOCKETS=/var/run/php5-fpm.sock=3"
+ExecStart=/usr/sbin/php5-fpm --fpm-config=/etc/php5/fpm/pool.d/oardocker.conf
+PrivateTmp=true

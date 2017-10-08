@@ -1,0 +1,7 @@
+#  This file is part of oar-docker project.
+
+[Unit]
+Description=Basic oardocker System
+DefaultDependencies=no
+AllowIsolate=yes
+Wants=systemd-journald.service rc-local.service systemd-tmpfiles-setup.service

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 import sys
 
 
@@ -35,6 +36,11 @@ if PY3:
     from collections import Callable
     callable = lambda obj: isinstance(obj, Callable)
 
+    def _out(x):
+        print(x, end="", flush=True)
+
+    _err = _out
+
 else:
     builtin_str = str
     bytes = str
@@ -60,6 +66,9 @@ else:
         return isinstance(x, (buffer, bytearray))  # noqa
 
     callable = callable
+
+    _out = sys.stdout
+    _err = sys.stdout
 
 
 def with_metaclass(meta, base=object):

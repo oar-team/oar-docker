@@ -1,0 +1,10 @@
+[Unit]
+Description=OAR Node Secure Shell server socket
+ConditionPathExists=!/etc/ssh/sshd_not_to_be_run
+
+[Socket]
+ListenStream=6667
+Accept=yes
+
+[Install]
+WantedBy=oardocker.target

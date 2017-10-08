@@ -24,10 +24,10 @@ You can, for example, directly:
  $ oarsub -I
 
 Or check the API:
- $ wget -O - http://localhost/oarapi/resources.yaml
+ $ wget -O - http://localhost:6668/oarapi/resources.yaml
 
 Check the API more deeply, submitting a job as the "docker" user:
- $ curl -i -X POST http://docker:docker@localhost/oarapi-priv/jobs.json \
+ $ curl -i -X POST http://docker:docker@localhost:6668/oarapi-priv/jobs.json \
      -H'Content-Type: application/json' \
      -d '{"resource":"/nodes=1,walltime=00:10:00", "command":"sleep 600"}'
 

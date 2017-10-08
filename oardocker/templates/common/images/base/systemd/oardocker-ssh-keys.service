@@ -1,0 +1,11 @@
+[Unit]
+Description=Configuration of OAR SSH keys
+
+[Service]
+Type=oneshot
+SyslogIdentifier=ssh-keys
+ExecStart=/bin/bash /var/lib/container/init-scripts/configure_oar_ssh_keys.sh
+RemainAfterExit=on
+
+[Install]
+WantedBy=oardocker.target

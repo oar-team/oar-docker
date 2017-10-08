@@ -18,7 +18,7 @@ help:
 
 init:
 	pip install -e .
-	pip install -U setuptools pip tox ipdb jedi pytest pytest-cov flake8 wheel
+	pip install -U setuptools pip tox ipdb jedi pytest pytest-cov flake8 wheel bumpversion docker-squash
 
 clean:
 	rm -fr build/
@@ -37,15 +37,14 @@ sdist: clean
 	ls -l dist
 
 release: clean
-	python setup.py register
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
 
 bumpversion:
-	python scripts/bump-release-version.py
+	@python scripts/bumpversion.py release
 
 newversion:
-	@python scripts/bump-dev-version.py $(filter-out $@,$(MAKECMDGOALS))
+	@python scripts/bumpversion.py newversion $(filter-out $@,$(MAKECMDGOALS))
 
 %:
 	@:

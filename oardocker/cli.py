@@ -5,8 +5,11 @@ import os
 import os.path as op
 import sys
 import click
+
 from . import VERSION
 from .context import pass_context, CONTEXT_SETTINGS
+
+click.disable_unicode_literals_warning = True
 
 
 class OardockerCLI(click.MultiCommand):

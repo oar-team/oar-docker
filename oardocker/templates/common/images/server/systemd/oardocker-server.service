@@ -1,0 +1,12 @@
+[Unit]
+Description=OAR server
+Requires=oardocker-postgresql.service
+After=oardocker-postgresql.service
+
+[Service]
+Restart=on-failure
+SyslogIdentifier=oar-server
+ExecStart=/bin/bash /var/lib/container/init-scripts/oar_server.sh
+
+[Install]
+WantedBy=oardocker.target

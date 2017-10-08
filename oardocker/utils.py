@@ -1,23 +1,33 @@
 # -*- coding: utf-8 -*-
-from __future__ import with_statement, absolute_import, unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 import filecmp
 import hashlib
 import os
 import os.path as op
+import re
 import random
 import shutil
 import socket
 import string
-import sys
 import tarfile
 
 import click
 import requests
 
 from io import open
+from sh import ErrorReturnCode
 
-from sh import git, ErrorReturnCode
+from .compat import _out, _err, to_unicode
+
+
+def git(*args, **kwargs):
+    try:
+        from sh import git as git_cmd
+    except ImportError:
+        raise Exception('git is missing, please install it before using this'
+                        ' command')
+    return git_cmd(*args, **kwargs)
 
 
 def check_tcp_port_open(ip, port):
@@ -83,11 +93,11 @@ def git_pull_or_clone(src, dest):
                          "--get", "remote.origin.url")
         if remote_url.rstrip() == src:
             git("--git-dir", op.join(dest, ".git"), "--work-tree",
-                dest, "pull", "--progress", _out=sys.stdout, _err=sys.stderr)
+                dest, "pull", "--progress", _out=_out, _err=_err)
         else:
             shutil.rmtree(dest)
     else:
-        git.clone(src, dest, "--progress", _out=sys.stdout, _err=sys.stderr)
+        git("clone", src, dest, "--progress", _out=_out, _err=_err)
 
 
 def download_file(file_url, dest):
@@ -191,3 +201,25 @@ def find_executable(executable):
         return None
     else:
         return executable
+
+
+def slugify(s):
+    """
+    Simplifies ugly strings into something URL-friendly.
+    From: http://dolphm.com/slugify-a-string-in-python/
+
+    >>> print slugify("[Some] _ Article's Title--")
+    some-articles-title
+
+    """
+    s = to_unicode(s)
+    s = s.lower()
+    for c in [' ', '-', '.', '/']:
+        s = s.replace(c, '_')
+    s = re.sub('\W', '', s)
+    s = s.replace('_', ' ')
+    s = re.sub('\s+', ' ', s)
+    s = s.strip()
+    s = s.replace(' ', '-')
+
+    return s

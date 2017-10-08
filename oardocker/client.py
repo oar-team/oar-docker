@@ -12,7 +12,7 @@ from oardocker.utils import find_executable
 from oardocker.container import Container
 
 
-DEFAULT_DOCKER_API_VERSION = "1.15"
+DEFAULT_DOCKER_API_VERSION = "1.22"
 
 
 class Docker(object):
@@ -21,8 +21,8 @@ class Docker(object):
         self.docker_host = docker_host
         self.docker_exe = find_executable(docker_binary)
         self.ctx = ctx
-        self.api = docker.Client(base_url=self.docker_host, timeout=10,
-                                 version=DEFAULT_DOCKER_API_VERSION)
+        self.api = docker.APIClient(base_url=self.docker_host, timeout=10,
+                                    version=DEFAULT_DOCKER_API_VERSION)
 
     def cli(self, call_args, _iter=False):
         if self.docker_exe is None:
@@ -57,23 +57,38 @@ class Docker(object):
         for container in containers:
             cid = container["Id"][:12]
             cname = ''.join(container["Names"] or []).lstrip("/")
-            if (cid not in state_containers_ids
-                    and cname not in self.ctx.state["containers"]):
+            if (cid not in state_containers_ids and
+                    cname not in self.ctx.state["containers"]):
                 continue
             yield Container(self, container)
 
-    def get_images(self):
+    def get_containers_by_hosts(self):
+        return dict(((c.hostname, c) for c in self.get_containers()))
+
+    def get_images(self, all_images=False):
         state_images_ids = [i[:12] for i in self.ctx.state["images"]]
         images = self.api.images(name=None, quiet=False,
                                  all=False, viz=False)
         for image in images:
             image_id = image["Id"][:12]
+            if image["RepoTags"]:
+                image_name = image["RepoTags"][0]
+                if not all_images:
+                    if (image_id not in state_images_ids and
+                            image_name not in self.ctx.state["images"]):
+                        continue
+                yield image
+
+    def add_image(self, name):
+        images = self.api.images(name=None, quiet=False, all=False, viz=False)
+        for image in images:
+            image_id = image["Id"][:12]
             image_name = image["RepoTags"][0]
-            if (image_id not in state_images_ids
-                    and image_name not
-                    in self.ctx.state["images"]):
-                continue
-            yield image
+            if name == image_name:
+                self.ctx.state["images"].append(image_id)
+                return image_id
+
+        raise click.ClickException("Cannot find '%s' image" % name)
 
     def generate_container_name(self):
         return "%s_%s" % (self.ctx.prefix, time.time())

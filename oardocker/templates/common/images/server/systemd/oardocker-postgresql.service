@@ -1,0 +1,18 @@
+[Unit]
+Description=PostgreSQL database server
+
+[Service]
+User=postgres
+Group=postgres
+SyslogIdentifier=postgres
+KillMode=process
+
+ExecStart=/usr/lib/postgresql/9.4/bin/postgres -D /var/lib/postgresql/9.4/main -c config_file=/etc/postgresql/9.4/main/postgresql.conf
+
+# Additional security-related features
+PrivateTmp=true
+ProtectSystem=full
+NoNewPrivileges=true
+
+[Install]
+WantedBy=oardocker.target

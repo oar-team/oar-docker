@@ -61,7 +61,7 @@ if [ -f /usr/local/share/oar/oar-server/init.d/oar-server ]; then
 fi
 
 if [ -f /usr/local/share/doc/oar-server/examples/init.d/oar-server ]; then
-    cat /usr/local/share/oar/oar-server/init.d/oar-server > /etc/init.d/oar-server
+    cat /usr/local/share/doc/oar-server/examples/init.d/oar-server > /etc/init.d/oar-server
     chmod +x  /etc/init.d/oar-server
 fi
 
@@ -130,6 +130,9 @@ echo "Init database"
 
 echo "Stopping postgresql..."
 /etc/init.d/postgresql stop
+
+# Disable all sysvinit services
+ls /etc/init.d/* | xargs -I {} basename {} | xargs -I {} systemctl disable {} 2> /dev/null || true
 
 echo "$VERSION" | tee /oar_version
 echo "$COMMENT"

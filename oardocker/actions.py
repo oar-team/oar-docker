@@ -4,19 +4,20 @@ from __future__ import with_statement, absolute_import, unicode_literals
 import os
 import os.path as op
 import shutil
+import json
 import sys
 
-from .compat import iteritems, reraise
+from .compat import iteritems, reraise, to_unicode
 from .container import Container
 from .utils import (check_tarball, check_git, check_url, download_file,
-                    git_pull_or_clone, touch)
+                    git_pull_or_clone, touch, slugify)
 
 import click
 
 
-def execute(ctx, user, hostname, cmd, workdir):
+def execute(ctx, user, hostname, cmd, workdir, tty=False):
     node_name = ''.join([i for i in hostname if not i.isdigit()])
-    nodes = ("frontend", "services", "node", "server")
+    nodes = ("frontend", "services", "node", "server", "rsyslog")
     if node_name not in nodes:
         raise click.ClickException("Cannot find the container with the name "
                                    "'%s'" % hostname)
@@ -26,12 +27,14 @@ def execute(ctx, user, hostname, cmd, workdir):
                                    "running this command. Run  `oardocker"
                                    " start` first")
     user_cmd = ' '.join(cmd)
-    return containers[hostname].execute(user_cmd, user, workdir)
+    return containers[hostname].execute(user_cmd, user, workdir, tty)
 
 
 def check_images_requirements(ctx, nodes, needed_tag, parent_cmd):
     available_images = [', '.join(im["RepoTags"]) for im in
-                        ctx.docker.get_images()]
+                        ctx.docker.get_images(all_images=False)]
+    all_images = list(set([', '.join(im["RepoTags"]) for im in
+                           ctx.docker.get_images(all_images=True)]))
     no_missings_images = set()
     needed_images = set([ctx.image_name(node, needed_tag) for node in nodes])
     for image in needed_images:
@@ -41,14 +44,50 @@ def check_images_requirements(ctx, nodes, needed_tag, parent_cmd):
     missings_images = list(set(needed_images) - set(no_missings_images))
     if missings_images:
         for image in missings_images:
-            image_name = click.style(image, fg="red")
-            click.echo("missing image '%s'" % image_name)
-        raise click.ClickException("You need build base images first with "
+            red_image_name = click.style(image, fg="red")
+            blue_image_name = click.style(image, fg="blue")
+            if image in all_images:
+                click.echo("Attached '%s' image to the workdir"
+                           % blue_image_name)
+                ctx.docker.add_image(image)
+            else:
+                pull_error = None
+                rl = "'\x1b[2K\r"
+                bar_template = '[%(bar)s] %(label)s %(info)s'
+                label = "Pulling '%s'\t" % blue_image_name
+                pull_generator = ctx.docker.api.pull(image, stream=True)
+                with click.progressbar(pull_generator,
+                                       bar_template=bar_template,
+                                       label=label) as stream:
+                    for line in stream:
+                        dline = json.loads(to_unicode(line))
+                        if "error" in dline:
+                            click.echo(rl + dline['error'], nl=False)
+                            pull_error = dline['error']
+                click.echo("'\x1b[2K\r", nl=False)
+                if not pull_error:
+                    ctx.docker.add_image(image)
+                    missings_images = list(set(missings_images) -
+                                           set([image]))
+                else:
+                    click.echo(pull_error)
+
+    if missings_images:
+        for image in missings_images:
+            red_image_name = click.style(image, fg="red")
+            click.echo("missing image '%s'" % red_image_name)
+        raise click.ClickException("You need build missing images first, with "
                                    "`%s` command" % parent_cmd)
 
 
 def install(ctx, src, needed_tag, tag, parent_cmd):
-    nodes = ("frontend", "server", "node")
+    install_script = ctx.state.manifest['install_script']
+    if not install_script:
+        raise click.ClickException("This operation is not supported for "
+                                   "this env")
+    nodes = ctx.state.manifest['install_on']
+    soft_name = ctx.state.manifest['install_software_name']
+    soft_slug = slugify(soft_name)
     check_images_requirements(ctx, nodes, needed_tag, parent_cmd)
     if not op.exists(ctx.postinstall_dir):
         os.makedirs(ctx.postinstall_dir)
@@ -71,23 +110,25 @@ def install(ctx, src, needed_tag, tag, parent_cmd):
         raise click.ClickException("Invalid src '%s'. Must be a tarball or a"
                                    " git repository" % src)
     if is_remote:
-        ctx.log('Fetching OAR src from %s...' % src)
+        ctx.log("Fetching '%s' src from %s..." % (soft_name, src))
         if is_git:
-            path = op.join(ctx.postinstall_dir, "oar-git")
+            path = op.join(ctx.postinstall_dir, "%s-git" % soft_slug)
             git_pull_or_clone(src, path)
         else:
-            path = op.join(ctx.postinstall_dir, "oar-tarball.tar.gz")
+            path = op.join(ctx.postinstall_dir,
+                           "%s-tarball.tar.gz" % soft_slug)
             download_file(src, path)
     else:
         path = src
-    ctx.log('Installing OAR from %s' % src)
+    ctx.log("Installing '%s' from %s" % (soft_name, src))
     postinstall_cpath = "/tmp/postintall"
     if is_git:
-        src_cpath = "%s/oar-git" % postinstall_cpath
+        src_cpath = "%s/%s-git" % (postinstall_cpath, soft_slug)
     else:
-        src_cpath = "%s/tarballs/oar-tarball.tar.gz" % postinstall_cpath
+        src_cpath = "%s/tarballs/%s-tarball.tar.gz" % (postinstall_cpath,
+                                                       soft_slug)
     binds = {path: {'bind': src_cpath, 'ro': True}}
-    command = ["/root/install_oar.sh", src_cpath]
+    command = [install_script, src_cpath]
     volumes = []
     for path, bind in iteritems(binds):
         if bind["ro"]:
@@ -153,78 +194,131 @@ def get_common_binds(ctx, hostname):
     return binds
 
 
-def start_server_container(ctx, command, extra_binds, num_nodes, env):
+def start_rsyslog_container(ctx, extra_binds):
+    image = ctx.image_name("rsyslog", "latest")
+    command = ["rsyslogd", "-n"]
+    hostname = "rsyslog"
+    binds = get_common_binds(ctx, hostname)
+    binds.update(extra_binds)
+    container = Container.create(ctx.docker, image=image,
+                                 detach=True, hostname=hostname,
+                                 command=command, tty=True, binds=binds)
+    ctx.state["containers"].append(container.short_id)
+    container.start()
+    log_started(hostname)
+    ctx.state.update_etc_hosts(container)
+    ctx.state.fast_dump()
+    return container
+
+
+def start_server_container(ctx, command, extra_binds):
     image = ctx.image_name("server", "latest")
     hostname = "server"
     binds = get_common_binds(ctx, hostname)
     binds.update(extra_binds)
-    environment = dict(env)
-    environment["NUM_NODES"] = num_nodes
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
-                                 environment=environment, ports=[22],
-                                 command=command, tty=True)
+                                 command=command, tty=True,
+                                 binds=binds, privileged=True)
     ctx.state["containers"].append(container.short_id)
-    container.start(binds=binds, privileged=True,
-                    volumes_from=None)
+    container.start()
     log_started(hostname)
     ctx.state.update_etc_hosts(container)
+    ctx.state.fast_dump()
     return container
 
 
-def start_frontend_container(ctx, command, extra_binds, num_nodes,
-                             http_port, env):
+def start_frontend_container(ctx, command, extra_binds, port_bindings_start):
     image = ctx.image_name("frontend", "latest")
     hostname = "frontend"
     binds = get_common_binds(ctx, hostname)
     binds.update(extra_binds)
-    environment = dict(env)
-    environment["NUM_NODES"] = num_nodes
+    ports = set([int(item[2]) for item in
+                 ctx.state.manifest["web_services"] if len(item) > 2])
+    ports.add(80)
+    port_bindings = {int(port): ('127.0.0.1', port_bindings_start + int(port))
+                     for port in ports}
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
-                                 environment=environment, volumes=["/home"],
-                                 ports=[22, 80], command=command, tty=True)
+                                 volumes=["/home"], ports=list(ports),
+                                 command=command, tty=True,
+                                 binds=binds, privileged=True,
+                                 port_bindings=port_bindings)
     ctx.state["containers"].append(container.short_id)
-    container.start(binds=binds, privileged=True,
-                    port_bindings={80: ('127.0.0.1', http_port)},
-                    volumes_from=None)
+    container.start()
     log_started(hostname)
     ctx.state.update_etc_hosts(container)
+    ctx.state.fast_dump()
     return container
 
 
-def start_nodes_containers(ctx, command, extra_binds, num_nodes,
-                           frontend, env):
+def start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend):
     image = ctx.image_name("node", "latest")
-    environment = dict(env)
-    environment["NUM_NODES"] = num_nodes
     for i in range(1, num_nodes + 1):
         hostname = "node%d" % i
         binds = get_common_binds(ctx, "node")
         binds.update(extra_binds)
         container = Container.create(ctx.docker, image=image,
                                      detach=True, hostname=hostname,
-                                     ports=[22], command=command, tty=True,
-                                     environment=environment)
+                                     command=command, tty=True,
+                                     binds=binds, privileged=True,
+                                     volumes_from=[frontend.id])
         ctx.state["containers"].append(container.short_id)
-        container.start(binds=binds, privileged=True,
-                        volumes_from=frontend.id)
+        container.start()
         log_started(hostname)
         ctx.state.update_etc_hosts(container)
+        ctx.state.fast_dump()
 
 
-def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
-           env={}):
-    command = ["/usr/local/sbin/oardocker_init"]
-    nodes = ("frontend", "server", "node")
+def generate_cow_volumes_file(ctx, cow_volumes):
+    with open(ctx.cow_volumes_file, "w") as fd:
+        fd.write('\n'.join(cow_volumes) + '\n')
+
+
+def generate_systemd_config_file(ctx, default_env={}):
+    default_env_list = ['"%s=%s"' % (k, v) for k, v in iteritems(default_env)]
+    default_config = """
+# See systemd-system.conf(5) for details.
+[Manager]
+LogLevel=info
+LogTarget=journal-or-kmsg
+LogColor=yes
+#LogLocation=no
+DefaultTimeoutStartSec=5s
+DefaultTimeoutStopSec=5s
+DefaultEnvironment="container=docker" %s
+""" % (" ".join(default_env_list))
+    with open(ctx.systemd_config_file, "w") as fd:
+        fd.write(default_config)
+
+
+def generate_etc_profile_file(ctx, default_env={}):
+    etc_profile_vars = []
+    for k, v in iteritems(default_env):
+        etc_profile_vars.append("export %s=\"%s\"" % (k, v))
+    with open(ctx.etc_profile_file, "w") as fd:
+        fd.write('\n'.join(etc_profile_vars) + "\n")
+
+
+def deploy(ctx, num_nodes, volumes, port_bindings_start, needed_tag,
+           parent_cmd, env={}):
+    command = ["/lib/systemd/systemd", "systemd.unit=oardocker.target",
+               "systemd.journald.forward_to_console=1"]
+    nodes = ("frontend", "server", "node", "rsyslog")
     check_images_requirements(ctx, nodes, needed_tag, parent_cmd)
 
-    my_initd = op.join(ctx.envdir, "my_init.d")
+    init_scripts = op.join(ctx.envdir, "init-scripts")
     extra_binds = {
-        my_initd: {'bind': "/var/lib/container/my_init.d/", 'ro': True},
-        ctx.dns_file: {'bind': "/etc/hosts", 'ro': True},
+        init_scripts: {'bind': "/var/lib/container/init-scripts/", 'ro': True},
+        ctx.dns_file: {'bind': "/etc/hosts.oardocker", 'ro': True},
         ctx.cgroup_path: {'bind': "/sys/fs/cgroup", 'ro': True},
-        ctx.nodes_file: {'bind': "/var/lib/container/nodes", 'ro': True}
+        ctx.nodes_file: {'bind': "/var/lib/container/nodes", 'ro': True},
+        ctx.cow_volumes_file: {'bind': "/var/lib/container/cow_volumes",
+                               'ro': True},
+        ctx.systemd_config_file: {'bind': "/etc/systemd/system.conf",
+                                  'ro': True},
+        ctx.etc_profile_file: {'bind': "/etc/profile.d/oardocker_env.sh",
+                               'ro': True},
     }
     mount_options = ('ro', 'rw', 'cow')
     cow_volumes = []
@@ -253,8 +347,13 @@ def deploy(ctx, num_nodes, volumes, http_port, needed_tag, parent_cmd,
                              "following options %s" % (volume, mount_options))
 
         extra_binds[host_path] = {'bind': container_path, "ro": ro}
-    env['COW_VOLUMES'] = '\n'.join(cow_volumes)
+
+    generate_cow_volumes_file(ctx, cow_volumes)
+    generate_systemd_config_file(ctx, env)
+    generate_etc_profile_file(ctx, env)
+
+    start_rsyslog_container(ctx, extra_binds)
     frontend = start_frontend_container(ctx, command, extra_binds,
-                                        num_nodes, http_port, env)
-    start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend, env)
-    start_server_container(ctx, command, extra_binds, num_nodes, env)
+                                        port_bindings_start)
+    start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend)
+    start_server_container(ctx, command, extra_binds)

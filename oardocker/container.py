@@ -29,6 +29,28 @@ class Container(object):
 
     @classmethod
     def create(cls, docker, **options):
+        privileged = options.pop('privileged', False)
+        port_bindings = options.pop('port_bindings', {})
+        binds = options.pop('binds', None)
+        volumes_from = options.pop('volumes_from', [])
+
+        host_config_kwargs = {
+            "tmpfs": {'/run/lock': '', '/run': '', '/tmp': ''},
+            "security_opt": ['seccomp:unconfined']
+        }
+        if binds:
+            host_config_kwargs['binds'] = binds
+        if privileged:
+            host_config_kwargs['privileged'] = privileged
+        if port_bindings:
+            host_config_kwargs['port_bindings'] = port_bindings
+        if volumes_from:
+            host_config_kwargs['volumes_from'] = volumes_from
+
+        if host_config_kwargs:
+            options['host_config'] = docker.api.create_host_config(
+                **host_config_kwargs)
+
         response = docker.api.create_container(**options)
         return cls(docker, response)
 
@@ -91,6 +113,9 @@ class Container(object):
         self.inspect_if_not_inspected()
         return self.dictionary["Config"]["Hostname"]
 
+    def nodename(self):
+        return ''.join([i for i in self.hostname if not i.isdigit()])
+
     @property
     def ip(self):
         self.inspect_if_not_inspected()
@@ -134,13 +159,15 @@ class Container(object):
         return self.docker.api.wait(self.id)
 
     def logs(self, *args, **kwargs):
-        follow = kwargs.get("follow", False)
-        tail = kwargs.get("tail", -1)
-        _iter = kwargs.get("_iter", False)
+        follow = kwargs.pop("follow", False)
+        if follow:
+            lines = kwargs.pop("lines", 10)
+        else:
+            lines = kwargs.pop("lines", "all")
+        _iter = kwargs.pop("_iter", False)
         if _iter:
             call_args = ["logs"]
-            if tail > 0:
-                call_args.extend(["--tail", "%s" % tail])
+            call_args.extend(["--tail", "%s" % lines])
             if follow:
                 call_args.append("--follow")
             call_args.append(self.id)
@@ -148,10 +175,12 @@ class Container(object):
         else:
             return to_unicode(self.docker.api.logs(self.id, *args, **kwargs))
 
-    def get_log_prefix(self, prefix_width):
+    def get_log_prefix(self, prefix_width=None):
         """
         Generate the prefix for a log line without colour
         """
+        if prefix_width is None:
+            prefix_width = len(self.hostname)
         color = self.environment.get("COLOR", "white")
         name = click.style(self.hostname, fg=color)
         padding = ' ' * (prefix_width - len(self.hostname))
@@ -161,12 +190,12 @@ class Container(object):
         self.dictionary = self.docker.api.inspect_container(self.id)
         return self.dictionary
 
-    def execute(self, cmd, user, workdir):
-        return self.docker.cli(["exec", "-it", self.id,
-                                "script", "-q", "/dev/null", "-c",
-                                "exec setuser %s /bin/bash -ilc "
-                                "'exec_in_container %s %s'"
-                                % (user, workdir, cmd)])
+    def execute(self, cmd, user, workdir, tty):
+        tty_option = "t" if tty else ""
+        return self.docker.cli(["exec", "-i%s" % tty_option, self.id,
+                                "setuser", user, "script", "-q", "/dev/null",
+                                "-c", "exec_in_container %s '%s'"
+                                % (workdir, cmd)])
 
     def __repr__(self):
         return '<Container: %s>' % self.name
