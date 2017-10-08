@@ -34,4 +34,4 @@ def cli(ctx):
         # remove untagged image
         if not image_name.startswith(ctx.prefix):
             ctx.docker.remove_image(image_name, force=True)
-    ctx.state.empty_etc_hosts()
+    ctx.docker.remove_network()

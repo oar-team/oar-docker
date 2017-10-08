@@ -92,3 +92,23 @@ class Docker(object):
 
     def generate_container_name(self):
         return "%s_%s" % (self.ctx.prefix, time.time())
+
+    def create_network(self):
+        network_name = self.ctx.network_name
+        driver = "bridge"
+        networks = self.api.networks(names=[network_name])
+
+        if networks:
+            network = networks[0]
+        else:
+            self.ctx.log('Creating network "%s" with driver "%s"' % (network_name, driver))
+            network = self.api.create_network(name=network_name, driver="bridge")
+            if network['Warning']:
+                self.ctx.wlog(network['Warning'])
+        self.ctx.state["network_id"] = network['Id']
+
+    def remove_network(self):
+        if "network_id" in self.ctx.state:
+            self.ctx.log('Removing network "%s" ' % self.ctx.network_name)
+            self.api.remove_network(self.ctx.state["network_id"])
+            del self.ctx.state["network_id"]
