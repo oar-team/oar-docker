@@ -1,4 +1,4 @@
-FROM oardocker/debian9:2017.10.07
+FROM oardocker/debian9:latest
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 
