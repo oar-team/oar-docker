@@ -1,4 +1,4 @@
-FROM oardocker/jessie-server:latest
+FROM oardocker/stretch-server:latest
 MAINTAINER Olivier Richard "olivier.richard@imag.fr"
 
 USER root
@@ -12,9 +12,9 @@ RUN touch /var/log/oar.log
 RUN chmod a+rw /var/log/oar.log
 
 RUN pip install -U wheel setuptools sqlalchemy sqlalchemy-utils alembic Click SimPy zerorpc
-RUN mkdir /tmp/python-packages/
-RUN git clone https://github.com/oar-team/oar3.git /tmp/python-packages/oar3
-RUN pip install -U /tmp/python-packages/oar3[dev]
+#RUN mkdir /tmp/python-packages/
+#RUN git clone https://github.com/oar-team/oar3.git /tmp/python-packages/oar3
+#RUN pip install -U /tmp/python-packages/oar
 
 ADD configure_oar.sh /tmp/configure_oar.sh
 RUN /bin/bash /tmp/configure_oar.sh
