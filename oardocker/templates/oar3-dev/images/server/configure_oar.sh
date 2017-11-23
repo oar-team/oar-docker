@@ -19,6 +19,11 @@ echo "Stopping postgresql..."
 echo "Set some links for OAR3"
 ln -s /usr/local/bin/oar3-appendice-proxy /usr/local/lib/oar/oar3-appendice-proxy
 ln -s /usr/local/bin/oar3-bipbip-commander /usr/local/lib/oar/oar3-bipbip-commander
+ln -s /usr/local/bin/oar3-sarko /usr/local/lib/oar/oar3-sarko
+ln -s /usr/local/bin/oar3-finaud /usr/local/lib/oar/oar3-finaud
+ln -s /usr/local/bin/oar3-leon /usr/local/lib/oar/oar3-leon
+ln -s /usr/local/bin/oar3-node-change-state /usr/local/lib/oar/oar3-node-change-state
+ln -s /usr/local/bin/oar3-bipbip /usr/local/lib/oar/oar3-bipbip
 
 echo "Set various things for OAR3"
 ln -s /usr/local/bin/kamelot /usr/local/lib/oar/schedulers/kamelot
