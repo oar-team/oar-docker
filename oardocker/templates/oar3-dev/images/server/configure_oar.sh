@@ -10,8 +10,8 @@ sudo -u postgres wait_pgsql
 echo "Enable kamelot scheduler"
 setuser postgres psql -d oar -c "update queues set scheduler_policy='kamelot';"
 
-echo "Remove admission rules #15"
-setuser postgres psql -d oar -c "delete from admission_rules where id='15';"
+echo "Remove Perl admission rules"
+setuser postgres psql -d oar -c "truncate admission_rules"
 
 echo "Stopping postgresql..."
 /etc/init.d/postgresql stop
@@ -25,6 +25,10 @@ ln -s /usr/local/bin/oar3-leon /usr/local/lib/oar/oar3-leon
 ln -s /usr/local/bin/oar3-node-change-state /usr/local/lib/oar/oar3-node-change-state
 ln -s /usr/local/bin/oar3-bipbip /usr/local/lib/oar/oar3-bipbip
 ln -s /usr/local/bin/kao /usr/local/lib/oar/kao
+
+echo "Set oar3-almighty as Almighty"
+mv /usr/local/lib/oar/Almighty /usr/local/lib/oar/Almighty2
+ln -s /usr/local/bin/oar3-almighty /usr/local/lib/oar/Almighty
 
 echo "Set various things for OAR3"
 ln -s /usr/local/bin/kamelot /usr/local/lib/oar/schedulers/kamelot
