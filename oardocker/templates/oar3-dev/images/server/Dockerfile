@@ -18,7 +18,7 @@ RUN pip install wheel setuptools sqlalchemy sqlalchemy-utils alembic Click SimPy
 
 RUN pip install https://github.com/oar-team/oar3/archive/master.zip    
 
-ADD configure_oar.sh /tmp/configure_oar.sh
-RUN /bin/bash /tmp/configure_oar.sh
+ADD configure_oar3.sh /tmp/configure_oar3.sh
+RUN /bin/bash /tmp/configure_oar3.sh
 
 RUN rm -rf /tmp/* /root/.cache
