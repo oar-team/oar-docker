@@ -21,4 +21,6 @@ RUN pip install https://github.com/oar-team/oar3/archive/master.zip
 ADD configure_oar3.sh /tmp/configure_oar3.sh
 RUN /bin/bash /tmp/configure_oar3.sh
 
+ADD oarswitch-cli /usr/sbin/oarswitch-cli
+    
 RUN rm -rf /tmp/* /root/.cache
