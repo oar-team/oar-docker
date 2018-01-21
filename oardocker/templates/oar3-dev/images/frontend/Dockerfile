@@ -27,4 +27,7 @@ RUN pip install https://github.com/oar-team/oar3/archive/master.zip
 #RUN npm install -g ts-node
 #RUN npm install -g gulp-cli
 
+ADD configure_oar3.sh /tmp/configure_oar3.sh
+RUN /bin/bash /tmp/configure_oar3.sh
+    
 RUN rm -rf /tmp/* /root/.cache
