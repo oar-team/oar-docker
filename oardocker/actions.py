@@ -141,7 +141,7 @@ def install(ctx, src, needed_tag, tag, parent_cmd):
     for node in nodes:
         container_name = ctx.docker.generate_container_name()
         image = ctx.image_name(node, needed_tag)
-        cli_options = ["run", "-a", "STDOUT", "-a", "STDERR", "--name", container_name]
+        cli_options = ["run", "-a", "STDOUT", "-a", "STDERR", "--device", "/dev/fuse", "--cap-add", "SYS_ADMIN", "--security-opt", "apparmor:unconfined", "--name", container_name]
         cli_options.extend(volumes)
         cli_options.extend([image] + command)
         ctx.state["containers"].append(container_name)
