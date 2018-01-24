@@ -8,7 +8,7 @@ ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 BASE_DOCKERFILES=$(shell find $(ROOT_DIR)/../oardocker/templates -path "*/base/Dockerfile" | grep stretch)
 
 build:
-	sudo kameleon build ${DEBIAN_VERSION}.yaml -g version:$(VERSION)
+	kameleon build ${DEBIAN_VERSION}.yaml -g version:$(VERSION)
 	docker tag ${DOCKER_TAG}:$(VERSION) ${DOCKER_TAG}:latest
 	sed -i "s|FROM.*|FROM ${DOCKER_TAG}:$(VERSION)|" $(BASE_DOCKERFILES)
 
