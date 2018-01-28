@@ -74,6 +74,7 @@
 
 - install_python_dev_tools:
   - exec_in: pip install -U pip setuptools
+  - exec_in: pip install -U wheel
   - exec_in: pip3 install -U $${python_dev_packages}
 
 
