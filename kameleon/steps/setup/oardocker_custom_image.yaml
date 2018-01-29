@@ -44,7 +44,7 @@
 - add_user:
   # use the create_passwd.py script to generate the crypted password
   - exec_in: |
-      if id $${user_name} > /dev/null
+      if id $${user_name} >& /dev/null
       then
            echo "user $${user_name} already exists."
       else
