@@ -10,7 +10,7 @@ BASE_DOCKERFILES=$(shell find $(ROOT_DIR)/../oardocker/templates -path "*/base/D
 build:
 	kameleon build ${DEBIAN_VERSION}.yaml -g version:$(VERSION)
 	docker tag ${DOCKER_TAG}:$(VERSION) ${DOCKER_TAG}:latest
-	sed -i "s|FROM.*|FROM ${DOCKER_TAG}:$(VERSION)|" $(BASE_DOCKERFILES)
+	#sed -i "s|FROM.*|FROM ${DOCKER_TAG}:$(VERSION)|" $(BASE_DOCKERFILES)
 
 push:
 	docker login
