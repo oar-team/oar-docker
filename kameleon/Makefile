@@ -16,6 +16,8 @@ push:
 	docker login
 	docker push ${DOCKER_TAG}:$(VERSION)
 	docker push ${DOCKER_TAG}:latest
+	docker logout
+	git tag -s -m "kameleon build for oardocker/${DEBIAN_VERSION}:$(VERSION)" "build_${DEBIAN_VERSION}_$(VERSION)"
 
 cleanup:
 	docker images -q --filter "dangling=true" | xargs -I {} bash -c "docker rmi {} 2> /dev/null || true"
