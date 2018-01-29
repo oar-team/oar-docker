@@ -13,11 +13,12 @@ build:
 	sed -i "s|FROM.*|FROM ${DOCKER_TAG}:$(VERSION)|" $(BASE_DOCKERFILES)
 
 push:
+	docker login
 	docker push ${DOCKER_TAG}:$(VERSION)
 	docker push ${DOCKER_TAG}:latest
 
 cleanup:
 	docker images -q --filter "dangling=true" | xargs -I {} bash -c "docker rmi {} 2> /dev/null || true"
-	sudo rm -rf build/
+	rm -rf build/
 
 release: push cleanup
