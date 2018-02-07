@@ -68,7 +68,7 @@ class Docker(object):
     def get_images(self, all_images=False):
         state_images_ids = [i[:12] for i in self.ctx.state["images"]]
         images = self.api.images(name=None, quiet=False,
-                                 all=False, viz=False)
+                                 all=False)
         for image in images:
             image_id = image["Id"][:12]
             if image["RepoTags"]:
@@ -80,7 +80,7 @@ class Docker(object):
                 yield image
 
     def add_image(self, name):
-        images = self.api.images(name=None, quiet=False, all=False, viz=False)
+        images = self.api.images(name=None, quiet=False, all=False)
         for image in images:
             image_id = image["Id"][:12]
             image_name = image["RepoTags"][0]
