@@ -35,17 +35,17 @@ git clone https://github.com/oar-team/oar.git
 
 ###4. Create or refresh the Debian/Jessie base images for oardocker
 ```sh
-mkdir ~/oar-jessie
-cd ~/oar-jessie
-oardocker init -e jessie
+mkdir ~/oar-stretch
+cd ~/oar-stretch
+oardocker init -e stretch
 oardocker build
 oardocker install ~/git/oar
 ```
 
 ###5. Create the Cigri docker images
 ```sh
-mkdir ~/cigri-jessie
-cd ~/cigri-jessie
+mkdir ~/cigri-stretch
+cd ~/cigri-stretch
 oardocker init -e cigri
 oardocker build
 oardocker install ~/git/oar
@@ -53,7 +53,7 @@ oardocker install ~/git/oar
 
 ###6. Start your OAR cluster with 3 nodes
 ```sh
-cd ~/cigri-jessie
+cd ~/cigri-stretch
 oardocker start -n 3
 ```
 

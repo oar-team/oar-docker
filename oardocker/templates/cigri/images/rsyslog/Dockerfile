@@ -1,4 +1,4 @@
-FROM oardocker/jessie-rsyslog:latest
+FROM oardocker/stretch-rsyslog:latest
 MAINTAINER Salem Harrache "salem.harrache@inria.fr"
 
 RUN systemctl unmask systemd-tmpfiles-setup.service

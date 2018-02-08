@@ -1,4 +1,4 @@
-FROM oardocker/jessie-server:base
+FROM oardocker/stretch-server:base
 MAINTAINER Bruno Bzeznik "bruno.bzeznik@imag.fr"
 
 USER root

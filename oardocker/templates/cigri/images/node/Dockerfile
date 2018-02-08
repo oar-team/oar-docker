@@ -1,4 +1,4 @@
-FROM oardocker/jessie-node:base
+FROM oardocker/stretch-node:base
 MAINTAINER Bruno Bzeznik "bruno.bzeznik@imag.fr"
 
 RUN systemctl unmask systemd-tmpfiles-setup.service
