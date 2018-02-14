@@ -27,7 +27,7 @@ pip install ~/git/oar-docker
 ```
 When upgrading, simply add the ``--upgrade`` to the ``pip`` command.
 
-###3. Get OAR sources
+###3. Get OAR sources (only necessary if you need the latest sources)
 ```sh
 cd ~/git
 git clone https://github.com/oar-team/oar.git
@@ -48,7 +48,8 @@ mkdir ~/cigri-stretch
 cd ~/cigri-stretch
 oardocker init -e cigri
 oardocker build
-oardocker install ~/git/oar
+oardocker install http://oar-ftp.imag.fr/oar/2.5/sources/testing/oar-2.5.8+rc5.tar.gz
+# Or if you need the latest OAR sources: oardocker install ~/git/oar
 ```
 
 ###6. Start your OAR cluster with 3 nodes
