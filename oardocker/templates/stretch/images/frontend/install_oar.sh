@@ -142,6 +142,9 @@ a2enmod proxy_http
  </virtualhost>
 EOF
 
+# Fix auth header for newer Apache versions
+sed -i -e "s/E=X_REMOTE_IDENT:/E=HTTP_X_REMOTE_IDENT:/" /etc/oar/apache2/oar-restful-api.conf
+
 a2enconf oar-restful-api
 
 # Configure oar-web-status for Apache2 (monika + drawgantt-svg)
