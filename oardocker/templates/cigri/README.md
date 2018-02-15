@@ -69,7 +69,7 @@ sudo su -
 ###8. From another shell, launch a Cigri campaign
 ```sh
 oardocker connect frontend
-mkdir cigri-3/tmp
+mkdir -p cigri-3/tmp
 cp /root/cigri/tmp/test1.sh cigri-3/tmp
 gridsub -f /root/cigri/tmp/test1.json
 ```
