@@ -32,3 +32,5 @@ RUN /home/docker/.nix-profile/bin/nix-env -i nodejs
 
 USER root                
 RUN rm -rf /tmp/* /root/.cache
+
+EXPOSE 4200

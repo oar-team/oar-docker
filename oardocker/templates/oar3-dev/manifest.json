@@ -12,6 +12,7 @@
         ["Private Perl API", "/oarapi-priv", "6668"],
         ["Monika", "/monika"],
         ["Drawgantt", "/drawgantt-svg/"],
-        ["PhpPgAdmin", "/phppgadmin/"]
+        ["PhpPgAdmin", "/phppgadmin/"],
+        ["Dashboard-dev", "", "4200"]
     ]
 }
