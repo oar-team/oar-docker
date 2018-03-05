@@ -26,8 +26,11 @@ ADD oarswitch-cli /usr/sbin/oarswitch-cli
 RUN echo "Install NIX"
 USER docker        
 RUN export USER=docker && curl https://nixos.org/nix/install | /bin/sh
-RUN echo "source /home/docker/.nix-profile/etc/profile.d/nix.sh" >> /home/docker/.bashrc
 
+RUN echo "if [ -f /home/docker/.nix-profile/etc/profile.d/nix.sh ]; then\n\
+    source /home/docker/.nix-profile/etc/profile.d/nix.sh\n\
+fi\n" >> /home/docker/.bashrc
+ 
 RUN /home/docker/.nix-profile/bin/nix-env -i nodejs
 
 USER root                
