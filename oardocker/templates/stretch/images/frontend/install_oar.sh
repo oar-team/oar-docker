@@ -103,10 +103,7 @@ rm -f /etc/oar/api-users
 htpasswd -b -c /etc/oar/api-users docker docker
 htpasswd -b /etc/oar/api-users oar oar
 
-
-# Jessie -> Stretch :https://httpd.apache.org/mod_fcgid/mod/mod_fcgid.html
 sed -i -e '1s@^/var/www.*@/usr/local/lib/cgi-bin@' /etc/apache2/suexec/www-data
-sed -i -e 's@#\(FcgidWrapper /usr/lib/apache2/suexec\)@\1@' /etc/apache2/mods-available/fcgid.conf
 
 a2enmod suexec
 a2enmod headers
