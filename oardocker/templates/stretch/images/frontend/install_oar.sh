@@ -40,17 +40,30 @@ else
     else
         TARBALL="$(readlink -m $TARBALL)"
     fi
-    VERSION=$(tar xfz $TARBALL --wildcards "*/sources/core/common-libs/lib/OAR/Version.pm" --to-command "grep -e 'my \$OARVersion'" | sed -e 's/^[^"]\+"\(.\+\)";$/\1/')
+
+    # extract version from OAR2 or OAR3
+    if tar -tf $TARBALL --wildcards "*/setup.py"; then
+        VERSION=$(tar xfz $TARBALL --wildcards "*/oar/__init__.py" --to-command "grep -e '__version__ '" | sed -e "s/^[^']\+'\(.\+\)'$/\1/" )
+    else    
+        VERSION=$(tar xfz $TARBALL --wildcards "*/sources/core/common-libs/lib/OAR/Version.pm" --to-command "grep -e 'my \$OARVersion'" | sed -e 's/^[^"]\+"\(.\+\)";$/\1/')
+    fi
+
     COMMENT="OAR ${VERSION} (tarball)"
     tar xf $TARBALL -C $SRCDIR
     [ -n "${VERSION}" ] || fail "error: fail to retrieve OAR version"
     SRCDIR=$SRCDIR/oar-${VERSION}
 fi
 
+MAJOR_VERSION=$(echo $VERSION | sed -e 's/\([0-9]\).*/\1/')
+if [ $MAJOR_VERSION = "2" ]; then
+    TOOLS_BUILD="tools-build"
+    TOOLS_INSTALL="tools-install"
+    TOOLS_SETUP="tools-setup"
+fi
 # Install OAR
-make -C $SRCDIR PREFIX=/usr/local user-build tools-build node-build
-make -C $SRCDIR PREFIX=/usr/local user-install drawgantt-svg-install monika-install www-conf-install api-install tools-install node-install
-make -C $SRCDIR PREFIX=/usr/local user-setup drawgantt-svg-setup monika-setup www-conf-setup api-setup tools-setup node-setup
+make -C $SRCDIR PREFIX=/usr/local user-build $TOOLS_BUILD node-build
+make -C $SRCDIR PREFIX=/usr/local user-install drawgantt-svg-install monika-install www-conf-install api-install $TOOLS_INSTALL node-install
+make -C $SRCDIR PREFIX=/usr/local user-setup drawgantt-svg-setup monika-setup www-conf-setup api-setup $TOOLS_SETUP node-setup
 
 # Configure MOTD
 sed -i s/__OAR_VERSION__/${VERSION}/ /etc/motd
@@ -110,34 +123,6 @@ a2enmod headers
 a2enmod rewrite
 
 perl -i -pe 's/Require local/Require all granted/; s/#(ScriptAlias \/oarapi-priv)/$1/; $do=1 if /#<Location \/oarapi-priv>/; if ($do) { $do=0 if /#<\/Location>/; s/^#// }' /etc/oar/apache2/oar-restful-api.conf
-
-# Add newoarapi-priv location
-a2enmod proxy
-a2enmod proxy_http
-(cd /etc/oar/apache2/ && patch -p0) <<'EOF'
---- oar-restful-api.conf.orig
-+++ oar-restful-api.conf
-@@ -176,4 +176,19 @@
- #  </IfModule>
- #</Location>
-
-+ProxyRequests off
-+ProxyPass "/newoarapi-priv" "http://127.0.0.1:9090"
-+
-+<Location /newoarapi-priv>
-+    Options +ExecCGI -MultiViews +FollowSymLinks
-+    AuthType      basic
-+    AuthUserfile  /etc/oar/api-users
-+    AuthName      "OAR API authentication"
-+    Require valid-user
-+    RewriteEngine On
-+    RewriteCond %{REMOTE_USER} (.*)
-+    RewriteRule .* - [E=X_REMOTE_IDENT:%1]
-+    RequestHeader add X_REMOTE_IDENT %{X_REMOTE_IDENT}e
-+</Location>
-+
- </virtualhost>
-EOF
 
 # Fix auth header for newer Apache versions
 sed -i -e "s/E=X_REMOTE_IDENT:/E=HTTP_X_REMOTE_IDENT:/" /etc/oar/apache2/oar-restful-api.conf
