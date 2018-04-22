@@ -57,6 +57,10 @@ fi
 
 MAJOR_VERSION=$(echo $VERSION | sed -e 's/\([0-9]\).*/\1/')
 
+if [ $MAJOR_VERSION = "3" ]; then
+    cd $SRCDIR; pip install .; cd -
+fi
+
 # Install OAR
 make -C $SRCDIR PREFIX=/usr/local server-build
 make -C $SRCDIR PREFIX=/usr/local server-install

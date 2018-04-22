@@ -55,11 +55,15 @@ else
 fi
 
 MAJOR_VERSION=$(echo $VERSION | sed -e 's/\([0-9]\).*/\1/')
+
 if [ $MAJOR_VERSION = "2" ]; then
     TOOLS_BUILD="tools-build"
     TOOLS_INSTALL="tools-install"
     TOOLS_SETUP="tools-setup"
+else
+    cd $SRCDIR; pip install .; cd -
 fi
+
 # Install OAR
 make -C $SRCDIR PREFIX=/usr/local user-build $TOOLS_BUILD node-build
 make -C $SRCDIR PREFIX=/usr/local user-install drawgantt-svg-install monika-install www-conf-install api-install $TOOLS_INSTALL node-install
