@@ -60,6 +60,7 @@ if [ $MAJOR_VERSION = "2" ]; then
     TOOLS_BUILD="tools-build"
     TOOLS_INSTALL="tools-install"
     TOOLS_SETUP="tools-setup"
+
 else
     cd $SRCDIR; pip install .; cd -
 fi
@@ -125,8 +126,11 @@ sed -i -e '1s@^/var/www.*@/usr/local/lib/cgi-bin@' /etc/apache2/suexec/www-data
 a2enmod suexec
 a2enmod headers
 a2enmod rewrite
-
-perl -i -pe 's/Require local/Require all granted/; s/#(ScriptAlias \/oarapi-priv)/$1/; $do=1 if /#<Location \/oarapi-priv>/; if ($do) { $do=0 if /#<\/Location>/; s/^#// }' /etc/oar/apache2/oar-restful-api.conf
+if [ $MAJOR_VERSION = "2" ]; then
+    perl -i -pe 's/Require local/Require all granted/; s/#(ScriptAlias \/oarapi-priv)/$1/; $do=1 if /#<Location \/oarapi-priv>/; if ($do) { $do=0 if /#<\/Location>/; s/^#// }' /etc/oar/apache2/oar-restful-api.conf
+else
+    perl -i -pe 's/Require local/Require all granted/; $do=1 if /#<Location \/oarapi-priv>/; if ($do) { $do=0 if /#<\/Location>/; s/^#// }' /etc/oar/apache2/oar-restful-api.conf
+fi
 
 # Fix auth header for newer Apache versions
 sed -i -e "s/E=X_REMOTE_IDENT:/E=HTTP_X_REMOTE_IDENT:/" /etc/oar/apache2/oar-restful-api.conf
