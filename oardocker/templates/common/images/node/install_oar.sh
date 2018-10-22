@@ -26,8 +26,7 @@ if [ -d "$1"  ]; then
     pushd $SRCDIR
     git clean -Xfd
     BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-    test -n "$(git status --porcelain)" && DIRTY_GIT="*" || DIRTY_GIT=""
-    VERSION="$(git describe)${DIRTY_GIT}"
+    VERSION="$(git describe --tags)"
     COMMENT="OAR ${VERSION} (git branch ${BRANCH})"
     popd
     [ -n "${VERSION}" ] || fail "error: fail to retrieve OAR version"
