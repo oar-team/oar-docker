@@ -26,8 +26,7 @@ if [ -d "$1"  ]; then
     pushd $SRCDIR
     git clean -Xfd
     BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-    test -n "$(git status --porcelain)" && DIRTY_GIT="*" || DIRTY_GIT=""
-    VERSION="$(git describe)${DIRTY_GIT}"
+    VERSION="$(git describe --tags)"
     COMMENT="OAR ${VERSION} (git branch ${BRANCH})"
     popd
     [ -n "${VERSION}" ] || fail "error: fail to retrieve OAR version"
@@ -40,11 +39,23 @@ else
     else
         TARBALL="$(readlink -m $TARBALL)"
     fi
-    VERSION=$(tar xfz $TARBALL --wildcards "*/sources/core/common-libs/lib/OAR/Version.pm" --to-command "grep -e 'my \$OARVersion'" | sed -e 's/^[^"]\+"\(.\+\)";$/\1/')
+
+    if tar -tf $TARBALL --wildcards "*/setup.py"; then
+        VERSION=$(tar xfz $TARBALL --wildcards "*/oar/__init__.py" --to-command "grep -e '__version__ '" | sed -e "s/^[^']\+'\(.\+\)'$/\1/" )
+    else    
+        VERSION=$(tar xfz $TARBALL --wildcards "*/sources/core/common-libs/lib/OAR/Version.pm" --to-command "grep -e 'my \$OARVersion'" | sed -e 's/^[^"]\+"\(.\+\)";$/\1/')
+    fi
+    
     COMMENT="OAR ${VERSION} (tarball)"
     tar xf $TARBALL -C $SRCDIR
     [ -n "${VERSION}" ] || fail "error: fail to retrieve OAR version"
     SRCDIR=$SRCDIR/oar-${VERSION}
+fi
+
+MAJOR_VERSION=$(echo $VERSION | sed -e 's/\([0-9]\).*/\1/')
+
+if [ $MAJOR_VERSION = "3" ]; then
+    cd $SRCDIR; pip install .; cd -
 fi
 
 # Install OAR

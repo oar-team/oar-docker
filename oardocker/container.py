@@ -33,10 +33,12 @@ class Container(object):
         port_bindings = options.pop('port_bindings', {})
         binds = options.pop('binds', None)
         volumes_from = options.pop('volumes_from', [])
+        network_name = options.pop('network_name', None)
 
         host_config_kwargs = {
             "tmpfs": {'/run/lock': '', '/run': '', '/tmp': ''},
-            "security_opt": ['seccomp:unconfined']
+            "security_opt": ['seccomp:unconfined'],
+            "cap_add": ["SYS_ADMIN", "MKNOD"],
         }
         if binds:
             host_config_kwargs['binds'] = binds
@@ -47,9 +49,18 @@ class Container(object):
         if volumes_from:
             host_config_kwargs['volumes_from'] = volumes_from
 
+        if network_name:
+            if "hostname" in options:
+                endpoint_config = docker.api.create_endpoint_config(
+                    aliases=[options['hostname']],
+                )
+            else:
+                endpoint_config = docker.api.create_endpoint_config()
+            options['networking_config'] = docker.api.create_networking_config({
+                network_name: endpoint_config
+            })
         if host_config_kwargs:
-            options['host_config'] = docker.api.create_host_config(
-                **host_config_kwargs)
+            options['host_config'] = docker.api.create_host_config(**host_config_kwargs)
 
         response = docker.api.create_container(**options)
         return cls(docker, response)
@@ -119,7 +130,7 @@ class Container(object):
     @property
     def ip(self):
         self.inspect_if_not_inspected()
-        return self.dictionary["NetworkSettings"]["IPAddress"]
+        return self.dictionary["NetworkSettings"]["Networks"][self.docker.ctx.network_name]["IPAddress"]
 
     @property
     def environment(self):

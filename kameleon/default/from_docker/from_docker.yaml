@@ -32,10 +32,8 @@ bootstrap:
   - prepare_docker_image:
     - pull_and_tag_image:
       - exec_out: |
-          if ! docker tag $${from_docker_image} "$${docker_image}:base"; then
-            echo "Importing docker base image to build from"
-            docker pull $${from_docker_image}
-          fi
+          docker pull $${from_docker_image}
+          docker tag $${from_docker_image} "$${docker_image}:base"
   - start_docker
 
 export:

@@ -1,9 +1,9 @@
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
 
-export LC_CTYPE=fr_FR.UTF-8
-export LANG=fr_FR.UTF-8
-export LC_ALL=fr_FR.UTF-8
+export LC_CTYPE=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 
 
 export OPT_BIN_PATH="$(find /opt -maxdepth 2 -type d | grep bin | paste -s -d ':')"

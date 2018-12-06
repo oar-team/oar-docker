@@ -128,9 +128,13 @@ def copy_file(srcname, dstname, preserve_symlinks=True):
     if preserve_symlinks and os.path.islink(srcname):
         if os.path.islink(dstname):
             os.unlink(dstname)
+        else:
+            os.remove(dstname)
         linkto = os.readlink(srcname)
         os.symlink(linkto, dstname)
     else:
+        if os.path.islink(dstname):
+            os.unlink(dstname)
         shutil.copy2(srcname, dstname)
 
 
@@ -169,8 +173,8 @@ def copy_tree(src, dest, overwrite=False, ignore_if_exists=[]):
             else:
                 click.echo("   " + create + "  " + fancy_relative_path)
                 copy_file(src_file_path, dest_file_path)
-            if (src_file_path.startswith(initd_path)
-                    or "bin/" in dest_file_path):
+            if (src_file_path.startswith(initd_path) or
+                    "bin/" in dest_file_path):
                 if not os.path.islink(dest_file_path):
                     if not os.access(dest_file_path, os.X_OK):
                         os.system("chmod +x %s" % dest_file_path)

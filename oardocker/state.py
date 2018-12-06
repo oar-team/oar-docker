@@ -7,7 +7,6 @@ import pprint
 
 from io import open
 from .utils import touch
-from .compat import iteritems
 
 
 LOCAL_HOSTS = """
@@ -26,7 +25,7 @@ ff02::2 ip6-allrouters
 
 
 class State(dict):
-    DEFAULTS = {"images": [], "containers": [], "dns": {}}
+    DEFAULTS = {"images": [], "containers": [], "network_id": None}
     DEFAULT_MANIFEST = {
         "parents": [
             "common"
@@ -47,11 +46,10 @@ class State(dict):
         }
     }
 
-    def __init__(self, ctx, state_file, dns_file, manifest_file):
+    def __init__(self, ctx, state_file, manifest_file):
         dict.__init__(self, self.DEFAULTS)
         self.ctx = ctx
         self.state_file = state_file
-        self.dns_file = dns_file
         self.manifest_file = manifest_file
         self.manifest = {}
         self.load()
@@ -96,21 +94,6 @@ class State(dict):
             if op.isdir(op.dirname(self.state_file)):
                 with open(self.state_file, "w", encoding='utf8') as json_file:
                     json_file.write(json.dumps(self, ensure_ascii=False))
-
-    def update_etc_hosts(self, container=None):
-        if container is not None:
-            container.inspect()
-            ipaddress = container.dictionary["NetworkSettings"]["IPAddress"]
-            hostname = container.dictionary["Config"]["Hostname"]
-            self["dns"][hostname] = ipaddress
-        hosts = ("%s %s" % (ip, name) for name, ip in iteritems(self["dns"]))
-        touch(self.dns_file)
-        with open(self.dns_file, "w") as fd:
-            fd.write(LOCAL_HOSTS + '\n'.join(hosts) + '\n')
-
-    def empty_etc_hosts(self):
-        self["dns"] = {}
-        self.update_etc_hosts()
 
     def __str__(self):
         return pprint.pprint(self)

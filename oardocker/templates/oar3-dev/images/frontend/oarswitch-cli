@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+    
+#mv /usr/local/lib/oar/oarstat /usr/local/lib/oar/oarstat2
+#ln -s /usr/local/bin/oarstat3 /usr/local/lib/oar/oarstat
+
+if [ $# -eq 0 ]; then
+    echo "Please specify the target command"
+    exit 1  
+fi
+    
+oardir2="/usr/local/lib/oar/"
+oardir3="/usr/local/bin/"
+
+oarcli=$oardir2$1    
+cmd_rm="rm $oarcli"
+              
+if [ $# -eq 2 ]; then
+    echo "Switch $1 to version 2"
+    cmd_ln="ln -s $oardir2$12 $oarcli"    
+else
+    echo "Switch $1 to version 3"
+    cmd_ln="ln -s $oardir3$13 $oarcli"
+fi
+
+echo $cmd_rm
+$cmd_rm
+echo $cmd_ln
+$cmd_ln

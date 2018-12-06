@@ -44,7 +44,7 @@ ScriptAlias /oarapi-unsecure /usr/local/lib/cgi-bin/oarapi/oarapi.cgi
 <IfModule rewrite_module>
   RewriteEngine On
   RewriteCond %{HTTP:X_REMOTE_IDENT}  (.*)
-  RewriteRule .* - [E=X_REMOTE_IDENT:%1]
+  RewriteRule .* - [E=HTTP_X_REMOTE_IDENT:%1]
 </IfModule>
 # Unsecure config for CIGRI devel only - end
 

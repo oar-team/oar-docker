@@ -74,7 +74,7 @@ function update_current_git_vars() {
     unset __CURRENT_GIT_STATUS
     local gitstatus="$HOME/.gitstatus.py"
 
-    _GIT_STATUS=$(/usr/bin/python2 $gitstatus)
+    _GIT_STATUS=$(python $gitstatus)
     __CURRENT_GIT_STATUS=($_GIT_STATUS)
     GIT_BRANCH=${__CURRENT_GIT_STATUS[0]}
     GIT_REMOTE=${__CURRENT_GIT_STATUS[1]}

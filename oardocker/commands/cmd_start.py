@@ -34,7 +34,7 @@ def print_webservices_info(ctx, port_bindings_start):
               help="Bind mount a volume (e.g.: -v /host:/container)")
 @click.option('-e', '--env', 'envs', multiple=True,
               help="Set environment variables")
-@click.option('--x11', '--enable-x11', is_flag=True, default=False,
+@click.option('-X', '--enable-x11', is_flag=True, default=False,
               help="Allow containers to display X11 applications")
 @click.option('--port-bindings-start', type=int,
               help="Number the host port bindings starts at", default=40000,

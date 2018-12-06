@@ -68,7 +68,7 @@ class Docker(object):
     def get_images(self, all_images=False):
         state_images_ids = [i[:12] for i in self.ctx.state["images"]]
         images = self.api.images(name=None, quiet=False,
-                                 all=False, viz=False)
+                                 all=False)
         for image in images:
             image_id = image["Id"][:12]
             if image["RepoTags"]:
@@ -80,7 +80,7 @@ class Docker(object):
                 yield image
 
     def add_image(self, name):
-        images = self.api.images(name=None, quiet=False, all=False, viz=False)
+        images = self.api.images(name=None, quiet=False, all=False)
         for image in images:
             image_id = image["Id"][:12]
             image_name = image["RepoTags"][0]
@@ -92,3 +92,28 @@ class Docker(object):
 
     def generate_container_name(self):
         return "%s_%s" % (self.ctx.prefix, time.time())
+
+    def create_network(self):
+        if self.ctx.state.get("network_id", None) is not None:
+            return
+        network_name = self.ctx.network_name
+        driver = "bridge"
+        networks = self.api.networks(names=[network_name])
+
+        if networks:
+            network = networks[0]
+        else:
+            self.ctx.log('Creating network "%s" with driver "%s"' % (network_name, driver))
+            network = self.api.create_network(name=network_name, driver="bridge")
+            if network['Warning']:
+                self.ctx.wlog(network['Warning'])
+        self.ctx.state["network_id"] = network['Id']
+
+    def remove_network(self):
+        if self.ctx.state.get("network_id", None) is not None:
+            networks = self.api.networks(names=[self.ctx.network_name])
+
+            if networks:
+                self.ctx.log('Removing network "%s" ' % self.ctx.network_name)
+                self.api.remove_network(networks[0]['Id'])
+                self.ctx.state["network_id"] = None

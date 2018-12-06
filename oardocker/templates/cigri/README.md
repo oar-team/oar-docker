@@ -27,7 +27,7 @@ pip install ~/git/oar-docker
 ```
 When upgrading, simply add the ``--upgrade`` to the ``pip`` command.
 
-###3. Get OAR sources
+###3. Get OAR sources (only necessary if you need the latest sources)
 ```sh
 cd ~/git
 git clone https://github.com/oar-team/oar.git
@@ -35,25 +35,26 @@ git clone https://github.com/oar-team/oar.git
 
 ###4. Create or refresh the Debian/Jessie base images for oardocker
 ```sh
-mkdir ~/oar-jessie
-cd ~/oar-jessie
-oardocker init -e jessie
+mkdir ~/oar-stretch
+cd ~/oar-stretch
+oardocker init -e stretch
 oardocker build
 oardocker install ~/git/oar
 ```
 
 ###5. Create the Cigri docker images
 ```sh
-mkdir ~/cigri-jessie
-cd ~/cigri-jessie
+mkdir ~/cigri-stretch
+cd ~/cigri-stretch
 oardocker init -e cigri
 oardocker build
-oardocker install ~/git/oar
+oardocker install http://oar-ftp.imag.fr/oar/2.5/sources/testing/oar-2.5.8+rc5.tar.gz
+# Or if you need the latest OAR sources: oardocker install ~/git/oar
 ```
 
 ###6. Start your OAR cluster with 3 nodes
 ```sh
-cd ~/cigri-jessie
+cd ~/cigri-stretch
 oardocker start -n 3
 ```
 
@@ -68,7 +69,7 @@ sudo su -
 ###8. From another shell, launch a Cigri campaign
 ```sh
 oardocker connect frontend
-mkdir cigri-3/tmp
+mkdir -p cigri-3/tmp
 cp /root/cigri/tmp/test1.sh cigri-3/tmp
 gridsub -f /root/cigri/tmp/test1.json
 ```

@@ -141,8 +141,7 @@ def install(ctx, src, needed_tag, tag, parent_cmd):
     for node in nodes:
         container_name = ctx.docker.generate_container_name()
         image = ctx.image_name(node, needed_tag)
-        cli_options = ["run", "-a", "STDOUT", "-a", "STDERR",
-                       "--privileged", "--name", container_name]
+        cli_options = ["run", "-a", "STDOUT", "-a", "STDERR", "--device", "/dev/fuse", "--cap-add", "SYS_ADMIN", "--security-opt", "apparmor:unconfined", "--name", container_name]
         cli_options.extend(volumes)
         cli_options.extend([image] + command)
         ctx.state["containers"].append(container_name)
@@ -202,11 +201,11 @@ def start_rsyslog_container(ctx, extra_binds):
     binds.update(extra_binds)
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
-                                 command=command, tty=True, binds=binds)
+                                 command=command, tty=True, binds=binds,
+                                 network_name=ctx.network_name)
     ctx.state["containers"].append(container.short_id)
     container.start()
     log_started(hostname)
-    ctx.state.update_etc_hosts(container)
     ctx.state.fast_dump()
     return container
 
@@ -219,11 +218,11 @@ def start_server_container(ctx, command, extra_binds):
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
                                  command=command, tty=True,
-                                 binds=binds, privileged=True)
+                                 binds=binds, privileged=False,
+                                 network_name=ctx.network_name)
     ctx.state["containers"].append(container.short_id)
     container.start()
     log_started(hostname)
-    ctx.state.update_etc_hosts(container)
     ctx.state.fast_dump()
     return container
 
@@ -242,12 +241,12 @@ def start_frontend_container(ctx, command, extra_binds, port_bindings_start):
                                  detach=True, hostname=hostname,
                                  volumes=["/home"], ports=list(ports),
                                  command=command, tty=True,
-                                 binds=binds, privileged=True,
-                                 port_bindings=port_bindings)
+                                 binds=binds, privileged=False,
+                                 port_bindings=port_bindings,
+                                 network_name=ctx.network_name)
     ctx.state["containers"].append(container.short_id)
     container.start()
     log_started(hostname)
-    ctx.state.update_etc_hosts(container)
     ctx.state.fast_dump()
     return container
 
@@ -261,12 +260,12 @@ def start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend):
         container = Container.create(ctx.docker, image=image,
                                      detach=True, hostname=hostname,
                                      command=command, tty=True,
-                                     binds=binds, privileged=True,
-                                     volumes_from=[frontend.id])
+                                     binds=binds, privileged=False,
+                                     volumes_from=[frontend.id],
+                                     network_name=ctx.network_name)
         ctx.state["containers"].append(container.short_id)
         container.start()
         log_started(hostname)
-        ctx.state.update_etc_hosts(container)
         ctx.state.fast_dump()
 
 
@@ -280,12 +279,6 @@ def generate_systemd_config_file(ctx, default_env={}):
     default_config = """
 # See systemd-system.conf(5) for details.
 [Manager]
-LogLevel=info
-LogTarget=journal-or-kmsg
-LogColor=yes
-#LogLocation=no
-DefaultTimeoutStartSec=5s
-DefaultTimeoutStopSec=5s
 DefaultEnvironment="container=docker" %s
 """ % (" ".join(default_env_list))
     with open(ctx.systemd_config_file, "w") as fd:
@@ -302,20 +295,18 @@ def generate_etc_profile_file(ctx, default_env={}):
 
 def deploy(ctx, num_nodes, volumes, port_bindings_start, needed_tag,
            parent_cmd, env={}):
-    command = ["/lib/systemd/systemd", "systemd.unit=oardocker.target",
-               "systemd.journald.forward_to_console=1"]
+    command = ["/usr/local/sbin/container-init"]
     nodes = ("frontend", "server", "node", "rsyslog")
     check_images_requirements(ctx, nodes, needed_tag, parent_cmd)
 
     init_scripts = op.join(ctx.envdir, "init-scripts")
     extra_binds = {
         init_scripts: {'bind': "/var/lib/container/init-scripts/", 'ro': True},
-        ctx.dns_file: {'bind': "/etc/hosts.oardocker", 'ro': True},
         ctx.cgroup_path: {'bind': "/sys/fs/cgroup", 'ro': True},
         ctx.nodes_file: {'bind': "/var/lib/container/nodes", 'ro': True},
         ctx.cow_volumes_file: {'bind': "/var/lib/container/cow_volumes",
                                'ro': True},
-        ctx.systemd_config_file: {'bind': "/etc/systemd/system.conf",
+        ctx.systemd_config_file: {'bind': "/etc/systemd/system.d/oardocker.conf",
                                   'ro': True},
         ctx.etc_profile_file: {'bind': "/etc/profile.d/oardocker_env.sh",
                                'ro': True},
@@ -348,6 +339,7 @@ def deploy(ctx, num_nodes, volumes, port_bindings_start, needed_tag,
 
         extra_binds[host_path] = {'bind': container_path, "ro": ro}
 
+    ctx.docker.create_network()
     generate_cow_volumes_file(ctx, cow_volumes)
     generate_systemd_config_file(ctx, env)
     generate_etc_profile_file(ctx, env)
