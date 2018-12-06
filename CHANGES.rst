@@ -1,10 +1,16 @@
 oar-docker CHANGELOG
 ====================
 
-Version 1.4.0.dev1
-------------------
+Version 1.4.0
+-------------
 
-**unreleased**
+Released on December 06th 2018
+
+- Improve systemd usage in container
+- Use of Docker API version 1.21
+- Enhance 
+- Change Debian8 base image
+- Add better CiGri template
 
 Version 1.3.0
 -------------
