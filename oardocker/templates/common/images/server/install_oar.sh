@@ -120,6 +120,8 @@ if [ ${DEBIAN_VERSION} = '8' ]; then
     POSTGRESQL_VERSION="9.4"
 elif [ ${DEBIAN_VERSION} = '9' ]; then
     POSTGRESQL_VERSION="9.6"
+elif [ ${DEBIAN_VERSION} = '10' ]; then
+    POSTGRESQL_VERSION="11"
 else
     POSTGRESQL_VERSION="9.1"
 fi
