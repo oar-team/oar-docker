@@ -23,7 +23,7 @@ RUN rm -rf /tmp/* /var/tmp/*
 ## systemd services
 ADD systemd /etc/systemd/system
 RUN chmod 644 /etc/systemd/system/* ; \
-    systemctl enable oardocker-postgresql@9.6-main oardocker-server oardocker-resources
+    systemctl enable oardocker-postgresql@11-main oardocker-server oardocker-resources
 
 ADD . /tmp
 RUN echo "Running custom setup script..." && /bin/bash /tmp/custom_setup.sh && rm -rf /tmp/*
