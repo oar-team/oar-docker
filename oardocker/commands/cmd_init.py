@@ -27,7 +27,7 @@ for dirpath in set(os.listdir(TEMPLATES_PATH)):
 
 @click.command('init')
 @click.option('-f', '--force', is_flag=True, help='Overwrite existing env')
-@click.option('-e', '--env', default="stretch",
+@click.option('-e', '--env', default="buster",
               help='Use variant X of the Dockerfiles', show_default=True,
               type=click.Choice(list(iterkeys(VARIANTS))))
 @pass_context
