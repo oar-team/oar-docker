@@ -1,11 +1,12 @@
 .PHONY: build
 
-DEBIAN_VERSION=debian9
+DEBIAN_VERSION=debian10
+DEBIAN_SUITE=buster
 DOCKER_TAG=oardocker/${DEBIAN_VERSION}
 VERSION:=$(shell date +"%Y.%m.%d")
 
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-BASE_DOCKERFILES=$(shell find $(ROOT_DIR)/../oardocker/templates -path "*/base/Dockerfile" | grep stretch)
+#BASE_DOCKERFILES=$(shell find $(ROOT_DIR)/../oardocker/templates -path "*/base/Dockerfile" | grep ${DEBIAN_SUITE})
 
 build:
 	kameleon build ${DEBIAN_VERSION}.yaml -g version:$(VERSION)
