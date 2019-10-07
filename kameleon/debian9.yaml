@@ -14,6 +14,7 @@ global:
   release: stretch
   from_docker_image: "debian:stretch"
 
+  version: latest
   to_docker_image: "oardocker/$${kameleon_recipe_name}:$${version}"
 
   default_locales: fr_FR en_US
