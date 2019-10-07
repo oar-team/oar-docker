@@ -2,7 +2,7 @@
 
 # Super-User operations.
 # When using sudo, use alias expansion (otherwise sudo ignores your aliases)
-alias sudo="sudo -E "
+#alias sudo="sudo -E " #this breaks `sudo -i` in buster
 alias _='sudo'
 
 for __cmd in apt-get aptitude setuser ps_mem systemctl journalctl $(echo $(compgen -c systemd-)); do
