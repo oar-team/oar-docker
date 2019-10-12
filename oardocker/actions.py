@@ -227,7 +227,7 @@ def start_server_container(ctx, command, extra_binds):
     return container
 
 
-def start_frontend_container(ctx, command, extra_binds, port_bindings_start, port_bindings_to_any):
+def start_frontend_container(ctx, command, extra_binds, port_bindings_offset, port_bindings_to_any):
     image = ctx.image_name("frontend", "latest")
     hostname = "frontend"
     binds = get_common_binds(ctx, hostname)
@@ -235,7 +235,7 @@ def start_frontend_container(ctx, command, extra_binds, port_bindings_start, por
     ports = set([int(item[2]) for item in
                  ctx.state.manifest["web_services"] if len(item) > 2])
     ports.add(80)
-    port_bindings = {int(port): ("0.0.0.0" if port_bindings_to_any else "127.0.0.1", port_bindings_start + int(port))
+    port_bindings = {int(port): ("0.0.0.0" if port_bindings_to_any else "127.0.0.1", port_bindings_offset + int(port))
                      for port in ports}
     container = Container.create(ctx.docker, image=image,
                                  detach=True, hostname=hostname,
@@ -293,7 +293,7 @@ def generate_etc_profile_file(ctx, default_env={}):
         fd.write('\n'.join(etc_profile_vars) + "\n")
 
 
-def deploy(ctx, num_nodes, volumes, port_bindings_start, port_bindings_to_any, needed_tag,
+def deploy(ctx, num_nodes, volumes, port_bindings_offset, port_bindings_to_any, needed_tag,
            parent_cmd, env={}):
     command = ["/usr/local/sbin/container-init"]
     nodes = ("frontend", "server", "node", "rsyslog")
@@ -346,6 +346,6 @@ def deploy(ctx, num_nodes, volumes, port_bindings_start, port_bindings_to_any, n
 
     start_rsyslog_container(ctx, extra_binds)
     frontend = start_frontend_container(ctx, command, extra_binds,
-                                        port_bindings_start, port_bindings_to_any)
+                                        port_bindings_offset, port_bindings_to_any)
     start_nodes_containers(ctx, command, extra_binds, num_nodes, frontend)
     start_server_container(ctx, command, extra_binds)
