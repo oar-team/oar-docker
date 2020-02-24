@@ -111,6 +111,9 @@ sed -e 's/^SERVER_HOSTNAME\=.*/SERVER_HOSTNAME\=\"server\"/' -i /etc/oar/oar.con
 
 sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
 sed -e 's/^\(OAREXEC_DEBUG_MODE\)=.*/\1="1"/' -i /etc/oar/oar.conf
+sed -e 's/^#\(WALLTIME_CHANGE_ENABLED\)=.*/\1="yes"/' -i /etc/oar/oar.conf
+sed -e 's/^#\(WALLTIME_MAX_INCREASE\)=.*/\1=-1/' -i /etc/oar/oar.conf
+sed -e 's/^#\(KILL_INNER_JOBS_WITH_CONTAINER\)=.*/\1="yes"/' -i /etc/oar/oar.conf
 
 #This line must be uncommented if the mount_cgroup.sh script is not used
 #sed -e 's/#exit/exit/' -i /etc/oar/job_resource_manager_cgroups.pl

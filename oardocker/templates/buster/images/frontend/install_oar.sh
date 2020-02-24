@@ -111,6 +111,9 @@ sed -e 's/^\(DB_BASE_LOGIN_RO\)=.*/\1="oar_ro"/' -i /etc/oar/oar.conf
 
 sed -e 's/^\(COSYSTEM_HOSTNAME\)=.*/\1="frontend"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DEPLOY_HOSTNAME\)=.*/\1="frontend"/' -i /etc/oar/oar.conf
+sed -e 's/^#\(WALLTIME_CHANGE_ENABLED\)=.*/\1="yes"/' -i /etc/oar/oar.conf
+sed -e 's/^#\(WALLTIME_MAX_INCREASE\)=.*/\1=-1/' -i /etc/oar/oar.conf
+sed -e 's/^#\(KILL_INNER_JOBS_WITH_CONTAINER\)=.*/\1="yes"/' -i /etc/oar/oar.conf
 
 # Configure oarsh
 sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
