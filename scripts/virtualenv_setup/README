@@ -1,0 +1,11 @@
+In order to setup a python virtualenv in which install and run oardocker, and make it load automatically:
+
+1/ Install deps
+ apt install virtualenv
+ apt install direnv
+
+2/ Copy in the target direction (e.g. oar)
+ _direnv -> ../oar/.direnv
+ _envrc -> ../oar/.envrc
+
+3/ Go to that directory and install oardocker from there.
