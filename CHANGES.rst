@@ -1,10 +1,10 @@
 oar-docker CHANGELOG
 ====================
 
-Version 1.5.0.dev0
-------------------
+Version 1.5.0
+-------------
 
-**unreleased**
+Released on March 06th 2020
 
 Version 1.4.0
 -------------
