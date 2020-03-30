@@ -154,6 +154,32 @@ every ``start``, ``install`` and ``build`` ... If we launch multiple times the
 last command, we will always obtain the same result. It can be useful to
 experiment and develop (even) faster.
 
+Network services
+----------------
+
+By default, oardocker forwards the 80 and 6667 TCP ports to the frontend
+container, for the OAR web services. To add other TCP ports forwarding to
+the frontend, modify the ``.oardocker/manifest.json`` file, adding extra lines
+in the ``net_services`` array. For instance::
+
+    "network_services": [
+        ["Netcat", " (tcp test)", "5000", "TCP: "],
+        ["Secure web service", "/secure", "443", "https://"],
+        ["Python API", "/newoarapi", "6668"],
+        ...
+    ]
+
+Which translates to the following forwardings::
+
+    ******************** Network Services *********************
+    
+                  Netcat: TCP: localhost:45000 (tcp test)
+      Secure web service: https://localhost:40443/secure
+              Python API: http://localhost:46668/newoarapi
+                     ...
+    ***********************************************************
+
+Only the numerical port numbers really matters, texts are only informative.
 
 Security
 --------
