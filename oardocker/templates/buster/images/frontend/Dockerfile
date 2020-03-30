@@ -26,6 +26,12 @@ ADD config/php5.conf /etc/php5/fpm/pool.d/oardocker.conf
 ADD systemd /etc/systemd/system
 # /usr/sbin/update-rc.d does not work
 
+# Workaround problem with apache2
+# apache2.service: Failed to set up mount namespacing: Permission denied
+# apache2.service: Failed at step NAMESPACE spawning /usr/sbin/apachectl: Permission denied
+# ref: https://forum.proxmox.com/threads/apache2-service-failed-to-set-up-mount-namespacing-permission-denied.56871/post-280885
+RUN sed -i -e 's,PrivateTmp=true,PrivateTmp=false\nNoNewPrivileges=yes,g' /lib/systemd/system/apache2.service
+
 RUN chmod 644 /etc/systemd/system/* ; \
     systemctl enable apache2.service oardocker-node.socket 
 #    systemctl enable apache2.service oardocker-fcgi.socket
