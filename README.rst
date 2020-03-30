@@ -48,9 +48,7 @@ Or if you already pulled the sources::
 
   $ pip install path/to/sources
 
-Or if you don't have pip::
-
-  $ easy_install oar-docker
+Using a virtualenv may help overcome issues between python and your distribution.
 
 Usage
 -----
@@ -93,13 +91,13 @@ Getting started
 To get started with oar-docker, the first thing to do is to initialize a
 project::
 
-    $ oardocker init -e jessie 
+    $ oardocker init
 
 If you already have OAR sources, the best is to initialize directly the
 oardocker project in the OAR sources directory::
 
     $ cd path/to/oar/src
-    $ oardocker init -e jessie
+    $ oardocker init
 
 You have to do this only once. It allows you to import the Dockerfiles
 and other configuration files.
@@ -122,7 +120,6 @@ You can also launch the installation from a git repository::
 
     $ oardocker install git+https://github.com/oar-team/oar.git
 
-
 We start a OAR cluster with 5 nodes::
 
     $ oardocker start -n 5
@@ -137,13 +134,11 @@ To manage the cluster::
     $ oardocker connect frontend|server|nodeXX
     $ oardocker logs [frontend|server|nodeXX]
 
-
 To clean::
 
     $ oardocker stop  # stops and removes all containers
     $ oardocker clean  # removes all stopped containers (failed) and the untagged images <none:none>
     $ oardocker destroy  # removes all images and containers
-
 
 With oar-docker, it is possible to chain all commands to go faster::
 
@@ -152,9 +147,7 @@ With oar-docker, it is possible to chain all commands to go faster::
 For instance, to develop on OAR, we often need to install OAR,
 start the cluster and connect to it::
 
-
     $ oardocker install $PWD start -n 10 -v $PWD:/home/docker/oar_src connect frontend
-
 
 One last thing to know. The ``stop`` command is automatically launched before
 every ``start``, ``install`` and ``build`` ... If we launch multiple times the
