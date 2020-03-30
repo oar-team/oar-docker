@@ -11,21 +11,30 @@ from ..context import pass_context, on_started, on_finished
 
 def print_webservices_info(ctx, port_bindings_offset, port_bindings_to_any):
     infos = []
-    web_services = ctx.state.manifest["web_services"]
-    max_key_length = max((len(x[0]) for x in web_services)) + 2
-    for item in web_services:
+    if "net_services" in ctx.state.manifest.keys():
+        net_services = ctx.state.manifest["net_services"]
+    elif "web_services" in ctx.state.manifest.keys():
+        # try "web_services", for backward compatibility
+        net_services = ctx.state.manifest["web_services"]
+    else:
+        raise Exception("Cannot find a 'net_services' or 'web_services' entry in the manifest.json file")
+    max_key_length = max((len(x[0]) for x in net_services)) + 2
+    for item in net_services:
         key_title = ('{:>%s}' % max_key_length).format(item[0])
         if len(item) < 3:
             item.append("80")
-        url = "http://%s:%s%s" % (socket.gethostname() if port_bindings_to_any else "localhost",
-                                  port_bindings_offset + int(item[2]),
-                                  item[1])
+        if len(item) < 4:
+            item.append("http://")
+        url = "%s%s:%s%s" % (item[3],
+                             socket.gethostname() if port_bindings_to_any else "localhost",
+                             port_bindings_offset + int(item[2]),
+                             item[1])
         infos.append("%s: %s" % (key_title, url))
 
         pass
     max_line_length = max((len(line.strip('\n')) for line in infos))
     infos.append("\n%s\n" % ("*" * max_line_length))
-    infos.insert(0, ('\n{:*^%d}\n' % max_line_length).format(' Web Services '))
+    infos.insert(0, ('\n{:*^%d}\n' % max_line_length).format(' Network Services '))
     print_infos = '\n'.join(infos)
     click.echo(print_infos)
 

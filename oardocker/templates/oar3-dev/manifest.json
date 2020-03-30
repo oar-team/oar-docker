@@ -5,7 +5,7 @@
     "ignore_if_exists": ["custom_setup.sh"],
     "install_script": null,
     "build_order": ["rsyslog", "frontend", "node", "server"],
-    "web_services": [
+    "net_services": [
         ["Python API", "/newoarapi", "6668"],
         ["Private Python API", "/newoarapi-priv", "6668"],
         ["Perl API", "/oarapi", "6668"],

@@ -232,8 +232,14 @@ def start_frontend_container(ctx, command, extra_binds, port_bindings_offset, po
     hostname = "frontend"
     binds = get_common_binds(ctx, hostname)
     binds.update(extra_binds)
-    ports = set([int(item[2]) for item in
-                 ctx.state.manifest["web_services"] if len(item) > 2])
+    if "net_services" in ctx.state.manifest.keys():
+        net_services = ctx.state.manifest["net_services"]
+    elif "web_services" in ctx.state.manifest.keys():
+        # try "web_services", for backward compatibility
+        net_services = ctx.state.manifest["web_services"]
+    else:
+        raise Exception("Cannot find a net_service or web_service entry in the manifest.json file")
+    ports = set([int(item[2]) for item in net_services if len(item) > 2])
     ports.add(80)
     port_bindings = {int(port): ("0.0.0.0" if port_bindings_to_any else "127.0.0.1", port_bindings_offset + int(port))
                      for port in ports}

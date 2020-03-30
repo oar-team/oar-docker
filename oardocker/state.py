@@ -35,7 +35,7 @@ class State(dict):
         "install_software_name": "OAR",
         "install_on": ["node", "frontend", "server"],
         "build_order": ["base", "rsyslog", "frontend", "node", "server"],
-        "web_services": {
+        "net_services": {
             "Python API": "/newoarapi",
             "Private Python API": "/newoarapi-priv",
             "Perl API": "/oarapi",
