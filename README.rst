@@ -154,6 +154,15 @@ every ``start``, ``install`` and ``build`` ... If we launch multiple times the
 last command, we will always obtain the same result. It can be useful to
 experiment and develop (even) faster.
 
+Note for OAR < 2.5.9+g5k5
+-------------------------
+
+oardocker ≥ 1.6.0 does not create the ``/dev/oar_cgroups_links/`` and ``/dev/cpuset`` in ``oardocker install``, to let OAR take care of it so that the concerned part of ``job_resource_manager_cgroup.pl`` is actually tested.
+
+This breaks ``job_resource_manager_cgroup.pl`` before OAR 2.5.9+g5k5. See ``.oardocker/init-scripts/prepare_oar_cgroup.sh`` to revert to the old behaviour, by setting::
+
+    CREATE_OAR_CGROUPS_LINKS=yes
+
 Network services
 ----------------
 

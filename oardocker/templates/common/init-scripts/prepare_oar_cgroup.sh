@@ -5,10 +5,16 @@
 # the same host machine
 
 OS_CGROUPS_PATH="/sys/fs/cgroup"
+OAR_CGROUPS_LINKS="/dev/oar_cgroups_links"
+CREATE_OAR_CGROUPS_LINKS=no
 
 if [ "$1" = "init" ]; then
+    [ "$CREATE_OAR_CGROUPS_LINKS" = "yes" ] && ln -s $OS_CGROUPS_PATH/cpuset/oardocker/$HOSTNAME /dev/cpuset
+    [ "$CREATE_OAR_CGROUPS_LINKS" = "yes" ] && mkdir -p $OAR_CGROUPS_LINKS
     for cg in $OS_CGROUPS_PATH/*; do
+        [ $cg = "$OS_CGROUPS_PATH/unified" ] && continue
         [ -d $cg ] && mkdir -p $cg/oardocker/$HOSTNAME
+        [ "$CREATE_OAR_CGROUPS_LINKS" = "yes" ] && ln -s $cg/oardocker/$HOSTNAME $OAR_CGROUPS_LINKS/${cg##*/}
     done
     cat $OS_CGROUPS_PATH/cpuset/cpuset.cpus > $OS_CGROUPS_PATH/cpuset/oardocker/cpuset.cpus
     cat $OS_CGROUPS_PATH/cpuset/cpuset.mems > $OS_CGROUPS_PATH/cpuset/oardocker/cpuset.mems
