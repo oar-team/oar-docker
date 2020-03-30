@@ -1,10 +1,10 @@
 oar-docker CHANGELOG
 ====================
 
-Version 1.6.0.dev0
-------------------
+Version 1.6.0
+-------------
 
-**unreleased**
+Released on March 31st 2020
 
 - Change the ``web_services`` to ``net_services`` in the ``manifest.json`` file (but keep the backward compatibility)
 - Add an extra field in the ``net_services`` for port forwarding other than http (cosmetic)
