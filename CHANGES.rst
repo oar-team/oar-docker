@@ -6,6 +6,12 @@ Version 1.6.0.dev0
 
 **unreleased**
 
+- Change the ``web_services`` to ``net_services`` in the ``manifest.json`` file (but keep the backward compatibility)
+- Add an extra field in the ``net_services`` for port forwarding other than http (cosmetic)
+- Add information in the ``README.rst`` file about the TCP ports forwarding
+- Do not create the ``/dev/oar_cgroups_links/`` and ``/dev/cpuset`` in ``oardocker install``, but let OAR take care of it
+- This breaks with OAR ``job_resource_manager_cgroup.pl`` before OAR 2.5.9+g5k5, see ``README.rst``
+
 Version 1.5.0
 -------------
 
