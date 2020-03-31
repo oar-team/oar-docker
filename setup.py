@@ -14,9 +14,9 @@ def read(fname):
 setup(
     name='oar-docker',
     author='Salem Harrache',
-    author_email='salem.harrache@inria.fr',
+    author_email='salem@harrache.info',
     version=VERSION,
-    url='https://github.com/oar-team/docker-oardocker',
+    url='https://oar.imag.fr/wiki:oar-docker',
     install_requires=[
         'Click',
         'docker',
