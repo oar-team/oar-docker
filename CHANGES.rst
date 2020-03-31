@@ -1,10 +1,11 @@
 oar-docker CHANGELOG
 ====================
 
-Version 1.6.1.dev0
-------------------
+Version 1.6.1
+-------------
 
-**unreleased**
+Released on March 31st 2020
+- Set the drawgantt label_cmp_regex configuration to sort nodes correctly
 
 Version 1.6.0
 -------------
