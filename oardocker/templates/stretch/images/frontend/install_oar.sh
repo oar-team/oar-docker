@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 set -e
 
 TMPDIR=$(mktemp -d --tmpdir install_oar.XXXXXXXX)
@@ -154,10 +154,11 @@ sed -e "s/^\(dbport.*\)3306.*/\15432/" -i /etc/oar/monika.conf
 sed -e "s/^\(hostname.*\)localhost.*/\1server/" -i /etc/oar/monika.conf
 chown www-data /etc/oar/monika.conf
 
-sed -i "s/\$CONF\['db_type'\]=\"mysql\"/\$CONF\['db_type'\]=\"pg\"/g" /etc/oar/drawgantt-config.inc.php
-sed -i "s/\$CONF\['db_server'\]=\"127.0.0.1\"/\$CONF\['db_server'\]=\"server\"/g" /etc/oar/drawgantt-config.inc.php
-sed -i "s/\$CONF\['db_port'\]=\"3306\"/\$CONF\['db_port'\]=\"5432\"/g" /etc/oar/drawgantt-config.inc.php
-sed -i "s/\"My OAR resources\"/\"oardocker resources for OAR $VERSION\"/g" /etc/oar/drawgantt-config.inc.php
+sed -i "s/\$CONF\['db_type'\]=\"mysql\"/\$CONF\['db_type'\]=\"pg\"/" /etc/oar/drawgantt-config.inc.php
+sed -i "s/\$CONF\['db_server'\]=\"127.0.0.1\"/\$CONF\['db_server'\]=\"server\"/" /etc/oar/drawgantt-config.inc.php
+sed -i "s/\$CONF\['db_port'\]=\"3306\"/\$CONF\['db_port'\]=\"5432\"/" /etc/oar/drawgantt-config.inc.php
+sed -i "s/\"My OAR resources\"/\"oardocker resources for OAR $VERSION\"/" /etc/oar/drawgantt-config.inc.php
+sed -i -e '/label_cmp_regex/!b;n;c\ \ '\''network_address'\'' => '\''/(\\d+)/'\'',' /etc/oar/drawgantt-config.inc.php
 
 a2enconf oar-web-status
 

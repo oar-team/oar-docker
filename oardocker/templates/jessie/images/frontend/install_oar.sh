@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 set -e
 
 TMPDIR=$(mktemp -d --tmpdir install_oar.XXXXXXXX)
@@ -39,17 +39,35 @@ else
     else
         TARBALL="$(readlink -m $TARBALL)"
     fi
-    VERSION=$(tar xfz $TARBALL --wildcards "*/sources/core/common-libs/lib/OAR/Version.pm" --to-command "grep -e 'my \$OARVersion'" | sed -e 's/^[^"]\+"\(.\+\)";$/\1/')
+
+    # extract version from OAR2 or OAR3
+    if tar -tf $TARBALL --wildcards "*/setup.py"; then
+        VERSION=$(tar xfz $TARBALL --wildcards "*/oar/__init__.py" --to-command "grep -e '__version__ '" | sed -e "s/^[^']\+'\(.\+\)'$/\1/" )
+    else    
+        VERSION=$(tar xfz $TARBALL --wildcards "*/sources/core/common-libs/lib/OAR/Version.pm" --to-command "grep -e 'my \$OARVersion'" | sed -e 's/^[^"]\+"\(.\+\)";$/\1/')
+    fi
+
     COMMENT="OAR ${VERSION} (tarball)"
     tar xf $TARBALL -C $SRCDIR
     [ -n "${VERSION}" ] || fail "error: fail to retrieve OAR version"
     SRCDIR=$SRCDIR/oar-${VERSION}
 fi
 
+MAJOR_VERSION=$(echo $VERSION | sed -e 's/\([0-9]\).*/\1/')
+
+if [ $MAJOR_VERSION = "2" ]; then
+    TOOLS_BUILD="tools-build"
+    TOOLS_INSTALL="tools-install"
+    TOOLS_SETUP="tools-setup"
+
+else
+    cd $SRCDIR; pip install .; cd -
+fi
+
 # Install OAR
-make -C $SRCDIR PREFIX=/usr/local user-build tools-build node-build
-make -C $SRCDIR PREFIX=/usr/local user-install drawgantt-svg-install monika-install www-conf-install api-install tools-install node-install
-make -C $SRCDIR PREFIX=/usr/local user-setup drawgantt-svg-setup monika-setup www-conf-setup api-setup tools-setup node-setup
+make -C $SRCDIR PREFIX=/usr/local user-build $TOOLS_BUILD node-build
+make -C $SRCDIR PREFIX=/usr/local user-install drawgantt-svg-install monika-install www-conf-install api-install $TOOLS_INSTALL node-install
+make -C $SRCDIR PREFIX=/usr/local user-setup drawgantt-svg-setup monika-setup www-conf-setup api-setup $TOOLS_SETUP node-setup
 
 # Configure MOTD
 sed -i s/__OAR_VERSION__/${VERSION}/ /etc/motd
@@ -93,6 +111,9 @@ sed -e 's/^\(DB_BASE_LOGIN_RO\)=.*/\1="oar_ro"/' -i /etc/oar/oar.conf
 
 sed -e 's/^\(COSYSTEM_HOSTNAME\)=.*/\1="frontend"/' -i /etc/oar/oar.conf
 sed -e 's/^\(DEPLOY_HOSTNAME\)=.*/\1="frontend"/' -i /etc/oar/oar.conf
+sed -e 's/^#\(WALLTIME_CHANGE_ENABLED\)=.*/\1="yes"/' -i /etc/oar/oar.conf
+sed -e 's/^#\(WALLTIME_MAX_INCREASE\)=.*/\1=-1/' -i /etc/oar/oar.conf
+sed -e 's/^#\(KILL_INNER_JOBS_WITH_CONTAINER\)=.*/\1="yes"/' -i /etc/oar/oar.conf
 
 # Configure oarsh
 sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
@@ -102,42 +123,19 @@ rm -f /etc/oar/api-users
 htpasswd -b -c /etc/oar/api-users docker docker
 htpasswd -b /etc/oar/api-users oar oar
 
-sed -i -e '1s@^/var/www.*@/usr/local/lib/cgi-bin@' /etc/apache2/suexec/www-data                                    
-sed -i -e 's@#\(FastCgiWrapper /usr/lib/apache2/suexec\)@\1@' /etc/apache2/mods-available/fastcgi.conf       
+sed -i -e '1s@^/var/www.*@/usr/local/lib/cgi-bin@' /etc/apache2/suexec/www-data
 
 a2enmod suexec
 a2enmod headers
 a2enmod rewrite
+if [ $MAJOR_VERSION = "2" ]; then
+    perl -i -pe 's/Require local/Require all granted/; s/#(ScriptAlias \/oarapi-priv)/$1/; $do=1 if /#<Location \/oarapi-priv>/; if ($do) { $do=0 if /#<\/Location>/; s/^#// }' /etc/oar/apache2/oar-restful-api.conf
+else
+    perl -i -pe 's/Require local/Require all granted/; $do=1 if /#<Location \/oarapi-priv>/; if ($do) { $do=0 if /#<\/Location>/; s/^#// }' /etc/oar/apache2/oar-restful-api.conf
+fi
 
-perl -i -pe 's/Require local/Require all granted/; s/#(ScriptAlias \/oarapi-priv)/$1/; $do=1 if /#<Location \/oarapi-priv>/; if ($do) { $do=0 if /#<\/Location>/; s/^#// }' /etc/oar/apache2/oar-restful-api.conf
-
-# Add newoarapi-priv location
-a2enmod proxy
-a2enmod proxy_http
-(cd /etc/oar/apache2/ && patch -p0) <<'EOF'
---- oar-restful-api.conf.orig
-+++ oar-restful-api.conf
-@@ -176,4 +176,19 @@
- #  </IfModule>
- #</Location>
- 
-+ProxyRequests off
-+ProxyPass "/newoarapi-priv" "http://127.0.0.1:9090"
-+
-+<Location /newoarapi-priv>
-+    Options +ExecCGI -MultiViews +FollowSymLinks
-+    AuthType      basic
-+    AuthUserfile  /etc/oar/api-users
-+    AuthName      "OAR API authentication"
-+    Require valid-user
-+    RewriteEngine On
-+    RewriteCond %{REMOTE_USER} (.*)
-+    RewriteRule .* - [E=X_REMOTE_IDENT:%1]
-+    RequestHeader add X_REMOTE_IDENT %{X_REMOTE_IDENT}e
-+</Location>
-+
- </virtualhost>
-EOF
+# Fix auth header for newer Apache versions
+sed -i -e "s/E=X_REMOTE_IDENT:/E=HTTP_X_REMOTE_IDENT:/" /etc/oar/apache2/oar-restful-api.conf
 
 a2enconf oar-restful-api
 
@@ -156,10 +154,11 @@ sed -e "s/^\(dbport.*\)3306.*/\15432/" -i /etc/oar/monika.conf
 sed -e "s/^\(hostname.*\)localhost.*/\1server/" -i /etc/oar/monika.conf
 chown www-data /etc/oar/monika.conf
 
-sed -i "s/\$CONF\['db_type'\]=\"mysql\"/\$CONF\['db_type'\]=\"pg\"/g" /etc/oar/drawgantt-config.inc.php
-sed -i "s/\$CONF\['db_server'\]=\"127.0.0.1\"/\$CONF\['db_server'\]=\"server\"/g" /etc/oar/drawgantt-config.inc.php
-sed -i "s/\$CONF\['db_port'\]=\"3306\"/\$CONF\['db_port'\]=\"5432\"/g" /etc/oar/drawgantt-config.inc.php
-sed -i "s/\"My OAR resources\"/\"oardocker resources for OAR $VERSION\"/g" /etc/oar/drawgantt-config.inc.php
+sed -i "s/\$CONF\['db_type'\]=\"mysql\"/\$CONF\['db_type'\]=\"pg\"/" /etc/oar/drawgantt-config.inc.php
+sed -i "s/\$CONF\['db_server'\]=\"127.0.0.1\"/\$CONF\['db_server'\]=\"server\"/" /etc/oar/drawgantt-config.inc.php
+sed -i "s/\$CONF\['db_port'\]=\"3306\"/\$CONF\['db_port'\]=\"5432\"/" /etc/oar/drawgantt-config.inc.php
+sed -i "s/\"My OAR resources\"/\"oardocker resources for OAR $VERSION\"/" /etc/oar/drawgantt-config.inc.php
+sed -i -e '/label_cmp_regex/!b;n;c\ \ '\''network_address'\'' => '\''/(\\d+)/'\'',' /etc/oar/drawgantt-config.inc.php
 
 a2enconf oar-web-status
 
