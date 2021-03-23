@@ -14,8 +14,8 @@ ENV container=docker \
 
 RUN echo "export COLOR=green" > /etc/hostname.color
 
-# RUN apt-get update
-# RUN apt-get install -y my_packages
+RUN apt-get update
+RUN apt-get install -y man
 
 ## rsyslog sender
 COPY config/rsyslog.conf /etc/rsyslog.conf
