@@ -1,0 +1,89 @@
+#==============================================================================
+# vim: softtabstop=2 shiftwidth=2 expandtab fenc=utf-8 cc=81 tw=80
+#==============================================================================
+#
+# DESCRIPTION: <MY RECIPE DESCRIPTION>
+#
+#==============================================================================
+---
+extend: default/from_docker/from_docker.yaml
+
+global:
+  # You should specify this in the global of your recipe
+  distrib: debian
+  release: bullseye
+  from_docker_image: "debian:bullseye"
+
+  version: latest
+  to_docker_image: "adfaure/$${kameleon_recipe_name}:$${version}"
+
+  default_locales: fr_FR en_US
+  default_lang: en_US.UTF-8
+  default_timezone: Europe/Paris
+
+  # Apt recipe options
+  apt_repository: "http://ftp.debian.org/debian/"
+  apt_enable_contrib: true
+  apt_enable_nonfree: true
+
+  # System variables. Required by kameleon engine
+  # Include specific steps
+  include_steps:
+    - $${distrib}/$${release}
+    - $${distrib}
+
+  ## User varibales : used by the recipe
+  user_name: docker
+  user_password: $${user_name}
+  root_password: $${user_name}
+
+  core_packages: >
+    sudo bsdutils less vim bash-completion apt-transport-https
+    ca-certificates psmisc openssh-client curl wget iptables socat pciutils
+    rsyslog nmap locales net-tools iproute2 net-tools perl perl-base
+    build-essential taktuk libdbi-perl libsort-versions-perl libdbd-pg-perl
+    postgresql-client inetutils-ping git tmux openssh-server netcat
+    unionfs-fuse procps libdatetime-perl libterm-ui-perl rsync socat
+    python3 python3-dev python3-pip python3-psycopg2 python3-virtualenv
+    perl perl-modules systemd-cron systemd dbus systemd-sysv netbase
+
+  frontend_dependencie: >
+    libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl
+    libtie-ixhash-perl libwww-perl libcgi-fast-perl libapache2-mod-fcgid
+    php php-fpm libapache2-mod-php php-pgsql phppgadmin
+    libjs-jquery rubygems ruby-dev php-apcu ruby-rspec spawn-fcgi fcgiwrap
+    apache2-suexec-custom apache2 libapache2-mod-php libapache2-mod-wsgi-py3
+    oidentd nginx
+
+  server_packages: >
+    postgresql
+
+bootstrap:
+  - "@base"
+
+setup:
+  - configure_apt:
+    - repository: $${apt_repository}
+    - enable_contrib_repo: $${apt_enable_contrib}
+    - enable_nonfree_repo: $${apt_enable_nonfree}
+    - enable_lighten: true
+  - upgrade_system:
+    - dist_upgrade: true
+  # Packages installation
+  - install_software:
+    - packages: $${core_packages}
+  - install_software:
+    - packages: $${frontend_dependencie}
+  - install_software:
+    - packages: $${server_packages}
+  # Configuration
+  - configure_system:
+    - locales: $${default_locales}
+    - lang: $${default_lang}
+    - timezone: $${default_timezone}
+  - oardocker_custom_image
+  - clean_system:
+    - enable_lighten: true
+
+export:
+  - "@base"

@@ -120,16 +120,19 @@ sed -e 's/^#\(KILL_INNER_JOBS_WITH_CONTAINER\)=.*/\1="yes"/' -i /etc/oar/oar.con
 #This line must be uncommented if the mount_cgroup.sh script is not used
 #sed -e 's/#exit/exit/' -i /etc/oar/job_resource_manager_cgroups.pl
 
-
 if [ ${DEBIAN_VERSION} = '8' ]; then
     POSTGRESQL_VERSION="9.4"
 elif [ ${DEBIAN_VERSION} = '9' ]; then
     POSTGRESQL_VERSION="9.6"
 elif [ ${DEBIAN_VERSION} = '10' ]; then
     POSTGRESQL_VERSION="11"
+elif [ ${DEBIAN_VERSION} = 'bullseye/sid' ]; then
+    POSTGRESQL_VERSION="13"
 else
     POSTGRESQL_VERSION="9.1"
 fi
+echo "Postgres version for Debian:${DEBIAN_VERSION} -> ${POSTGRESQL_VERSION}"
+
 
 echo "Configure PostgreSQL to listen for remote connections"
 sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/$POSTGRESQL_VERSION/main/postgresql.conf
