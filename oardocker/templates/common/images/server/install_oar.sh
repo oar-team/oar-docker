@@ -5,6 +5,7 @@ IFS='.' read DEBIAN_VERSION DEBIAN_VERSION_MINOR < /etc/debian_version
 
 TMPDIR=$(mktemp -d --tmpdir install_oar.XXXXXXXX)
 SRCDIR="$TMPDIR/src"
+export SYSTEMD_INIT=true
 
 mkdir -p $SRCDIR
 
@@ -44,10 +45,10 @@ else
 
     if tar -tf $TARBALL --wildcards "*/setup.py"; then
         VERSION=$(tar xfz $TARBALL --wildcards "*/oar/__init__.py" --to-command "grep -e '__version__ '" | sed -e "s/^[^']\+'\(.\+\)'$/\1/" )
-    else    
+    else
         VERSION=$(tar xfz $TARBALL --wildcards "*/sources/core/common-libs/lib/OAR/Version.pm" --to-command "grep -e 'my \$OARVersion'" | sed -e 's/^[^"]\+"\(.\+\)";$/\1/')
     fi
-    
+
     COMMENT="OAR ${VERSION} (tarball)"
     tar xf $TARBALL -C $SRCDIR
     [ -n "${VERSION}" ] || fail "error: fail to retrieve OAR version"
@@ -83,6 +84,12 @@ fi
 
 if [ -f /usr/local/share/doc/oar-server/examples/default/oar-server ]; then
     cat /usr/local/share/doc/oar-server/examples/default/oar-server > /etc/default/oar-server
+fi
+
+# Copy systemd unit
+if [ -f /usr/local/share/oar/oar-server/systemd/oar-server.service ]; then
+    mkdir -p /usr/local/lib/systemd/system
+    cat /usr/local/share/oar/oar-server/systemd/oar-server.service > /usr/local/lib/systemd/system/oar-server.service
 fi
 
 ## See https://github.com/oar-team/oar-docker/issues/34
@@ -153,6 +160,11 @@ echo "Stopping postgresql..."
 
 # Disable all sysvinit services
 ls /etc/init.d/* | xargs -I {} basename {} | xargs -I {} systemctl disable {} 2> /dev/null || true
+
+# Enable oar-server systemd unit
+if [ -f /usr/local/share/oar/oar-server/systemd/oar-server.service ]; then
+    systemctl enable oar-server
+fi
 
 echo "$VERSION" | tee /oar_version
 echo "$COMMENT"
