@@ -3,6 +3,7 @@ set -e
 
 TMPDIR=$(mktemp -d --tmpdir install_oar.XXXXXXXX)
 SRCDIR="$TMPDIR/src"
+export SYSTEMD_INIT=true
 
 mkdir -p $SRCDIR
 
@@ -83,10 +84,21 @@ if [ -f /usr/local/share/doc/oar-node/examples/default/oar-node ]; then
     cat /usr/local/share/doc/oar-node/examples/default/oar-node > /etc/default/oar-node
 fi
 
+# Copy systemd unit
+if [ -f /usr/local/share/oar/oar-node/systemd/oar-node.service ]; then
+    mkdir -p /usr/local/lib/systemd/system
+    cat /usr/local/share/oar/oar-node/systemd/oar-node.service > /usr/local/lib/systemd/system/oar-node.service
+fi
+
 sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
 
 # Disable all sysvinit services
 ls /etc/init.d/* | xargs -I {} basename {} | xargs -I {} systemctl disable {} 2> /dev/null || true
+
+# Enable oar-node systemd unit
+if [ -f /usr/local/share/oar/oar-node/systemd/oar-node.service ]; then
+    systemctl enable oar-node
+fi
 
 echo "$VERSION" | tee /oar_version
 echo "$COMMENT"

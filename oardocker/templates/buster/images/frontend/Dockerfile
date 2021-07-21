@@ -33,7 +33,7 @@ ADD systemd /etc/systemd/system
 RUN sed -i -e 's,PrivateTmp=true,PrivateTmp=false\nNoNewPrivileges=yes,g' /lib/systemd/system/apache2.service
 
 RUN chmod 644 /etc/systemd/system/* ; \
-    systemctl enable apache2.service oardocker-node.socket 
+    systemctl enable apache2.service
 #    systemctl enable apache2.service oardocker-fcgi.socket
 
 RUN cp /etc/systemd/system/oardocker-frontend.target /etc/systemd/system/oardocker.target
