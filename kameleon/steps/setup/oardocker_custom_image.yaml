@@ -9,6 +9,8 @@
   - local2in:
     - $${kameleon_data_dir}/apt-preferences
     - /etc/apt/preferences
+  - exec_in: sed -ri 's/ stable/ $${release}/g' /etc/apt/sources.list
+  - exec_in: sed -ri 's/stable/$${release}/g' /etc/apt/preferences
   - exec_in: apt-get update
 
 - get_debian_version:
