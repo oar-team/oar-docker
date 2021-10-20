@@ -33,7 +33,7 @@ if PY3:
     def is_bytes(x):
         return isinstance(x, (bytes, memoryview, bytearray))
 
-    from collections import Callable
+    from collections.abc import Callable
     callable = lambda obj: isinstance(obj, Callable)
 
     def _out(x):

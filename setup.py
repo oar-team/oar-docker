@@ -17,6 +17,7 @@ setup(
     author_email='salem@harrache.info',
     version=VERSION,
     url='https://oar.imag.fr/wiki:oar-docker',
+    setup_requires=['wheel'],
     install_requires=[
         'Click',
         'docker',
