@@ -1,10 +1,13 @@
 oar-docker CHANGELOG
 ====================
 
-Version 1.6.2.dev0
-------------------
+Version 1.6.2
+-------------
 
-**unreleased**
+Released on October 21st 2021
+- update docker image recipes for Debian buster: use buster instead of stable as the release name, add the man package
+- add support for the oar-node and oar-server systemd native unit files
+- fix python3 collections callable
 
 Version 1.6.1
 -------------
