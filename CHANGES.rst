@@ -1,10 +1,11 @@
 oar-docker CHANGELOG
 ====================
 
-Version 1.6.3.dev0
-------------------
+Version 1.6.3
+-------------
 
-**unreleased**
+Released on January 06th 2022
+- add bullseye support
 
 Version 1.6.2
 -------------
