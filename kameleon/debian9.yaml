@@ -25,6 +25,7 @@ global:
   apt_repository: http://ftp.debian.org/debian/
   apt_enable_contrib: true
   apt_enable_nonfree: true
+  apt_sources_file: apt-sources.list
 
   # System variables. Required by kameleon engine
   # Include specific steps

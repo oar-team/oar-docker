@@ -2,7 +2,7 @@
 # vim: softtabstop=2 shiftwidth=2 expandtab fenc=utf-8 cc=81 tw=80
 #==============================================================================
 #
-# DESCRIPTION: <MY RECIPE DESCRIPTION>
+# DESCRIPTION: Debian 11 "Bullseye" image for OAR developpement
 #
 #==============================================================================
 ---
@@ -11,8 +11,8 @@ extend: default/from_docker/from_docker.yaml
 global:
   # You should specify this in the global of your recipe
   distrib: debian
-  release: buster
-  from_docker_image: "debian:buster"
+  release: bullseye
+  from_docker_image: "debian:bullseye"
 
   version: latest
   to_docker_image: "oardocker/$${kameleon_recipe_name}:$${version}"
@@ -25,7 +25,7 @@ global:
   apt_repository: "http://ftp.debian.org/debian/"
   apt_enable_contrib: true
   apt_enable_nonfree: true
-  apt_sources_file: apt-sources.list
+  apt_sources_file: apt-sources-bullseye.list
 
   # System variables. Required by kameleon engine
   # Include specific steps

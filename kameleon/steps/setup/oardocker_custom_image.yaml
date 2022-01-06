@@ -4,7 +4,7 @@
 
 - configure_apt:
   - local2in:
-    - $${kameleon_data_dir}/apt-sources.list
+    - $${kameleon_data_dir}/$${apt_sources_file}
     - /etc/apt/sources.list
   - local2in:
     - $${kameleon_data_dir}/apt-preferences

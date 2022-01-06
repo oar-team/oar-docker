@@ -4,16 +4,6 @@
 - enable_backports: true
 - enable_lighten: false
 
-- configure_source_list:
-  - write_in:
-    - /etc/apt/sources.list
-    - |
-      deb $${apt_repository} $${release} main
-      deb-src $${apt_repository} $${release} main
-            
-      deb http://security.debian.org/ $${release}/updates main
-      deb-src http://security.debian.org/ $${release}/updates main
-
 - add_backports:
   - exec_in: |
       if [ $${enable_backports} = true ]; then
