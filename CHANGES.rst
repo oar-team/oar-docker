@@ -1,6 +1,11 @@
 oar-docker CHANGELOG
 ====================
 
+Version 1.6.4.dev0
+------------------
+
+**unreleased**
+
 Version 1.6.3
 -------------
 
