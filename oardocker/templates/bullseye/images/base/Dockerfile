@@ -15,7 +15,7 @@ ENV container=docker \
 RUN echo "export COLOR=green" > /etc/hostname.color
 
 RUN apt-get update
-RUN apt-get install -y man
+RUN apt-get install -y man jq
 
 ## rsyslog sender
 COPY config/rsyslog.conf /etc/rsyslog.conf
