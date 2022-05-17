@@ -76,15 +76,15 @@ chmod 644 /etc/motd
 
 # Configure oar-node for cosystem/deploy jobs
 # Copy initd scripts
-if [ -f /usr/local/share/oar/oar-node/init.d/oar-node ]; then
-    cat /usr/local/share/oar/oar-node/init.d/oar-node > /etc/init.d/oar-node
-    chmod +x  /etc/init.d/oar-node
-fi
-
-if [ -f /usr/local/share/doc/oar-node/examples/init.d/oar-node ]; then
-    cat /usr/local/share/doc/oar-node/examples/init.d/oar-node > /etc/init.d/oar-node
-    chmod +x  /etc/init.d/oar-node
-fi
+#if [ -f /usr/local/share/oar/oar-node/init.d/oar-node ]; then
+#    cat /usr/local/share/oar/oar-node/init.d/oar-node > /etc/init.d/oar-node
+#    chmod +x  /etc/init.d/oar-node
+#fi
+#
+#if [ -f /usr/local/share/doc/oar-node/examples/init.d/oar-node ]; then
+#    cat /usr/local/share/doc/oar-node/examples/init.d/oar-node > /etc/init.d/oar-node
+#    chmod +x  /etc/init.d/oar-node
+#fi
 
 if [ -f /usr/local/share/oar/oar-node/default/oar-node ]; then
     cat /usr/local/share/oar/oar-node/default/oar-node > /etc/default/oar-node
@@ -98,6 +98,31 @@ fi
 if [ -f /usr/local/share/oar/oar-node/systemd/oar-node.service ]; then
     mkdir -p /usr/local/lib/systemd/system
     cat /usr/local/share/oar/oar-node/systemd/oar-node.service > /usr/local/lib/systemd/system/oar-node.service
+else
+	touch /etc/oar/oar-node-service
+	mkdir -p /usr/local/lib/systemd/system
+	cat << EOF > /usr/local/lib/systemd/system/oar-node.service
+[Unit]
+Description=OAR compute node
+After=network-online.target
+After=remote-fs.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/sbin/sshd -f /etc/oar/sshd_config
+#ExecStartPost=/etc/oar/oar-node-service start
+#ExecStopPost=/etc/oar/oar-node-service stop
+Type=notify
+KillMode=process
+RuntimeDirectory=sshd
+RuntimeDirectoryMode=0755
+RuntimeDirectoryPreserve=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    systemctl enable oar-node
 fi
 
 # Adapt oar.conf
