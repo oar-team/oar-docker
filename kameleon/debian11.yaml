@@ -47,6 +47,7 @@ global:
     unionfs-fuse procps libdatetime-perl libterm-ui-perl rsync socat
     python3 python3-dev python3-pip python3-psycopg2 python3-virtualenv
     perl perl-modules systemd-cron systemd dbus systemd-sysv netbase
+    libcapture-tiny-perl
 
   frontend_dependencie: >
     libsort-naturally-perl libjson-perl libyaml-perl libappconfig-perl
