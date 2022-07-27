@@ -3,7 +3,7 @@
 DEBIAN_VERSION=debian11
 DEBIAN_SUITE=bullseye
 DOCKER_TAG=oardocker/${DEBIAN_VERSION}
-VERSION:=2021.11.29
+VERSION:=2022.07.27
 
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 #BASE_DOCKERFILES=$(shell find $(ROOT_DIR)/../oardocker/templates -path "*/base/Dockerfile" | grep ${DEBIAN_SUITE})
