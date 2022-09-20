@@ -179,6 +179,7 @@ ls /etc/init.d/* | xargs -I {} basename {} | xargs -I {} systemctl disable {} 2>
 # Enable oar-node systemd unit
 if [ -f /usr/local/share/oar/oar-node/systemd/oar-node.service ]; then
     systemctl enable oar-node
+    systemctl enable oar-node-script
 fi
 
 echo "$VERSION" | tee /oar_version

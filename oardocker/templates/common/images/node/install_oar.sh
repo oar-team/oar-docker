@@ -87,7 +87,9 @@ fi
 # Copy systemd unit
 if [ -f /usr/local/share/oar/oar-node/systemd/oar-node.service ]; then
     mkdir -p /usr/local/lib/systemd/system
+    cat /usr/local/share/oar/oar-node/systemd/oar.target > /usr/local/lib/systemd/system/oar.target
     cat /usr/local/share/oar/oar-node/systemd/oar-node.service > /usr/local/lib/systemd/system/oar-node.service
+    cat /usr/local/share/oar/oar-node/systemd/oar-node-script.service > /usr/local/lib/systemd/system/oar-node-script.service
 fi
 
 sed -e 's/^#\(GET_CURRENT_CPUSET_CMD.*oardocker.*\)/\1/' -i /etc/oar/oar.conf
@@ -98,6 +100,7 @@ ls /etc/init.d/* | xargs -I {} basename {} | xargs -I {} systemctl disable {} 2>
 # Enable oar-node systemd unit
 if [ -f /usr/local/share/oar/oar-node/systemd/oar-node.service ]; then
     systemctl enable oar-node
+    systemctl enable oar-node-script
 fi
 
 echo "$VERSION" | tee /oar_version
