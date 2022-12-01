@@ -14,8 +14,8 @@ a frontend, a server and some nodes that launch in just a few seconds on a
 simple laptop.
 
 
-Why use oar-docker ?
---------------------
+Why use oar-docker?
+-------------------
 
 Various case scenarios may affect you:
  - Quickly test OAR on a cluster
@@ -33,6 +33,7 @@ Installation
 Requirements:
   - python >= 2.7
   - docker >= 1.3
+  - cgroup v1
 
 You can install, upgrade, uninstall oar-docker with these commands::
 
@@ -162,6 +163,10 @@ oardocker ≥ 1.6.0 does not create the ``/dev/oar_cgroups_links/`` and ``/dev/c
 This breaks ``job_resource_manager_cgroup.pl`` before OAR 2.5.9+g5k5. See ``.oardocker/init-scripts/prepare_oar_cgroup.sh`` to revert to the old behaviour, by setting::
 
     CREATE_OAR_CGROUPS_LINKS=yes
+
+The oardocker on Debian setup
+-----------------------------
+To use oardocker on a Debian 11 (bullseye) system, one must activate Linux cgroup v1. This can be achieved by including in the linux kernel cmdline: `systemd.legacy_systemd_cgroup_controller=true` (add those options to your bootloader configuration).
 
 Network services
 ----------------
