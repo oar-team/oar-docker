@@ -168,6 +168,21 @@ The oardocker on Debian setup
 -----------------------------
 To use oardocker on a Debian 11 (bullseye) system, one must activate Linux cgroup v1. This can be achieved by including in the linux kernel cmdline: `systemd.legacy_systemd_cgroup_controller=true` (add those options to your bootloader configuration).
 
+Using a python3 venv
+--------------------
+oardocker can be installed in a python3 venv::
+
+  $ python3 -m venv oardocker
+  $ cd oardocker
+  $ . bin/activate
+  $ pip install oar-docker
+  $ oardocker init -e bullseye
+  $ oardocker build
+  $ oardocker install path/to/oar/git/repository
+  $ oardocker start
+  $ oardocker connect
+  $ ...
+
 Network services
 ----------------
 
