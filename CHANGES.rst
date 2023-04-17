@@ -1,10 +1,13 @@
 oar-docker CHANGELOG
 ====================
 
-Version 1.6.4.dev0
+Version 1.6.4
 ------------------
 
-**unreleased**
+Released on April 17th 2023
+- add bookworm support
+- rework image templates
+- switch to python3 venv
 
 Version 1.6.3
 -------------
