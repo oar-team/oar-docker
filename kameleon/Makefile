@@ -1,9 +1,9 @@
 .PHONY: build
 
-DEBIAN_VERSION=debian11
-DEBIAN_SUITE=bullseye
+DEBIAN_VERSION=debian12
+DEBIAN_SUITE=bookworm
 DOCKER_TAG=oardocker/${DEBIAN_VERSION}
-VERSION:=2022.07.27
+VERSION:=2023.04.17
 
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 #BASE_DOCKERFILES=$(shell find $(ROOT_DIR)/../oardocker/templates -path "*/base/Dockerfile" | grep ${DEBIAN_SUITE})
