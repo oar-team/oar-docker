@@ -5,7 +5,10 @@ IFS='.' read DEBIAN_VERSION DEBIAN_VERSION_MINOR < /etc/debian_version
 
 TMPDIR=$(mktemp -d --tmpdir install_oar.XXXXXXXX)
 SRCDIR="$TMPDIR/src"
-export SYSTEMD_INIT=true
+
+if [ ${DEBIAN_VERSION} -ge '11' ]; then
+    export SYSTEMD_INIT=true
+fi
 
 mkdir -p $SRCDIR
 
@@ -14,7 +17,8 @@ on_exit() {
     rm -rf $TMPDIR
 }
 
-trap "{ on_exit; kill 0; }" EXIT
+#trap "{ on_exit; kill 0; }" EXIT
+trap on_exit EXIT
 
 fail() {
     echo $@ 1>&2
@@ -27,6 +31,9 @@ if [ -d "$1"  ]; then
     mkdir -p $RWSRCDIR
     unionfs-fuse -o cow -o allow_other,use_ino,suid,dev,nonempty $RWSRCDIR=RW:$GIT_SRC=RO $SRCDIR
     pushd $SRCDIR
+    if [ ${DEBIAN_VERSION} -ge '11' ]; then
+        git config --global --add safe.directory $SRCDIR
+    fi
     git clean -Xfd
     BRANCH="$(git rev-parse --abbrev-ref HEAD)"
     VERSION="$(git describe --tags)"
@@ -43,6 +50,7 @@ else
         TARBALL="$(readlink -m $TARBALL)"
     fi
 
+    # extract version from OAR2 or OAR3
     if tar -tf $TARBALL --wildcards "*/setup.py"; then
         VERSION=$(tar xfz $TARBALL --wildcards "*/oar/__init__.py" --to-command "grep -e '__version__ '" | sed -e "s/^[^']\+'\(.\+\)'$/\1/" )
     else
@@ -136,6 +144,8 @@ elif [ ${DEBIAN_VERSION} = '10' ]; then
     POSTGRESQL_VERSION="11"
 elif [ ${DEBIAN_VERSION} = '11' ]; then
     POSTGRESQL_VERSION="13"
+elif [ ${DEBIAN_VERSION} = '12' ]; then
+    POSTGRESQL_VERSION="15"
 else
     POSTGRESQL_VERSION="9.1"
 fi

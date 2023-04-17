@@ -1,9 +1,14 @@
-#!/bin/bash -x
+#!/bin/bash
 set -e
+
+IFS='.' read DEBIAN_VERSION DEBIAN_VERSION_MINOR < /etc/debian_version
 
 TMPDIR=$(mktemp -d --tmpdir install_oar.XXXXXXXX)
 SRCDIR="$TMPDIR/src"
-export SYSTEMD_INIT=true
+
+if [ ${DEBIAN_VERSION} -ge '11' ]; then
+    export SYSTEMD_INIT=true
+fi
 
 mkdir -p $SRCDIR
 
@@ -12,7 +17,8 @@ on_exit() {
     rm -rf $TMPDIR
 }
 
-trap "{ on_exit; kill 0; }" EXIT
+#trap "{ on_exit; kill 0; }" EXIT
+trap on_exit EXIT
 
 fail() {
     echo $@ 1>&2
@@ -25,6 +31,9 @@ if [ -d "$1"  ]; then
     mkdir -p $RWSRCDIR
     unionfs-fuse -o cow -o allow_other,use_ino,suid,dev,nonempty $RWSRCDIR=RW:$GIT_SRC=RO $SRCDIR
     pushd $SRCDIR
+    if [ ${DEBIAN_VERSION} -ge '11' ]; then
+        git config --global --add safe.directory $SRCDIR
+    fi
     git clean -Xfd
     BRANCH="$(git rev-parse --abbrev-ref HEAD)"
     VERSION="$(git describe --tags)"
@@ -97,7 +106,9 @@ fi
 # Copy systemd unit
 if [ -f /usr/local/share/oar/oar-node/systemd/oar-node.service ]; then
     mkdir -p /usr/local/lib/systemd/system
+    cat /usr/local/share/oar/oar-node/systemd/oar.target > /usr/local/lib/systemd/system/oar.target
     cat /usr/local/share/oar/oar-node/systemd/oar-node.service > /usr/local/lib/systemd/system/oar-node.service
+    cat /usr/local/share/oar/oar-node/systemd/oar-node-script.service > /usr/local/lib/systemd/system/oar-node-script.service
 fi
 
 # Adapt oar.conf
@@ -179,6 +190,7 @@ ls /etc/init.d/* | xargs -I {} basename {} | xargs -I {} systemctl disable {} 2>
 # Enable oar-node systemd unit
 if [ -f /usr/local/share/oar/oar-node/systemd/oar-node.service ]; then
     systemctl enable oar-node
+    systemctl enable oar-node-script
 fi
 
 echo "$VERSION" | tee /oar_version

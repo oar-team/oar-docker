@@ -1,9 +1,14 @@
 #!/bin/bash
 set -e
 
+IFS='.' read DEBIAN_VERSION DEBIAN_VERSION_MINOR < /etc/debian_version
+
 TMPDIR=$(mktemp -d --tmpdir install_oar.XXXXXXXX)
 SRCDIR="$TMPDIR/src"
-export SYSTEMD_INIT=true
+
+if [ ${DEBIAN_VERSION} -ge '11' ]; then
+    export SYSTEMD_INIT=true
+fi
 
 mkdir -p $SRCDIR
 
@@ -12,7 +17,8 @@ on_exit() {
     rm -rf $TMPDIR
 }
 
-trap "{ on_exit; kill 0; }" EXIT
+#trap "{ on_exit; kill 0; }" EXIT
+trap on_exit EXIT
 
 fail() {
     echo $@ 1>&2
@@ -25,6 +31,9 @@ if [ -d "$1"  ]; then
     mkdir -p $RWSRCDIR
     unionfs-fuse -o cow -o allow_other,use_ino,suid,dev,nonempty $RWSRCDIR=RW:$GIT_SRC=RO $SRCDIR
     pushd $SRCDIR
+    if [ ${DEBIAN_VERSION} -ge '11' ]; then
+        git config --global --add safe.directory $SRCDIR
+    fi
     git clean -Xfd
     BRANCH="$(git rev-parse --abbrev-ref HEAD)"
     VERSION="$(git describe --tags)"
@@ -41,12 +50,13 @@ else
         TARBALL="$(readlink -m $TARBALL)"
     fi
 
+    # extract version from OAR2 or OAR3
     if tar -tf $TARBALL --wildcards "*/setup.py"; then
         VERSION=$(tar xfz $TARBALL --wildcards "*/oar/__init__.py" --to-command "grep -e '__version__ '" | sed -e "s/^[^']\+'\(.\+\)'$/\1/" )
-    else    
+    else
         VERSION=$(tar xfz $TARBALL --wildcards "*/sources/core/common-libs/lib/OAR/Version.pm" --to-command "grep -e 'my \$OARVersion'" | sed -e 's/^[^"]\+"\(.\+\)";$/\1/')
     fi
-    
+
     COMMENT="OAR ${VERSION} (tarball)"
     tar xf $TARBALL -C $SRCDIR
     [ -n "${VERSION}" ] || fail "error: fail to retrieve OAR version"
@@ -71,10 +81,9 @@ if [ -f /usr/local/share/oar/oar-node/init.d/oar-node ]; then
 fi
 
 if [ -f /usr/local/share/doc/oar-node/examples/init.d/oar-node ]; then
-    cat /usr/local/share/oar/oar-node/init.d/oar-node > /etc/init.d/oar-node
+    cat /usr/local/share/doc/oar-node/examples/init.d/oar-node > /etc/init.d/oar-node
     chmod +x  /etc/init.d/oar-node
 fi
-
 
 if [ -f /usr/local/share/oar/oar-node/default/oar-node ]; then
     cat /usr/local/share/oar/oar-node/default/oar-node > /etc/default/oar-node
