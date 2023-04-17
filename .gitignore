@@ -23,3 +23,9 @@ pip-log.txt
 .oardocker
 *.tar.gz
 venv
+lib
+share
+pyvenv.cfg
+lib64
+bin
+.eggs
